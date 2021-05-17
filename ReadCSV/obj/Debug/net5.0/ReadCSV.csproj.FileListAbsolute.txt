@@ -1,0 +1,12 @@
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\ReadCSV.deps.json
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\ReadCSV.dll
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\ref\ReadCSV.dll
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\ReadCSV.pdb
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.csprojAssemblyReference.cache
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.AssemblyInfoInputs.cache
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.AssemblyInfo.cs
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.csproj.CoreCompileInputs.cache
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.dll
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ref\ReadCSV.dll
+C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.pdb

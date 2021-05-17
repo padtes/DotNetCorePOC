@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "dgSpecHash": "Ae8x11FC9p8vYDelPqvp1QjcZ+OISVxsf9DhPw5gARxlMXHCUf7wZmeZ1PWXU2Q8X8qngwJAlzdFRBA55fi3mw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\POC_readCSV\\POC_readCSV.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\spadte\\.nuget\\packages\\csvhelper\\27.0.3\\csvhelper.27.0.3.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration\\5.0.0\\microsoft.extensions.configuration.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\5.0.0\\microsoft.extensions.configuration.abstractions.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.binder\\5.0.0\\microsoft.extensions.configuration.binder.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.fileextensions\\5.0.0\\microsoft.extensions.configuration.fileextensions.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.json\\5.0.0\\microsoft.extensions.configuration.json.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\5.0.0\\microsoft.extensions.fileproviders.abstractions.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\5.0.0\\microsoft.extensions.fileproviders.physical.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\5.0.0\\microsoft.extensions.filesystemglobbing.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.0\\microsoft.extensions.primitives.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\npgsql\\5.0.5\\npgsql.5.0.5.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}
