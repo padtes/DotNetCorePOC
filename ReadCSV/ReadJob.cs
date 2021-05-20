@@ -22,6 +22,17 @@ namespace ReadCSV
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public int ClientId { get; set; }
-        public int FileDefId { get; set; }
+        public int ReadTemplateId { get; set; }
+
+        public const string PENDING = "PENDING";
+        public const string DOWNLOADED = "DOWNLOADED";
+        public const string ERR_DOWNLOAD = "ERR_DOWNLOAD";
+        public const string ERR_FILE_MISSING = "ERR_FILE_MISSING";
+        public const string ERR_TMPL_MISSING = "ERR_TEMPLATE_MISS";
+
+        //public const string IN_ERROR = "IN_ERROR";
+        public const string ERR_HDR_MIS = "ERR_HDR_MISMATCH";
+        public const string RAW_WRITTEN = "RAW_WRITTEN";
+
     }
 }

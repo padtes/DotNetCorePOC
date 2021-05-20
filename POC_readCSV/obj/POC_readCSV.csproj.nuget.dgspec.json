@@ -133,6 +133,10 @@
             "Npgsql": {
               "target": "Package",
               "version": "[5.0.5, )"
+            },
+            "SSH.NET": {
+              "target": "Package",
+              "version": "[2020.0.1, )"
             }
           },
           "imports": [

@@ -8,8 +8,6 @@ namespace POC_readCSV
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                 .Build();
@@ -17,6 +15,17 @@ namespace POC_readCSV
             string pgConStr = configuration["pgConnStr"];
             string pgSchema = configuration["pgSchema"];
 
+            string logFileName = configuration["logFileName"];
+            Logger.SetLogFileName(logFileName);
+
+            FtpUtil.DownloadDir();
+
+            //TestFilePart(pgConStr, pgSchema);
+
+        }
+
+        private static void TestFilePart(string pgConStr, string pgSchema)
+        {
             UtilCSV util = new UtilCSV();
             bool isReadOk = util.ReadCSV(pgConStr, pgSchema);
             if (isReadOk)
@@ -29,7 +38,6 @@ namespace POC_readCSV
             {
                 Console.WriteLine("See error log");
             }
-
         }
     }
 }
