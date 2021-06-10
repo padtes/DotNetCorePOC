@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj": {}
+    "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj": {}
   },
   "projects": {
-    "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj": {
+    "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj",
-        "projectName": "ReadCSV",
-        "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj",
+        "projectUniqueName": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj",
+        "projectName": "WriteWord",
+        "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj",
         "packagesPath": "C:\\Users\\spadte\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\obj\\",
+        "outputPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -42,24 +42,6 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "dependencies": {
-            "CsvHelper": {
-              "target": "Package",
-              "version": "[27.0.3, )"
-            },
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.1, )"
-            },
-            "Npgsql": {
-              "target": "Package",
-              "version": "[5.0.5, )"
-            },
-            "SSH.NET": {
-              "target": "Package",
-              "version": "[2020.0.1, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",

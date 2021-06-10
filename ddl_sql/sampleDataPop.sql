@@ -1,3 +1,5 @@
+$DIR/../runtime
+
 -- meta data of columns
 -- data_type are: STRING, INT, DATE : upper case needed
 --
@@ -21,5 +23,11 @@ insert into ventura.read_template_det(template_id, input_index, input_col_header
 insert into ventura.read_job(url, output_path, status, created_by, created_date, client_id, read_template_id, priority) values
 ('sftp://someserver.domain.com', 'c:\zunk','PENDING', 'sql', '2021/05/19', '1', '1', '2')
 
+/* update ventura.main_data set child_json 
+= '{"batch":"120001", "seq":"002", "ch":{"fname":"Ana","deg":"BE"}, "addr":{"street":"1/1 Unnat nagar","city":"Goregaon"} }' 
+where id='3';
+*/
+
+select first_name, child_json -> 'seq', child_json ->'ch'->'fname' from ventura.main_data;
 
 

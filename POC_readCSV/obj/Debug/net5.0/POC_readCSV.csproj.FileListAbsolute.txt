@@ -31,3 +31,4 @@ C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\a
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\CsvHelper.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Renci.SshNet.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\SshNet.Security.Cryptography.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Newtonsoft.Json.dll

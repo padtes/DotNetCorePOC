@@ -1,3 +1,14 @@
+select field
+, lower(replace(replace(replace(replace(replace(replace(replace(replace(replace
+		(trim(field), ' ', '_'),'/','_'),'(','_'), '''',''),'’',''),'.',''),')',''), '___', '_'), '__', '_')
+	   ) 
+, lower(replace(replace(
+	replace(replace(replace(translate(trim(field), '-’''.,&)', ''), ' ','_'), '/','_'), '(', '_') 
+	,'___', '_'), '__', '_')) f1
+
+ as new_field1
+from ventura.zz_nps_input_excel;
+
 -- Table: ventura.column_meta
 
 -- DROP TABLE ventura.column_meta;
