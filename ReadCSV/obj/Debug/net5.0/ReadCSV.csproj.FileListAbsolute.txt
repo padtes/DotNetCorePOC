@@ -10,3 +10,6 @@ C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadC
 C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.dll
 C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ref\ReadCSV.dll
 C:\Users\spadte\Source\Repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\Logging.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ReadCSV\bin\Debug\net5.0\Logging.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ReadCSV\obj\Debug\net5.0\ReadCSV.csproj.CopyComplete

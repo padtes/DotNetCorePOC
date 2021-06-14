@@ -8,7 +8,7 @@
 		"1.4" : "data_table_name is the output table name, this will have one JSONB column",
 		"1.5" : "data_table_json_col is name of JSONB column for the data_table",
 		
-		"note1" : "all data in defintions is case sensitive in C-Sharp. only for system section above 2 cases it is not case sensitive",
+		"1" : "NOTE: all data in defintions is case sensitive in C-Sharp. only values for system section above 2 cases it is not case sensitive",
 		"2": "mandatory: file_def at end defines *ALL* row_types with column order and what json property name we want for JSONB column",
 		"3": "optional: database is for table coulumns that are mapped in non-JSONB, might be repeated as JSONB too",
 		"3.1": "database properties are what input file column as defined in file_def per row_type, goes to what database_table_column",

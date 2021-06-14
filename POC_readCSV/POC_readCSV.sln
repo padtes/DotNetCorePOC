@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "POC_readCSV", "POC_readCSV.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadCSV", "..\ReadCSV\ReadCSV.csproj", "{3E437498-5E35-4F75-A3BF-2F83E7EAD36C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteWord", "..\WriteWord\WriteWord.csproj", "{0424CE68-11EB-4FCB-B86B-F763E12086B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteWord", "..\WriteWord\WriteWord.csproj", "{0424CE68-11EB-4FCB-B86B-F763E12086B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "..\Logging\Logging.csproj", "{C94C2B7D-914A-4371-A9FB-6E323EB30316}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteDocXML", "..\WriteDocXML\WriteDocXML.csproj", "{C5097FFB-F845-46CF-873E-648721F2137F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{0424CE68-11EB-4FCB-B86B-F763E12086B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0424CE68-11EB-4FCB-B86B-F763E12086B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0424CE68-11EB-4FCB-B86B-F763E12086B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C94C2B7D-914A-4371-A9FB-6E323EB30316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C94C2B7D-914A-4371-A9FB-6E323EB30316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C94C2B7D-914A-4371-A9FB-6E323EB30316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C94C2B7D-914A-4371-A9FB-6E323EB30316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5097FFB-F845-46CF-873E-648721F2137F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5097FFB-F845-46CF-873E-648721F2137F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5097FFB-F845-46CF-873E-648721F2137F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5097FFB-F845-46CF-873E-648721F2137F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

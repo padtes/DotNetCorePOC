@@ -61,6 +61,16 @@
         "runtime": {
           "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll": {}
         }
+      },
+      "Logging/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/Logging.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Logging.dll": {}
+        }
       }
     }
   },
@@ -222,11 +232,17 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "Logging/1.0.0": {
+      "type": "project",
+      "path": "../Logging/Logging.csproj",
+      "msbuildProject": "../Logging/Logging.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net5.0": [
       "CsvHelper >= 27.0.3",
+      "Logging >= 1.0.0",
       "Newtonsoft.Json >= 13.0.1",
       "Npgsql >= 5.0.5",
       "SSH.NET >= 2020.0.1"
@@ -262,7 +278,11 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\Logging\\Logging.csproj": {
+              "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\Logging\\Logging.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -307,7 +327,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.204\\RuntimeIdentifierGraph.json"
       }
     }
   }

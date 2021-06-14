@@ -11,6 +11,18 @@
           "lib/net5.0/CsvHelper.dll": {}
         }
       },
+      "DocumentFormat.OpenXml/2.13.0": {
+        "type": "package",
+        "dependencies": {
+          "System.IO.Packaging": "4.7.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/DocumentFormat.OpenXml.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/DocumentFormat.OpenXml.dll": {}
+        }
+      },
       "Microsoft.Extensions.Configuration/5.0.0": {
         "type": "package",
         "dependencies": {
@@ -165,6 +177,15 @@
           "lib/netstandard2.0/SshNet.Security.Cryptography.dll": {}
         }
       },
+      "System.IO.Packaging/4.7.0": {
+        "type": "package",
+        "compile": {
+          "ref/netstandard2.0/System.IO.Packaging.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/System.IO.Packaging.dll": {}
+        }
+      },
       "System.Runtime.CompilerServices.Unsafe/4.6.0": {
         "type": "package",
         "compile": {
@@ -174,11 +195,22 @@
           "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll": {}
         }
       },
+      "Logging/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/Logging.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Logging.dll": {}
+        }
+      },
       "ReadCSV/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
           "CsvHelper": "27.0.3",
+          "Logging": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "Npgsql": "5.0.5",
           "SSH.NET": "2020.0.1"
@@ -188,6 +220,34 @@
         },
         "runtime": {
           "bin/placeholder/ReadCSV.dll": {}
+        }
+      },
+      "WriteDocXML/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "Logging": "1.0.0",
+          "Newtonsoft.Json": "13.0.1"
+        },
+        "compile": {
+          "bin/placeholder/WriteDocXML.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WriteDocXML.dll": {}
+        }
+      },
+      "WriteWord/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "DocumentFormat.OpenXml": "2.13.0",
+          "Logging": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WriteWord.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WriteWord.dll": {}
         }
       }
     }
@@ -213,6 +273,28 @@
         "lib/netstandard2.0/CsvHelper.xml",
         "lib/netstandard2.1/CsvHelper.dll",
         "lib/netstandard2.1/CsvHelper.xml"
+      ]
+    },
+    "DocumentFormat.OpenXml/2.13.0": {
+      "sha512": "0m9oxdnAwIyq6+0L/bGfyPkkakPuVI/zT5AYQgN5jbMmNJkCVFLiZmtjtqXrTbStCBJu/yxS3nS/6zTe2mT1Nw==",
+      "type": "package",
+      "path": "documentformat.openxml/2.13.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "documentformat.openxml.2.13.0.nupkg.sha512",
+        "documentformat.openxml.nuspec",
+        "icon.png",
+        "lib/net35/DocumentFormat.OpenXml.dll",
+        "lib/net35/DocumentFormat.OpenXml.xml",
+        "lib/net40/DocumentFormat.OpenXml.dll",
+        "lib/net40/DocumentFormat.OpenXml.xml",
+        "lib/net46/DocumentFormat.OpenXml.dll",
+        "lib/net46/DocumentFormat.OpenXml.xml",
+        "lib/netstandard1.3/DocumentFormat.OpenXml.dll",
+        "lib/netstandard1.3/DocumentFormat.OpenXml.xml",
+        "lib/netstandard2.0/DocumentFormat.OpenXml.dll",
+        "lib/netstandard2.0/DocumentFormat.OpenXml.xml"
       ]
     },
     "Microsoft.Extensions.Configuration/5.0.0": {
@@ -510,6 +592,33 @@
         "sshnet.security.cryptography.nuspec"
       ]
     },
+    "System.IO.Packaging/4.7.0": {
+      "sha512": "9VV4KAbgRQZ79iEoG40KIeZy38O30oWwewScAST879+oki8g/Wa2HXZQgrhDDxQM4GkP1PnRJll05NMiVPbYAw==",
+      "type": "package",
+      "path": "system.io.packaging/4.7.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net46/System.IO.Packaging.dll",
+        "lib/net46/System.IO.Packaging.xml",
+        "lib/netstandard1.3/System.IO.Packaging.dll",
+        "lib/netstandard1.3/System.IO.Packaging.xml",
+        "lib/netstandard2.0/System.IO.Packaging.dll",
+        "lib/netstandard2.0/System.IO.Packaging.xml",
+        "ref/net46/System.IO.Packaging.dll",
+        "ref/net46/System.IO.Packaging.xml",
+        "ref/netstandard1.3/System.IO.Packaging.dll",
+        "ref/netstandard1.3/System.IO.Packaging.xml",
+        "ref/netstandard2.0/System.IO.Packaging.dll",
+        "ref/netstandard2.0/System.IO.Packaging.xml",
+        "system.io.packaging.4.7.0.nupkg.sha512",
+        "system.io.packaging.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.Runtime.CompilerServices.Unsafe/4.6.0": {
       "sha512": "HxozeSlipUK7dAroTYwIcGwKDeOVpQnJlpVaOkBz7CM4TsE5b/tKlQBZecTjh6FzcSbxndYaxxpsBMz+wMJeyw==",
       "type": "package",
@@ -535,10 +644,25 @@
         "version.txt"
       ]
     },
+    "Logging/1.0.0": {
+      "type": "project",
+      "path": "../Logging/Logging.csproj",
+      "msbuildProject": "../Logging/Logging.csproj"
+    },
     "ReadCSV/1.0.0": {
       "type": "project",
       "path": "../ReadCSV/ReadCSV.csproj",
       "msbuildProject": "../ReadCSV/ReadCSV.csproj"
+    },
+    "WriteDocXML/1.0.0": {
+      "type": "project",
+      "path": "../WriteDocXML/WriteDocXML.csproj",
+      "msbuildProject": "../WriteDocXML/WriteDocXML.csproj"
+    },
+    "WriteWord/1.0.0": {
+      "type": "project",
+      "path": "../WriteWord/WriteWord.csproj",
+      "msbuildProject": "../WriteWord/WriteWord.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -548,7 +672,9 @@
       "Microsoft.Extensions.Configuration.FileExtensions >= 5.0.0",
       "Microsoft.Extensions.Configuration.Json >= 5.0.0",
       "Npgsql >= 5.0.5",
-      "ReadCSV >= 1.0.0"
+      "ReadCSV >= 1.0.0",
+      "WriteDocXML >= 1.0.0",
+      "WriteWord >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -584,6 +710,12 @@
           "projectReferences": {
             "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj": {
               "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ReadCSV\\ReadCSV.csproj"
+            },
+            "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteDocXML\\WriteDocXML.csproj": {
+              "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteDocXML\\WriteDocXML.csproj"
+            },
+            "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj": {
+              "projectPath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj"
             }
           }
         }
@@ -634,7 +766,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.204\\RuntimeIdentifierGraph.json"
       }
     }
   }

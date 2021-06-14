@@ -9,6 +9,7 @@
       "ReadCSV/1.0.0": {
         "dependencies": {
           "CsvHelper": "27.0.3",
+          "Logging": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "Npgsql": "5.0.5",
           "SSH.NET": "2020.0.1"
@@ -63,7 +64,12 @@
           }
         }
       },
-      "System.Runtime.CompilerServices.Unsafe/4.6.0": {}
+      "System.Runtime.CompilerServices.Unsafe/4.6.0": {},
+      "Logging/1.0.0": {
+        "runtime": {
+          "Logging.dll": {}
+        }
+      }
     }
   },
   "libraries": {
@@ -113,6 +119,11 @@
       "sha512": "sha512-HxozeSlipUK7dAroTYwIcGwKDeOVpQnJlpVaOkBz7CM4TsE5b/tKlQBZecTjh6FzcSbxndYaxxpsBMz+wMJeyw==",
       "path": "system.runtime.compilerservices.unsafe/4.6.0",
       "hashPath": "system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
+    },
+    "Logging/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

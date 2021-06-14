@@ -32,3 +32,11 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\C
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Renci.SshNet.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\SshNet.Security.Cryptography.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Newtonsoft.Json.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Logging.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\Logging.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\DocumentFormat.OpenXml.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\System.IO.Packaging.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteWord.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteWord.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteDocXML.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteDocXML.pdb

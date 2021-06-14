@@ -1,0 +1,12 @@
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\WriteDocXML.deps.json
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\WriteDocXML.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\WriteDocXML.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\Logging.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\Logging.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csprojAssemblyReference.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.AssemblyInfoInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.AssemblyInfo.cs
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csproj.CoreCompileInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csproj.CopyComplete
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.pdb

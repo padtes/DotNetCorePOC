@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "C1/5jgBuAlSjKFjgn/xJCCQo+Y3gJyG7ty2xZRq9MTIKIOUPSZFf4+e39zVzaJj8g4Zg8uqgsQhmlmHZe4s2/A==",
+  "dgSpecHash": "IKAYXtZ/+G/XpMf7r7xnzr/88KB2R/IMz4oB/9mP8IAj5vkIURQni2fISk7uR4eBz/1MetVN7qsgt+DbPYvtow==",
   "success": true,
   "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteWord\\WriteWord.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\spadte\\.nuget\\packages\\documentformat.openxml\\2.13.0\\documentformat.openxml.2.13.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.io.packaging\\4.7.0\\system.io.packaging.4.7.0.nupkg.sha512"
+  ],
   "logs": []
 }
