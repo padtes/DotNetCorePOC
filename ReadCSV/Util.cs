@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using Logging;
 using System.Threading.Tasks;
+using DbOps;
 
 namespace ReadCSV
 {
@@ -299,7 +300,14 @@ namespace ReadCSV
         private static bool InsertCurrRec(string pgConStr, string pgSchema, int jobId, int startRowNo, int inputLineNo, InputHeader inputHdr, InputRecord curRec)
         {
             string insSql = curRec.GenerateInsert(pgSchema, SystemParam.DataTableName, SystemParam.DataTableJsonCol, jobId, startRowNo, inputHdr);
-            return DbUtil.ExecuteNonSql(pgConStr, moduleName, jobId, inputLineNo, insSql);
+            try
+            {
+                return DbUtil.ExecuteNonSql(pgConStr, moduleName, jobId, inputLineNo, insSql);
+            }
+            catch 
+            {
+                return false;
+            }
         }
 
         public static bool DownloadDirSFTP()

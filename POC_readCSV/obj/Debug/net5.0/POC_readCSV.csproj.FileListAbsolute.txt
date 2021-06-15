@@ -40,3 +40,5 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\W
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteWord.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteDocXML.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteDocXML.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\DbOps.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\DbOps.pdb

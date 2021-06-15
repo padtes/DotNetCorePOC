@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "F6lvFHjRqoVlavMBclaCpC0Fe9ImFEZBmgz/eD4sy0iIkDrnZcLmBNswgO0hZ1EMzic0GMcrexi6EmwUOnhZFQ==",
+  "dgSpecHash": "C06RYp/Az27A1b1/pVfaCFSV5ISgGrQCgdvznmZI3uRud4n4UNZ3zg7NI6at83iezFYn5k5HTd38jI+nD0QFyg==",
   "success": true,
   "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\WriteDocXML\\WriteDocXML.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\spadte\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+    "C:\\Users\\spadte\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\npgsql\\5.0.5\\npgsql.5.0.5.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
   ],
   "logs": []
 }

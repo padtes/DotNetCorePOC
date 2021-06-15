@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "qgebYjMl2WMLY66SeyoK5QIHmjCpsXoQRPc6aVVZOd9LwK6fmlQEpBe4tHEubLiWEp6oWzbWzByiONMYPhT4UQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\DbOps\\DbOps.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\spadte\\.nuget\\packages\\npgsql\\5.0.5\\npgsql.5.0.5.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}

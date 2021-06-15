@@ -1,0 +1,12 @@
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.csprojAssemblyReference.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.AssemblyInfoInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.AssemblyInfo.cs
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.csproj.CoreCompileInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\bin\Debug\netcoreapp3.1\DbOps.deps.json
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\bin\Debug\netcoreapp3.1\DbOps.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\bin\Debug\netcoreapp3.1\DbOps.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\bin\Debug\netcoreapp3.1\Logging.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\bin\Debug\netcoreapp3.1\Logging.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.csproj.CopyComplete
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DbOps\obj\Debug\netcoreapp3.1\DbOps.pdb

@@ -151,3 +151,67 @@ TABLESPACE pg_default;
 ALTER TABLE ventura.main_data
     OWNER to postgres;
 
+---
+create table ventura.serial_number 
+(
+	id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	ser_no integer,
+	doc_type character varying(15) COLLATE pg_catalog."default",
+	CONSTRAINT serial_number_pkey PRIMARY KEY (id)
+);
+
+---
+create function get_serial_number(pdoc_type character varying(15))
+returns int
+language plpgsql
+as
+$$
+declare 
+  lser_no integer;
+begin
+  lser_no := -1;
+  select ser_no 
+  into lser_no
+  from ventura.serial_number
+  where doc_type = pdoc_type;
+  
+  if not found then
+	insert into ventura.serial_number (ser_no, doc_type)
+	values (1, pdoc_type);
+	lser_no := 1;
+  else
+    lser_no := lser_no + 1;
+	update ventura.serial_number set ser_no = lser_no, doc_type = pdoc_type;
+  end if;
+
+  return lser_no;
+ 
+end;
+$$;
+
+---
+create or Replace function get_subscriber_addr(ppran_id character varying(12))
+returns character varying(200)
+language plpgsql
+as
+$$
+declare 
+  laddr character varying(200);
+begin
+  laddr := '';
+  select child_json->'PD'->0->'P017_subscriber_address_line_1' 
+  into laddr
+  from ventura.main_data
+  where pran_id = ppran_id;
+  
+  if not found then
+	  select child_json->'CD'->0->'C016_correspondence_overseas_address_line_1' 
+	  into laddr
+	  from ventura.main_data
+	  where pran_id = ppran_id;
+  end if;
+
+  return laddr;
+ 
+end;
+$$;

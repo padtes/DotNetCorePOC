@@ -51,9 +51,9 @@ namespace POC_readCSV
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                 .Build();
+            string pgConStr = configuration["pgConnStr"];
+            string pgSchema = configuration["pgSchema"];
             string jsonLetterDef = configuration["jsonLetterDef"];
-
-            RootJsonParam docxConfig = DocxUtil.LoadJsonParamFile(jsonLetterDef);
 
             //read from DB -- Open: what is "Where".
             //to do form select
@@ -61,17 +61,18 @@ namespace POC_readCSV
             //to do c-functions support ?? only sql function
             //to do get List<KeyValuePair<string, string>> for each row
 
-            DocxUtil dox = new DocxUtil(@"C:\d\zunk\testDocx\test_unzip\test1Teplate\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
+            DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\test1Teplate\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
+            dox.CreateAllFiles(0);
 
-            List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
-            tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));
-            tokenMap1.Add(new KeyValuePair<string, string>("{{last_name}}", "Biggus"));
-            dox.CreateFile("mitwa.xml", tokenMap1);
+            //List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
+            //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));
+            //tokenMap1.Add(new KeyValuePair<string, string>("{{last_name}}", "Biggus"));
+            //dox.CreateFile("mitwa.xml", tokenMap1);
 
-            tokenMap1.Clear();
-            tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "Your Friend"));
-            tokenMap1.Add(new KeyValuePair<string, string>("{{last_name}}", "Diggus"));
-            dox.CreateFile("friend.xml", tokenMap1);
+            //tokenMap1.Clear();
+            //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "Your Friend"));
+            //tokenMap1.Add(new KeyValuePair<string, string>("{{last_name}}", "Diggus"));
+            //dox.CreateFile("friend.xml", tokenMap1);
         }
 
         private static void TestFilePart(string pgConStr, string pgSchema)

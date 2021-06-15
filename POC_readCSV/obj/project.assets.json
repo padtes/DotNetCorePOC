@@ -195,6 +195,20 @@
           "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll": {}
         }
       },
+      "DbOps/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "Logging": "1.0.0",
+          "Npgsql": "5.0.5"
+        },
+        "compile": {
+          "bin/placeholder/DbOps.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DbOps.dll": {}
+        }
+      },
       "Logging/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
@@ -210,6 +224,7 @@
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
           "CsvHelper": "27.0.3",
+          "DbOps": "1.0.0",
           "Logging": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "Npgsql": "5.0.5",
@@ -226,6 +241,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
+          "DbOps": "1.0.0",
           "Logging": "1.0.0",
           "Newtonsoft.Json": "13.0.1"
         },
@@ -643,6 +659,11 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "DbOps/1.0.0": {
+      "type": "project",
+      "path": "../DbOps/DbOps.csproj",
+      "msbuildProject": "../DbOps/DbOps.csproj"
     },
     "Logging/1.0.0": {
       "type": "project",

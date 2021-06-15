@@ -11,16 +11,16 @@
 	}
 	,"placeholders":[
 		{"tag": "{{pran_id}}", "src_type":"column", "db_value":"pran_id","alias" : "" },
-		{"tag": "{{first_name}}", "src_type":"json" ,"db_value":"PD->0->P010_first_name","alias" : "" },
-		{"tag": "{{last_name}}", "src_type":"json" ,"db_value":"PD->0->P011_last_name_surname","alias" : "" },
-		{"tag": "{{nom_1_first_name}}", "src_type":"json" ,"db_value":"ND->0->N006_nominee_first_name" ,"alias" : ""},
-		{"tag": "{{nom_1_last_name}}", "src_type":"json" ,"db_value":"ND->0->N007_nominee_last_name","alias" : "" },
-		{"tag": "{{nom_2_first_name}}", "src_type":"json" ,"db_value":"ND->1->N006_nominee_first_name","alias" : "" },
-		{"tag": "{{nom_2_last_name}}", "src_type":"json" ,"db_value":"ND->2->N007_nominee_last_name","alias" : "" },
-		{"tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"get_date(yyyymmdd, now)","alias" : "" },
-		{"tag": "{{sql_birth_date}}", "src_type":"column" ,"db_value":"child_json->PD->0->P016_date_of_birth","alias" : "birth_dt" },	
-		{"tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"get_date(dd-mmm-yyyy, birth_dt)","alias" : "" },
+		{"tag": "{{first_name}}", "src_type":"json" ,"db_value":"'PD'->0->'P010_first_name'","alias" : "" },
+		{"tag": "{{last_name}}", "src_type":"json" ,"db_value":"'PD'->0->'P011_last_name_surname'","alias" : "" },
+		{"tag": "{{nom_1_first_name}}", "src_type":"json" ,"db_value":"'ND'->0->'N006_nominee_first_name'" ,"alias" : ""},
+		{"tag": "{{nom_1_last_name}}", "src_type":"json" ,"db_value":"'ND'->0->'N007_nominee_last_name'","alias" : "" },
+		{"tag": "{{nom_2_first_name}}", "src_type":"json" ,"db_value":"'ND'->1->'N006_nominee_first_name'","alias" : "" },
+		{"tag": "{{nom_2_last_name}}", "src_type":"json" ,"db_value":"'ND'->2->'N007_nominee_last_name'","alias" : "" },
+		{"tag": "{{sql_birth_date}}", "src_type":"column" ,"db_value":"child_json->'PD'->0->'P016_date_of_birth'","alias" : "birth_dt" },	
 		{"tag": "{{serial_num}}", "src_type":"sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
-		{"tag": "{{subscriber_addr}}", "src_type":"sqlfunction" ,"db_value":"get_subscriber_addr(pran_id)","alias" : "" }
+		{"tag": "{{subscriber_addr}}", "src_type":"sqlfunction" ,"db_value":"get_subscriber_addr(pran_id)","alias" : "" },
+		{"tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"get_date(yyyymmdd, now)","alias" : "" },
+		{"tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"get_date(dd-mmm-yyyy, birth_dt)","alias" : "" }
 	]
 }

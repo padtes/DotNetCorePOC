@@ -10,3 +10,5 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcorea
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csproj.CopyComplete
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\DbOps.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\DbOps.pdb
