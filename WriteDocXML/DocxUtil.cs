@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Text;
 using System.Data;
 using DbOps;
+using System.Diagnostics;
 
 namespace WriteDocXML
 {
@@ -55,31 +56,45 @@ namespace WriteDocXML
 
         public bool CreateMultiPageFiles(int jobId, int mergeCount)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All file Create Started, max pages per file:" + mergeCount);
+
             try
             {
                 int curCount = 0;
                 int fileCount = 0;
+                stopwatch.Start();
+
                 string sql = GetSelect(); //to do where condition
                 //to do order by
                 DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
+                {
+                    Logger.Write(moduleName, "CreateMultiPageFiles", 0, "No Table returned check sql", Logger.WARNING);
+                    Logger.Write(moduleName, "CreateMultiPageFiles", 0, "sql:" + sql, Logger.WARNING);
+
                     return false;
+                }
 
                 StringBuilder sbMidSect = new StringBuilder();
                 bool hasUnPrinted = false;
+                int remainCount = ds.Tables[0].Rows.Count;
+
+                Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "Record count to process:" + remainCount);
 
                 List<KeyValuePair<string, string>> tokenMap = new List<KeyValuePair<string, string>>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     curCount++;
+                    remainCount--;
+
                     FillTokenMap(tokenMap, dr);
-                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount);
+                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount);
                     hasUnPrinted = true;
 
                     if (curCount == mergeCount)
                     {
-                        fileCount++;
-                        WriteDocumentXmlFile(sbMidSect, fileCount);
+                        WriteDocumentXmlFile(sbMidSect, ref fileCount);
                         curCount = 0;
                         sbMidSect.Clear();
                         hasUnPrinted = false;
@@ -90,9 +105,12 @@ namespace WriteDocXML
 
                 if (hasUnPrinted)
                 {
-                    fileCount++;
-                    WriteDocumentXmlFile(sbMidSect, fileCount);
+                    WriteDocumentXmlFile(sbMidSect, ref fileCount);
                 }
+
+                stopwatch.Stop();
+                Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All files [" + fileCount + "] Created. Time taken in sec:" + stopwatch.Elapsed.TotalSeconds);
+
                 return true;
             }
             catch (Exception ex)
@@ -102,9 +120,12 @@ namespace WriteDocXML
             }
         }
 
-        private void WriteDocumentXmlFile(StringBuilder sbMidSect, int fileCount)
+        private void WriteDocumentXmlFile(StringBuilder sbMidSect, ref int fileCount)
         {
-            string fullOutFile = _outDir + "/document_" + fileCount + ".xml";
+            fileCount++;
+
+            string ts = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string fullOutFile = _outDir + "/document_" + ts + "_" + fileCount + ".xml";
             StreamWriter sw = new StreamWriter(fullOutFile, false);
 
             sbMidSect.Append(_templateXmlFtr);
@@ -115,7 +136,7 @@ namespace WriteDocXML
             sw.Flush();
         }
 
-        private void AddMidSection(StringBuilder sbMidSect, List<KeyValuePair<string, string>> tokenMap, int curCount, int mergeCount)
+        private void AddMidSection(StringBuilder sbMidSect, List<KeyValuePair<string, string>> tokenMap, int curCount, int mergeCount, int remainCount)
         {
             String sTemplate = new String(_templateXmlBody);
             foreach (var tokenVal in tokenMap)
@@ -124,7 +145,7 @@ namespace WriteDocXML
             }
             sbMidSect.Append(sTemplate);
 
-            if (curCount < mergeCount)  //except last page
+            if (curCount < mergeCount && remainCount > 0)  //except last page - last file's last page
             {
                 sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
             }
