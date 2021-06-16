@@ -62,7 +62,7 @@ namespace POC_readCSV
             //to do get List<KeyValuePair<string, string>> for each row
 
             DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\test1Teplate\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
-            dox.CreateAllFiles(0);
+            dox.CreateAllSeparateFiles(0);
 
             //List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
             //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));
