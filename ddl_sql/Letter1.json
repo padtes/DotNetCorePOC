@@ -7,7 +7,9 @@
 	,"system":{
 		"file_type" : "letter_1",
 		"data_table_name":"main_data",
-		"data_table_json_col":"child_json"
+		"data_table_json_col":"child_json",
+		"data_where":"id < 7",
+		"data_order":"id"
 	}
 	,"placeholders":[
 		{"tag": "{{PRAN}}", "src_type":"column", "db_value":"pran_id","alias" : "" },
@@ -22,6 +24,7 @@
 		{"tag": "{{serial_num}}", "src_type":"sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
 		{"tag": "{{subscriber_addr_line_1}}", "src_type":"sqlfunction" ,"db_value":"get_subscriber_addr(pran_id)","alias" : "" },
 		{"tag": "{{Date_Of_File_Creation(MMDDYYYY)}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
+		{"tag": "{{NL_AO/NL_CC_Reg_No}}", "src_type":"column" ,"db_value":"'my fixed xyz/999'","alias" : "" },
 		
 		{"tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"get_date(yyyymmdd, now)","alias" : "" },
 		{"tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"get_date(dd-mmm-yyyy, birth_dt)","alias" : "" }

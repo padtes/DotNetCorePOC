@@ -61,10 +61,13 @@ namespace POC_readCSV
             //to do c-functions support ?? only sql function
             //to do get List<KeyValuePair<string, string>> for each row
 
-            DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\test1Teplate\word\document_big.xml", @"C:\d\zunk\testDocx\20210610_out\");
-
+            //DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\test1Teplate\word\document_big.xml", @"C:\d\zunk\testDocx\20210610_out\");
             //dox.CreateAllSeparateFiles(0);
-            dox.CreateMultiPageFiles(0, 500);
+            //dox.CreateMultiPageFiles(0, 500);
+
+            DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\NPS_APY_LETTER_Single\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
+
+            dox.CreateMultiPageFiles(0, 3);
 
             //List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
             //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));

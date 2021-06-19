@@ -9,6 +9,7 @@ using System.Text;
 using System.Data;
 using DbOps;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace WriteDocXML
 {
@@ -21,6 +22,8 @@ namespace WriteDocXML
         private static string _templateXmlHdr;
         private static string _templateXmlBody;
         private static string _templateXmlFtr;
+
+        private static List<string> templateIds;
 
         private string _outDir;
 
@@ -52,6 +55,21 @@ namespace WriteDocXML
             _templateXmlBody = templateXmlAsStr.Substring(bodyIndx + tmpSect1End.Length, endBdIndx - bodyIndx - tmpSect1End.Length);
             _templateXmlFtr = templateXmlAsStr.Substring(endBdIndx);
             _outDir = outDir;
+
+            InitTemplateIds();
+        }
+
+        private void InitTemplateIds()
+        {
+            templateIds = new List<string>();
+            string expr = @"\bw14:[\w]*(I|i)(d=)\S*";  //find w14:paraId="68B8078A" or w14:textId="77777777"
+
+            MatchCollection mc = Regex.Matches(_templateXmlBody, expr);
+            foreach (Match m in mc)
+            {
+                if (templateIds.Contains(m.Value) == false)
+                    templateIds.Add(m.Value);
+            }
         }
 
         public bool CreateMultiPageFiles(int jobId, int mergeCount)
@@ -64,6 +82,7 @@ namespace WriteDocXML
                 int curCount = 0;
                 int fileCount = 0;
                 stopwatch.Start();
+                List<string> usedIds = new List<string>();
 
                 string sql = GetSelect(); //to do where condition
                 //to do order by
@@ -89,7 +108,7 @@ namespace WriteDocXML
                     remainCount--;
 
                     FillTokenMap(tokenMap, dr);
-                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount);
+                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount, usedIds);
                     hasUnPrinted = true;
 
                     if (curCount == mergeCount)
@@ -97,6 +116,7 @@ namespace WriteDocXML
                         WriteDocumentXmlFile(sbMidSect, ref fileCount);
                         curCount = 0;
                         sbMidSect.Clear();
+                        usedIds.Clear();
                         hasUnPrinted = false;
                     }
 
@@ -130,24 +150,32 @@ namespace WriteDocXML
 
             sbMidSect.Append(_templateXmlFtr);
 
-            string sFull = _templateXmlHdr + sbMidSect.ToString(); 
+            string sFull = _templateXmlHdr + sbMidSect.ToString();
             sw.Write(sFull);
 
             sw.Flush();
         }
 
-        private void AddMidSection(StringBuilder sbMidSect, List<KeyValuePair<string, string>> tokenMap, int curCount, int mergeCount, int remainCount)
+        private void AddMidSection(StringBuilder sbMidSect, List<KeyValuePair<string, string>> tokenMap, int curCount, int mergeCount, int remainCount, List<string> usedIds)
         {
             String sTemplate = new String(_templateXmlBody);
             foreach (var tokenVal in tokenMap)
             {
                 sTemplate = sTemplate.Replace(tokenVal.Key, tokenVal.Value);
             }
+
+            foreach(string idType in templateIds)
+            {
+                string newIdType = StrUtil.GetNewKeyVal(idType, usedIds);
+                sTemplate = sTemplate.Replace(idType, newIdType);
+            }
             sbMidSect.Append(sTemplate);
 
             if (curCount < mergeCount && remainCount > 0)  //except last page - last file's last page
             {
-                sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
+                sbMidSect.Append("<w:br w:type = \"page\" />"); //page break
+
+                //sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
             }
         }
 
@@ -275,8 +303,10 @@ namespace WriteDocXML
                 .Append(_pgSchema).Append('.')
                 .Append(_docxConfig.System.DataTableName);
 
-            //to do where 
-
+            sql.Append(" where ") //to do proper where 
+                .Append(_docxConfig.System.DataWhere)
+                .Append(" order by ")
+                .Append(_docxConfig.System.DataOrderby);
             sql.Append(';');
 
             return sql.ToString();
@@ -302,6 +332,12 @@ namespace WriteDocXML
 
         [JsonProperty("data_table_json_col")]
         public string DataTableJsonCol { get; set; }
+
+        [JsonProperty("data_where")]
+        public string DataWhere { get; set; }
+
+        [JsonProperty("data_order")]
+        public string DataOrderby { get; set; }
     }
 
     public class Placeholder
