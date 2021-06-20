@@ -17,13 +17,13 @@ namespace WriteDocXML
     {
         private string _pgSchema;
         private string _pgConStr;
-        private RootJsonParam _docxConfig = null;
+        private RootJsonParamDocx _docxConfig = null;
 
-        private static string _templateXmlHdr;
-        private static string _templateXmlBody;
-        private static string _templateXmlFtr;
+        private string _templateXmlHdr;
+        private string _templateXmlBody;
+        private string _templateXmlFtr;
 
-        private static List<string> templateIds;
+        private List<string> templateIds;
 
         private string _outDir;
 
@@ -54,6 +54,7 @@ namespace WriteDocXML
             int endBdIndx = templateXmlAsStr.IndexOf(tmpSect2End);
             _templateXmlBody = templateXmlAsStr.Substring(bodyIndx + tmpSect1End.Length, endBdIndx - bodyIndx - tmpSect1End.Length);
             _templateXmlFtr = templateXmlAsStr.Substring(endBdIndx);
+
             _outDir = outDir;
 
             InitTemplateIds();
@@ -72,7 +73,7 @@ namespace WriteDocXML
             }
         }
 
-        public bool CreateMultiPageFiles(int jobId, int mergeCount)
+        public bool CreateMultiPageFiles(int jobId, int mergeCount, string[] args)
         {
             Stopwatch stopwatch = new Stopwatch();
             Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All file Create Started, max pages per file:" + mergeCount);
@@ -84,7 +85,7 @@ namespace WriteDocXML
                 stopwatch.Start();
                 List<string> usedIds = new List<string>();
 
-                string sql = GetSelect(); //to do where condition
+                string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
                 //to do order by
                 DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
@@ -164,7 +165,7 @@ namespace WriteDocXML
                 sTemplate = sTemplate.Replace(tokenVal.Key, tokenVal.Value);
             }
 
-            foreach(string idType in templateIds)
+            foreach (string idType in templateIds)
             {
                 string newIdType = StrUtil.GetNewKeyVal(idType, usedIds);
                 sTemplate = sTemplate.Replace(idType, newIdType);
@@ -183,7 +184,7 @@ namespace WriteDocXML
         {
             for (int i = 0; i < _docxConfig.Placeholders.Count; i++)
             {
-                Placeholder phCol = _docxConfig.Placeholders[i];
+                ColumnDetail phCol = _docxConfig.Placeholders[i];
                 if (phCol.SrcType.ToUpper() == "CFUNCTION")
                     //to do interprete c-function
                     continue; //C Functions are not part of sql select
@@ -193,18 +194,17 @@ namespace WriteDocXML
                 {
                     dbVal = Convert.ToString(dr[i]);
                 }
-                if (i == 0 && dbVal == "") //ASSUMED key to be at 0 in JSON placeholders
-                    break;  //do not use the record
 
                 tokenMap.Add(new KeyValuePair<string, string>(phCol.Tag, dbVal));
             }
         }
 
-        public bool CreateAllSeparateFiles(int jobId)
+        public bool CreateAllSeparateFiles(int jobId, string[] args)
         {
             try
             {
-                string sql = GetSelect(); //to do where condition
+                string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
+
                 //to do order by
                 DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
@@ -216,7 +216,7 @@ namespace WriteDocXML
                 {
                     for (int i = 0; i < _docxConfig.Placeholders.Count; i++)
                     {
-                        Placeholder phCol = _docxConfig.Placeholders[i];
+                        ColumnDetail phCol = _docxConfig.Placeholders[i];
                         if (phCol.SrcType.ToUpper() == "CFUNCTION")
                             //to do interprete c-function
                             continue; //C Functions are not part of sql select
@@ -227,7 +227,7 @@ namespace WriteDocXML
                             dbVal = Convert.ToString(dr[i]);
                         }
                         if (i == 0 && dbVal == "") //ASSUMED key to be at 0 in JSON placeholders
-                            break;  //do not use the record
+                            throw new Exception("0 th column expected to be document key for Letters. " + phCol.Tag);  //do not use the record
 
                         tokenMap.Add(new KeyValuePair<string, string>(phCol.Tag, dbVal));
                     }
@@ -262,109 +262,37 @@ namespace WriteDocXML
             sw.Flush();
         }
 
-        public static RootJsonParam LoadJsonParamFile(string jsonParamFilePath)
+        public static RootJsonParamDocx LoadJsonParamFile(string jsonParamFilePath)
         {
             StreamReader sr = new StreamReader(jsonParamFilePath);
             string fileAsStr = sr.ReadToEnd();
 
-            RootJsonParam docxConfig = JsonConvert.DeserializeObject<RootJsonParam>(fileAsStr);
+            RootJsonParamDocx docxConfig = JsonConvert.DeserializeObject<RootJsonParamDocx>(fileAsStr);
+            SqlHelper.RemoveCommentedColumns(docxConfig.Placeholders);
 
             return docxConfig;
         }
 
-        private string GetSelect()
-        {
-            bool first = true;
-            StringBuilder sql = new StringBuilder("select ");
-
-            for (int i = 0; i < _docxConfig.Placeholders.Count; i++)
-            {
-                Placeholder phCol = _docxConfig.Placeholders[i];
-                if (phCol.SrcType.ToUpper() == "CFUNCTION")
-                    continue; //C Functions are not part of sql select
-
-                if (first == false)
-                {
-                    sql.Append(", ");
-                }
-                switch (phCol.SrcType.ToUpper())
-                {
-                    case "JSON":
-                        sql.Append(_docxConfig.System.DataTableJsonCol).Append("->");
-                        sql.Append(phCol.DbValue);
-                        break;
-                    default:  //"COLUMN" / "SQLFUNCTION"
-                        sql.Append(phCol.DbValue);
-                        break;
-                }
-                first = false;
-            }
-            sql.Append(" from ")
-                .Append(_pgSchema).Append('.')
-                .Append(_docxConfig.System.DataTableName);
-
-            sql.Append(" where ") //to do proper where 
-                .Append(_docxConfig.System.DataWhere)
-                .Append(" order by ")
-                .Append(_docxConfig.System.DataOrderby);
-            sql.Append(';');
-
-            return sql.ToString();
-        }
     }
 
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
-    public class CommentsOnUsage
+    public class CommentsOnUsageDocx
     {
         public string _0 { get; set; }
         public string _1 { get; set; }
         public string _2 { get; set; }
     }
 
-    [JsonObject("System")]
-    public class SystemParam
-    {
-        [JsonProperty("file_type")]
-        public string FileType { get; set; }
-
-        [JsonProperty("data_table_name")]
-        public string DataTableName { get; set; }
-
-        [JsonProperty("data_table_json_col")]
-        public string DataTableJsonCol { get; set; }
-
-        [JsonProperty("data_where")]
-        public string DataWhere { get; set; }
-
-        [JsonProperty("data_order")]
-        public string DataOrderby { get; set; }
-    }
-
-    public class Placeholder
-    {
-        [JsonProperty("tag")]
-        public string Tag { get; set; }
-
-        [JsonProperty("src_type")]
-        public string SrcType { get; set; }
-
-        [JsonProperty("db_value")]
-        public string DbValue { get; set; }
-
-        [JsonProperty("alias")]
-        public string Alias { get; set; }
-    }
-
-    public class RootJsonParam
+    public class RootJsonParamDocx
     {
         [JsonProperty("comments_on_usage")]
-        public CommentsOnUsage CommentsOnUsage { get; set; }
+        public CommentsOnUsageDocx CommentsOnUsage { get; set; }
 
         [JsonProperty("system")]
         public SystemParam System { get; set; }
 
         [JsonProperty("placeholders")]
-        public List<Placeholder> Placeholders { get; set; }
+        public List<ColumnDetail> Placeholders { get; set; }
     }
 
 

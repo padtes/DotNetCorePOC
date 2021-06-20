@@ -33,6 +33,8 @@ namespace POC_readCSV
             int jobId = 0;
 
             bool testingRead = false;
+            bool testWord = false;
+
             if (testingRead)
                 Util.SaveInputToDB(pgConStr, pgSchema, jobId, testInputFilePath, jsonFileDef, delims[0]);
             else
@@ -41,12 +43,34 @@ namespace POC_readCSV
                 //wutil.GetCopyForIdTest("mitwa.Docx", "{{first_name}}", "Mitawa");
                 //wutil.GetCopyForIdTest("friend.Docx", "{{first_name}}", "friend");
 
-                TestXmlReplacement();
+                if (testWord)
+                    TestXmlReplacement(args);
+                else
+                {
+                    string[] testArgs = new string[] { "14070521002", "PRF","2021/06/21" };
+                    TestWriteCSV(testArgs, 0);
+                }
 
             }
         }
 
-        private static void TestXmlReplacement()
+        private static void TestWriteCSV(string[] args, int jobId)
+        {
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
+                .Build();
+            string pgConStr = configuration["pgConnStr"];
+            string pgSchema = configuration["pgSchema"];
+            string jsonCsvDef = configuration["jsonCsvDef"];
+
+            string outputDir = @"C:\d\zunk\testDocx\20210610_out\";
+            string fileName = "POC_PTC_NPS_APY.txt";
+
+            CsvUtil csv = new CsvUtil(pgConStr, pgSchema, jsonCsvDef, outputDir);
+            csv.CreateFile(fileName, args, jobId);
+        }
+
+        private static void TestXmlReplacement(string[] args)
         {
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
@@ -67,7 +91,7 @@ namespace POC_readCSV
 
             DocxUtil dox = new DocxUtil(pgConStr, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\NPS_APY_LETTER_Single\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
 
-            dox.CreateMultiPageFiles(0, 3);
+            dox.CreateMultiPageFiles(0, 3, args);
 
             //List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
             //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));

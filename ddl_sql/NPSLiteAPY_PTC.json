@@ -1,0 +1,50 @@
+{
+	"comments_on_usage_csv": {
+		"0": "this is to document the JSON",
+		"1": "mandatory: system section: generic parameters about file and process",
+		"2": "header is for first summary row. For structure- refer below",
+		"3": "detail is for the multiple detail rows 1 per subscriber record",
+		"3.1": "tag is for human reading",
+		"3.2a": "src_type is code - needs C# to generate snippet, column- from data_table",
+		"3.2b": "--sqlfuntion-same as column but actually a pgsql func, param- program parameter index 0 rel",
+		"3.2c": "--srctype starting with # is comment - to be ignored, like TEST Mode or deprecated but kept for historical reasons",
+		"3.3": "db_value is database column name or function name or named c# snippet"
+	}
+	,"system":{
+		"file_type" : "nps_lite_apy_PTC",
+		"write_type": "csv",
+		"delimt":"^",
+		"data_table_name":"main_data",
+		"data_table_json_col":"child_json",
+		"data_where":"{{batch_id_column}}='{{0}}' and {{courier_id_col}}='{{1}}' and id  < 10",
+		"data_order":"id",
+		"where_cols": [
+			{"tag":"{{batch_id_column}}","src_type":"column","db_value":"batch_id", "alias":""},
+			{"tag":"{{courier_id_col}}","src_type":"json","db_value":"'PD'->0->>'P006_courier_id'", "alias":""}
+		]
+	}
+	,"header":[
+		{"tag":"Printer Code","src_type":"column","db_value":"'XYZ'"},
+		{"tag":"Total number of records","src_type":"cfunction","db_value":"row_count"},
+		{"tag":"File Mode","src_type":"column","db_value":"PTC'"},
+		{"tag":"Related Records","src_type":"column","db_value":"PRN'"},
+		{"tag":"Date of File","src_type":"param","db_value":"2"}
+	]
+	,"detail":[
+		{"tag":"Line Number","src_type":"code","db_value":"row_number", "alias":"line_number"},
+		{"tag":"PAO Barcode","src_type":"json","db_value":"'PD'->0->'P046_ddo_pao_bar_code'"},
+		{"tag":"Address Line 1","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_1'"},
+		{"tag":"Address Line 2","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_2'"},
+		{"tag":"Address Line 3","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_3'"},
+		{"tag":"Address Line 4","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_4'"},
+		{"tag":"City","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_4'"},
+		{"tag":"State","src_type":"#column:lookup","db_value":"state"},
+		{"tag":"Pincode","src_type":"#column:conditional","db_value":"pincode"},
+		{"tag":"Std","src_type":"#column","db_value":"std"},
+		{"tag":"Phone","src_type":"#column","db_value":"phone"},
+		{"tag":"Courier Pickup Date","src_type":"param","db_value":"2"},
+		{"tag":"Courier Agent","src_type":"#tbd","db_value":"courier_agent"},
+		{"tag":"Delivery Mode","src_type":"#tbd","db_value":"delivery_mode"},
+		{"tag":"Weight of Envelope","src_type":"#tbd","db_value":"weight_of_envelope"}
+	]
+}

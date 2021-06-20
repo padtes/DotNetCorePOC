@@ -6,6 +6,7 @@
 	}
 	,"system":{
 		"file_type" : "letter_1",
+		"write_type": "docx",
 		"data_table_name":"main_data",
 		"data_table_json_col":"child_json",
 		"data_where":"id < 7",
