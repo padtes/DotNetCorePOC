@@ -24,25 +24,26 @@
 		]
 	}
 	,"header":[
-		{"tag":"Printer Code","src_type":"column","db_value":"'XYZ'"},
-		{"tag":"Total number of records","src_type":"cfunction","db_value":"row_count"},
-		{"tag":"File Mode","src_type":"column","db_value":"PTC'"},
-		{"tag":"Related Records","src_type":"column","db_value":"PRN'"},
-		{"tag":"Date of File","src_type":"param","db_value":"2"}
+		{"tag":"Printer Code","src_type":"const","db_value":"XYZ"},
+		{"tag":"Total number of records","src_type":"cfunction","db_value":"RowCount"},
+		{"tag":"File Mode","src_type":"const","db_value":"PTC"},
+		{"tag":"Related Records","src_type":"const","db_value":"PRN"},
+		{"tag":"#Date of File","src_type":"#param","db_value":"2"},
+		{"tag":"Date of File","src_type":"cfunction","db_value":"DateFormat(args[2],dd-MMM-yyyy)"}
 	]
 	,"detail":[
 		{"tag":"Line Number","src_type":"code","db_value":"row_number", "alias":"line_number"},
-		{"tag":"PAO Barcode","src_type":"json","db_value":"'PD'->0->'P046_ddo_pao_bar_code'"},
-		{"tag":"Address Line 1","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_1'"},
-		{"tag":"Address Line 2","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_2'"},
-		{"tag":"Address Line 3","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_3'"},
-		{"tag":"Address Line 4","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_4'"},
-		{"tag":"City","src_type":"json","db_value":"'PD'->0->'P017_subscriber_address_line_4'"},
+		{"tag":"PAO Barcode","src_type":"json","db_value":"'PD'->0->>'P046_ddo_pao_bar_code'"},
+		{"tag":"Address Line 1","src_type":"json","db_value":"'PD'->0->>'P017_subscriber_address_line_1'"},
+		{"tag":"Address Line 2","src_type":"json","db_value":"'PD'->0->>'P018_subscriber_address_line_2'"},
+		{"tag":"Address Line 3","src_type":"json","db_value":"'PD'->0->>'P019_subscriber_address_line_3'"},
+		{"tag":"Address Line 4","src_type":"json","db_value":"'PD'->0->>'P020_subscriber_address_line_4'"},
+		{"tag":"City","src_type":"json","db_value":"'PD'->0->>'P020_subscriber_address_line_4'"},
 		{"tag":"State","src_type":"#column:lookup","db_value":"state"},
 		{"tag":"Pincode","src_type":"#column:conditional","db_value":"pincode"},
 		{"tag":"Std","src_type":"#column","db_value":"std"},
 		{"tag":"Phone","src_type":"#column","db_value":"phone"},
-		{"tag":"Courier Pickup Date","src_type":"param","db_value":"2"},
+		{"tag":"Courier Pickup Date","src_type":"cfunction","db_value":"DateFormat(args[2],dd-MMM-yyyy)"},
 		{"tag":"Courier Agent","src_type":"#tbd","db_value":"courier_agent"},
 		{"tag":"Delivery Mode","src_type":"#tbd","db_value":"delivery_mode"},
 		{"tag":"Weight of Envelope","src_type":"#tbd","db_value":"weight_of_envelope"}

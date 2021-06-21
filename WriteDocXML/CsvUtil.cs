@@ -40,10 +40,10 @@ namespace WriteDocXML
             return csvConfig;
         }
 
-        public bool CreateFile(string fileName, string[] args, int jobId)
+        public bool CreateFile(string fileName, string[] progParams, int jobId)
         {
             //get Data
-            string sql = SqlHelper.GetSelect(_pgSchema, _csvConfig.Detail, _csvConfig.System, args);
+            string sql = SqlHelper.GetSelect(_pgSchema, _csvConfig.Detail, _csvConfig.System, progParams);
 
             DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
             if (ds == null || ds.Tables.Count < 1)
@@ -60,27 +60,16 @@ namespace WriteDocXML
             string delimt = _csvConfig.System.Delimt;
 
             //print header
-            string hdr = "To do-hdr";
+            CsvOutputHdrHandler hdrHandler = new CsvOutputHdrHandler();
+            string hdr = hdrHandler.GetHeader(_csvConfig.Header, ds, progParams, _csvConfig.System.Delimt);
             sw.WriteLine(hdr);
 
             //print details
-            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+            CsvOutputDetHandler detHandler = new CsvOutputDetHandler();
+
+            for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
             {
-                DataRow dr = ds.Tables[0].Rows[i];
-                String det = "";
-
-                for (int j = 0; j < ds.Tables[0].Columns.Count; j++)
-                {
-                    if (j > 0)
-                    {
-                        det += delimt;
-                    }
-
-                    if (dr[j] != DBNull.Value)
-                    {
-                        det += Convert.ToString(dr[j]);
-                    }
-                }
+                String det = detHandler.GetDetRow(iRow, _csvConfig.Detail, ds, progParams, _csvConfig.System.Delimt);
                 sw.WriteLine(det);
             }
 
@@ -143,5 +132,110 @@ namespace WriteDocXML
         public List<ColumnDetail> Detail { get; set; }
     }
 
+    public class CsvOutputHandler
+    {
+        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, CommandHandler cmdHandler)
+        {
+            string val = columnDetail.DbValue; //default / "CONST"
+
+            switch (columnDetail.SrcType.ToUpper())
+            {
+                case "PARAM":
+                    val = SqlHelper.GetParamValue(progParams, columnDetail).TrimEnd('\'').TrimStart('\'');
+                    break;
+                case "CFUNCTION":
+                    bool isConst;
+                    val = cmdHandler.Handle(columnDetail.DbValue, progParams, detailRowDS.Tables[0].Rows[rowInd], out isConst);
+                    if (isConst)
+                    {
+                        columnDetail.SrcType = "const";
+                        columnDetail.DbValue = val;
+                    }
+                    break;
+                case "COLUMN":
+                    string valIndxStr = columnDetail.DbValue;
+                    DataRow dr = detailRowDS.Tables[0].Rows[rowInd];
+                    val = string.Empty;
+                    int valIndx;
+                    if (int.TryParse(valIndxStr, out valIndx))
+                    {
+                        if (dr[valIndx] != DBNull.Value)
+                            val = Convert.ToString(dr[valIndx]);
+                    }
+                    else
+                    {
+                        if (dr[valIndxStr] != DBNull.Value)
+                            val = Convert.ToString(dr[valIndxStr]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return val;
+        }
+    }
+
+    public class CsvOutputHdrHandler : CsvOutputHandler
+    {
+        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, string delimit)
+        {
+            String hdr = "";
+            //var tbl = detailRowDS.Tables[0];
+            CommandHandler cmdHandler = new CommandHandler();
+
+            for (int i = 0; i < headerColumns.Count; i++)
+            {
+                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, cmdHandler);
+                if (i > 0)
+                {
+                    hdr += delimit;
+                }
+
+                hdr += hdVal;
+            }
+
+            return hdr;
+        }
+    }
+
+    public class CsvOutputDetHandler : CsvOutputHandler
+    {
+        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimt)
+        {
+            String det = "";
+            int cellInd = 0;
+            bool isFirst = true;
+            bool isConst;
+            string val;
+            CommandHandler cmdHandler = new CommandHandler();
+            DataRow dr = ds.Tables[0].Rows[iRow];
+
+            for (int i = 0; i < detailColumns.Count; i++)
+            {
+                if (isFirst == false)
+                    det += delimt;
+
+                val = string.Empty;
+
+                if (detailColumns[i].SrcType.ToUpper() == "CFUNCTION")
+                {
+                    val = cmdHandler.Handle(detailColumns[i].DbValue, progParams, dr, out isConst);
+                }
+                else 
+                {
+                    if (dr[cellInd] != DBNull.Value)
+                    {
+                        val = Convert.ToString(dr[cellInd]);
+                    }
+                    cellInd++;
+                }
+
+                det += val;
+                isFirst = false;
+            }
+            return det;
+        }
+    }
 
 }

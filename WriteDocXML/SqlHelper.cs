@@ -26,6 +26,12 @@ namespace WriteDocXML
                 string c = GetSqlColSyntax(sysParam, progParams, phCol);
                 sql.Append(c);
 
+                if (string.IsNullOrEmpty(phCol.Alias) == false)
+                {
+                    sql.Append(" as ");
+                    sql.Append(phCol.Alias);
+                }
+
                 first = false;
             }
 
@@ -57,7 +63,7 @@ namespace WriteDocXML
                 case "PARAM":
                     retStr = GetParamValue(progParams, phCol);
                     break;
-                default:  //"COLUMN" / "SQLFUNCTION"
+                default:  //"COLUMN" / "SQLFUNCTION" / "const"
                     retStr = phCol.DbValue;
                     break;
             }
@@ -69,12 +75,12 @@ namespace WriteDocXML
         {
             if (phCol.DbValue.ToLower() == "row_number")
             {
-                return "row_number() over (order by " + sysParam.DataOrderby + ")" + (string.IsNullOrEmpty(phCol.Alias) ? "" : " as " + phCol.Alias);
+                return "row_number() over (order by " + sysParam.DataOrderby + ")";
             }
             throw new NotImplementedException("not coded cfuntion " + phCol.DbValue);
         }
 
-        private static string GetParamValue(string[] progParams, ColumnDetail phCol)
+        public static string GetParamValue(string[] progParams, ColumnDetail phCol)
         {
             int indx;
             if (int.TryParse(phCol.DbValue, out indx) == false)
