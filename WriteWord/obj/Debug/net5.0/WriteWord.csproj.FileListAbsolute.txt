@@ -1,4 +1,3 @@
-C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.csprojAssemblyReference.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.AssemblyInfoInputs.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.AssemblyInfo.cs
@@ -13,3 +12,4 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\Wri
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\ref\WriteWord.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteWord\obj\Debug\net5.0\WriteWord.csproj.AssemblyReference.cache

@@ -3,7 +3,6 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcorea
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\WriteDocXML.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\Logging.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\Logging.pdb
-C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csprojAssemblyReference.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.AssemblyInfoInputs.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.AssemblyInfo.cs
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csproj.CoreCompileInputs.cache
@@ -12,3 +11,4 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcorea
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\DbOps.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\bin\Debug\netcoreapp3.1\DbOps.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\WriteDocXML\obj\Debug\netcoreapp3.1\WriteDocXML.csproj.AssemblyReference.cache

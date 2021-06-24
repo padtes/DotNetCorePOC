@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteWord", "..\WriteWord\W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "..\Logging\Logging.csproj", "{C94C2B7D-914A-4371-A9FB-6E323EB30316}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteDocXML", "..\WriteDocXML\WriteDocXML.csproj", "{C5097FFB-F845-46CF-873E-648721F2137F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteDocXML", "..\WriteDocXML\WriteDocXML.csproj", "{C5097FFB-F845-46CF-873E-648721F2137F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbOps", "..\DbOps\DbOps.csproj", "{9134FA57-6E8C-4972-8823-E6B1ADD37846}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbOps", "..\DbOps\DbOps.csproj", "{9134FA57-6E8C-4972-8823-E6B1ADD37846}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NpsApy", "..\NpsApy\NpsApy.csproj", "{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{9134FA57-6E8C-4972-8823-E6B1ADD37846}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9134FA57-6E8C-4972-8823-E6B1ADD37846}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9134FA57-6E8C-4972-8823-E6B1ADD37846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

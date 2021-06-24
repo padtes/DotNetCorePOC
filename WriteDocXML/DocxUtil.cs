@@ -16,7 +16,7 @@ namespace WriteDocXML
     public class DocxUtil
     {
         private string _pgSchema;
-        private string _pgConStr;
+        private string _pgConnection;
         private RootJsonParamDocx _docxConfig = null;
 
         private string _templateXmlHdr;
@@ -29,9 +29,9 @@ namespace WriteDocXML
 
         private const string moduleName = "DocxUtil";
 
-        public DocxUtil(string pgConStr, string pgSchema, string jsonLetterDef, string templateFileName, string outDir)
+        public DocxUtil(string pgConnection, string pgSchema, string jsonLetterDef, string templateFileName, string outDir)
         {
-            _pgConStr = pgConStr;
+            _pgConnection = pgConnection;
             _pgSchema = pgSchema;
             _docxConfig = LoadJsonParamFile(jsonLetterDef);
 
@@ -87,7 +87,7 @@ namespace WriteDocXML
 
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                 {
                     Logger.Write(moduleName, "CreateMultiPageFiles", 0, "No Table returned check sql", Logger.WARNING);
@@ -206,7 +206,7 @@ namespace WriteDocXML
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
 
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConStr, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                     return false;
 

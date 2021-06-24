@@ -1,9 +1,9 @@
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\bin\Debug\netcoreapp3.1\Logging.deps.json
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\bin\Debug\netcoreapp3.1\Logging.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\bin\Debug\netcoreapp3.1\Logging.pdb
-C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.csprojAssemblyReference.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.AssemblyInfoInputs.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.AssemblyInfo.cs
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.csproj.CoreCompileInputs.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\Logging\obj\Debug\netcoreapp3.1\Logging.csproj.AssemblyReference.cache

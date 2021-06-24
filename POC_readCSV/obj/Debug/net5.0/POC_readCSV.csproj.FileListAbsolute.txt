@@ -5,7 +5,6 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\P
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\POC_readCSV.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\ref\POC_readCSV.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\POC_readCSV.pdb
-C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\obj\Debug\net5.0\POC_readCSV.csprojAssemblyReference.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\obj\Debug\net5.0\POC_readCSV.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\obj\Debug\net5.0\POC_readCSV.AssemblyInfoInputs.cache
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\obj\Debug\net5.0\POC_readCSV.AssemblyInfo.cs
@@ -42,3 +41,4 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\W
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\WriteDocXML.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\DbOps.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\bin\Debug\net5.0\DbOps.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\POC_readCSV\obj\Debug\net5.0\POC_readCSV.csproj.AssemblyReference.cache

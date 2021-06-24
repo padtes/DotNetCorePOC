@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NpsApy": {
+      "commandName": "Project",
+      "commandLineArgs": "-bizType=LITE -op=READ"
+    }
+  }
+}
