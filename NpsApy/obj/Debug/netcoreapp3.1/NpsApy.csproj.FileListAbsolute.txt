@@ -41,3 +41,4 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\obj\Debug\netcoreapp3.1
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\Npgsql.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\DbOps.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\DbOps.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll

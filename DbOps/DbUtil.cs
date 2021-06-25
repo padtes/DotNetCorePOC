@@ -81,7 +81,7 @@ namespace DbOps
             {
                 string utc = DateTime.UtcNow.ToString("yyyy/M/d HH:mm:ss");
                 string sql = $"select params_json from {pgSchema}.system_param where biztype = '{bizType}' and" +
-                    $" module_name='{moduleName}' and '{utc}' >= start_ts_utc and (end_ts_utc is null or {utc} <= end_ts_utc);";
+                    $" module_name='{moduleName}' and '{utc}' >= start_ts_utc and (end_ts_utc is null or '{utc}' <= end_ts_utc);";
                 DataSet ds = GetDataSet(pgConnection, bizType, "GetParamsJsonStr", 0, sql);
 
                 if (ds.Tables.Count > 0)

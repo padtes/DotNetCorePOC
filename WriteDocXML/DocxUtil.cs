@@ -73,7 +73,7 @@ namespace WriteDocXML
             }
         }
 
-        public bool CreateMultiPageFiles(int jobId, int mergeCount, string[] args)
+        public bool CreateMultiPageFiles(string bizType, int jobId, int mergeCount, string[] args)
         {
             Stopwatch stopwatch = new Stopwatch();
             Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All file Create Started, max pages per file:" + mergeCount);
@@ -87,7 +87,7 @@ namespace WriteDocXML
 
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConnection, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                 {
                     Logger.Write(moduleName, "CreateMultiPageFiles", 0, "No Table returned check sql", Logger.WARNING);
@@ -199,14 +199,14 @@ namespace WriteDocXML
             }
         }
 
-        public bool CreateAllSeparateFiles(int jobId, string[] args)
+        public bool CreateAllSeparateFiles(string bizType, int jobId, string[] args)
         {
             try
             {
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
 
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConnection, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, moduleName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                     return false;
 

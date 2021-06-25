@@ -34,9 +34,10 @@ namespace POC_readCSV
 
             bool testingRead = false;
             bool testWord = false;
+            string bizType = "POC";
 
             if (testingRead)
-                Util.SaveInputToDB(pgConnection, pgSchema, jobId, testInputFilePath, jsonFileDef, delims[0]);
+                Util.SaveInputToDB(pgConnection, pgSchema, bizType, jobId, testInputFilePath, jsonFileDef, delims[0]);
             else
             {
                 //WordUtil wutil = new WordUtil(@"C:\d\zunk\testDocx\test1teplate.docx", @"C:\d\zunk\testDocx\20210610_out\");
@@ -65,9 +66,9 @@ namespace POC_readCSV
 
             string outputDir = @"C:\d\zunk\testDocx\20210610_out\";
             string fileName = "POC_PTC_NPS_APY.txt";
-
-            CsvUtil csv = new CsvUtil(pgConnection, pgSchema, jsonCsvDef, outputDir);
-            csv.CreateFile(fileName, args, jobId);
+            string bizType = "POCwrite";
+            CsvUtil csv = new CsvUtil(pgConnection, pgSchema, bizType, jsonCsvDef, outputDir);
+            csv.CreateFile(bizType, fileName, args, jobId);
         }
 
         private static void TestXmlReplacement(string[] args)
@@ -91,7 +92,7 @@ namespace POC_readCSV
 
             DocxUtil dox = new DocxUtil(pgConnection, pgSchema, jsonLetterDef, @"C:\d\zunk\testDocx\test_unzip\NPS_APY_LETTER_Single\word\document.xml", @"C:\d\zunk\testDocx\20210610_out\");
 
-            dox.CreateMultiPageFiles(0, 3, args);
+            dox.CreateMultiPageFiles("lite", 0, 3, args);
 
             //List<KeyValuePair<string, string>> tokenMap1 = new List<KeyValuePair<string, string>>();
             //tokenMap1.Add(new KeyValuePair<string, string>("{{first_name}}", "My Mate"));

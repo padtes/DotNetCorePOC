@@ -20,6 +20,11 @@ namespace NpsApy
                 return;
             }
 
+            string pgSchema, pgConnection, logFileName;
+
+            ReadSystemConfig(out pgSchema, out pgConnection, out logFileName);
+            Logger.SetLogFileName(logFileName);
+
             string paramsMsg = string.Join(' ', args);
             //get runtime parameter
             string bizType;    //valid values ALL | LITE | REG 
@@ -32,9 +37,7 @@ namespace NpsApy
             Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Success " + string.Join(' ', args), Logger.INFO);
 
             // read appSettings.json config
-            string pgSchema, pgConnection;
 
-            ReadSystemConfig(out pgSchema, out pgConnection);
 
             bool runResult;
             if (operation == "report")
@@ -65,16 +68,18 @@ namespace NpsApy
         {
             bool run = false;
 
-            FileProcessor fileProcessor = new FileProcessor(pgSchema, pgConnection);
-
             if (bizType == "lite" || bizType == "all") //NPS Lite + APY
             {
-                run = fileProcessor.ProcessNpsLiteApy(runFor, operation, courierCcsv);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(FileProcessor.BIZ_LITE, pgSchema, pgConnection);
+
+                run = processor.ProcessBiz(operation, runFor, courierCcsv);
             }
 
             if (bizType == "reg" || bizType == "all") //NPS Lite + APY
             {
-                run = fileProcessor.ProcessNpsRegular(runFor, operation, courierCcsv);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(FileProcessor.BIZ_REG, pgSchema, pgConnection);
+
+                run = processor.ProcessBiz(operation, runFor, courierCcsv);
             }
             return run;
         }
@@ -135,14 +140,14 @@ namespace NpsApy
 
         }
 
-        private static void ReadSystemConfig(out string pgSchema, out string pgConnection)
+        private static void ReadSystemConfig(out string pgSchema, out string pgConnection, out string logFileName)
         {
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            string logFileNm = configuration["logFileName"];
-            if (string.IsNullOrEmpty(logFileNm))
+            logFileName = configuration["logFileName"];
+            if (string.IsNullOrEmpty(logFileName))
                 throw new Exception("logFileNm Not in appSettings.json. ABORTING");
 
             pgSchema = configuration["pgSchema"];

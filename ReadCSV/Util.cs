@@ -92,7 +92,7 @@ namespace ReadCSV
         /// <param name="jsonParamFilePath">file path + name for file format definition json</param>
         /// to do: file details - in order to keep track of progress
 
-        public static bool SaveInputToDB(string pgConnection, string pgSchema, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim)
+        public static bool SaveInputToDB(string pgConnection, string pgSchema, string bizType, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim)
         {
             Logger.Write(moduleName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} with delimiter: {theDelim}", Logger.WARNING);
 
@@ -125,11 +125,11 @@ namespace ReadCSV
                             //to do : create error reporting
                             continue; // skip the line
                         }
-                        ProcessDataRow(pgConnection, pgSchema, jobId, ref startRowNo, cells, inputHdr, ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName);
+                        ProcessDataRow(pgConnection, pgSchema, bizType, jobId, ref startRowNo, cells, inputHdr, ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName);
                     }
                     if (curRec != null)
                     {
-                        if (InsertCurrRec(pgConnection, pgSchema, jobId, startRowNo, lineNo, inputHdr, curRec) == false)
+                        if (InsertCurrRec(pgConnection, pgSchema, bizType, jobId, startRowNo, lineNo, inputHdr, curRec) == false)
                             saveOk = false;
                         //to do save the current rec - last record
                     }
@@ -144,7 +144,7 @@ namespace ReadCSV
             return saveOk;
         }
 
-        private static bool ProcessDataRow(string pgConnection, string pgSchema, int jobId, ref int startRowNo, string[] cells, InputHeader inputdr, ref InputRecord curRec, ref bool saveOk
+        private static bool ProcessDataRow(string pgConnection, string pgSchema, string bizType, int jobId, ref int startRowNo, string[] cells, InputHeader inputdr, ref InputRecord curRec, ref bool saveOk
                 , Dictionary<string, List<KeyValuePair<string, string>>> dbMap
                 , Dictionary<string, List<string>> jsonSkip
                 , Dictionary<string, List<string>> fileDefDict, int lineNo, string inputFile)
@@ -171,7 +171,7 @@ namespace ReadCSV
             {
                 if (curRec != null)
                 {
-                    if (InsertCurrRec(pgConnection, pgSchema, jobId, startRowNo, lineNo, inputdr, curRec) == false)
+                    if (InsertCurrRec(pgConnection, pgSchema, bizType, jobId, startRowNo, lineNo, inputdr, curRec) == false)
                     {
                         //to do : create error reporting
                         saveOk = false;
@@ -297,12 +297,12 @@ namespace ReadCSV
             SystemParam.DataTableJsonCol = ((string)sysParam["data_table_json_col"]).ToLower();
         }
 
-        private static bool InsertCurrRec(string pgConnection, string pgSchema, int jobId, int startRowNo, int inputLineNo, InputHeader inputHdr, InputRecord curRec)
+        private static bool InsertCurrRec(string pgConnection, string pgSchema, string bizType, int jobId, int startRowNo, int inputLineNo, InputHeader inputHdr, InputRecord curRec)
         {
             string insSql = curRec.GenerateInsert(pgSchema, SystemParam.DataTableName, SystemParam.DataTableJsonCol, jobId, startRowNo, inputHdr);
             try
             {
-                return DbUtil.ExecuteNonSql(pgConnection, moduleName, jobId, inputLineNo, insSql);
+                return DbUtil.ExecuteNonSql(pgConnection, bizType, moduleName, jobId, inputLineNo, insSql);
             }
             catch 
             {
