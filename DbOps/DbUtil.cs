@@ -1,4 +1,5 @@
-﻿using Logging;
+﻿using DbOps.Structs;
+using Logging;
 using Npgsql;
 using System;
 using System.Data;
@@ -27,11 +28,11 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                Logger.Write(bizType + "_" + moduleName, "GetDataSet", jobId, "Error Sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(bizType + "_" + moduleName, "GetDataSet", jobId, ex);
+                LogSqlError(bizType, moduleName, "GetDataSet", jobId, 0, sql, ex);
                 throw;
             }
         }
+
         public static bool ExecuteNonSql(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql)
         {
             try
@@ -47,12 +48,72 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                Logger.Write(bizType + "_" + moduleName, "ExecuteInsert", jobId, $"Error inserting before row {rowNum}, see sql below", Logger.WARNING);
-                Logger.Write(bizType + "_" + moduleName, "ExecuteInsert", jobId, "Error Sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(bizType + "_" + moduleName, "ExecuteInsert", jobId, ex);
+                LogSqlError(bizType, moduleName, "ExecuteNonSql", jobId, rowNum, sql, ex);
                 throw;
             }
             return true;
+        }
+        public static bool ExecuteScalar(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql, out int pkId)
+        {
+            pkId = -1;
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        var res = cmd.ExecuteScalar();
+                        pkId = Convert.ToInt32(res);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(bizType, moduleName, "ExecuteScalar", jobId, rowNum, sql, ex);
+                throw;
+            }
+            return true;
+        }
+
+        private static void LogSqlError(string bizType, string moduleName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
+        {
+            Logger.Write(bizType + "_" + moduleName, methodNm, jobId, $"Error in row {rowNum}, see sql below", Logger.WARNING);
+            Logger.Write(bizType + "_" + moduleName, methodNm, jobId, "Error Sql:" + sql, Logger.WARNING);
+            Logger.WriteEx(bizType + "_" + moduleName, methodNm, jobId, ex);
+        }
+
+        public static bool IsRecFound(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql, bool getId, out int id)
+        {
+            bool recFound = false;
+            id = -1;
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                    using (NpgsqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            recFound = true;
+                            if (getId)
+                            {
+                                id = rdr.GetInt32(0);
+                            }
+                            break;
+                        }
+                    }
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(bizType, moduleName, "IsRecFound", jobId, rowNum, sql, ex);
+                throw;
+            }
+            return recFound;
         }
 
         public static bool CanConnectToDB(string pgConnection)
@@ -96,5 +157,135 @@ namespace DbOps
             }
             return "";
         }
+
+        public static string MyEscape(string inVal)
+        {
+            return inVal.Replace("'", "''");
+        }
+
+        public static void UpsertFileInfo(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string pgSchema, bool reprocess, FileInfoStruct theFile, out string actionTaken)
+        {
+            //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work
+            //if reprocess == false and record found - ignore
+
+            actionTaken = "";
+
+            string sql = $"select id from {pgSchema}.fileinfo where fname='{MyEscape(theFile.fname)}' and fpath='{MyEscape(theFile.fpath)}'";
+            bool isUpdate = IsRecFound(pgConnection, bizType, moduleName, jobId, rowNum, sql, true, out int id);
+
+            if (isUpdate && reprocess == false)
+            {
+                actionTaken = CommonUtil.ConstantBag.IGNORED;
+                return;  //----------------------------------
+            }
+
+            try
+            {
+                if (isUpdate)
+                {
+                    theFile.id = id;
+                    sql = UpdateFileInfoStatus(pgConnection, pgSchema, theFile);
+                }
+                else
+                {
+                    sql = InsertFileInfo(pgConnection, pgSchema, theFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(bizType, moduleName, "InsertFileInfo", jobId, rowNum, sql, ex);
+                throw;
+            }
+        }
+
+        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile) 
+        {
+            string sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
+                $" where id='{theFile.id}'";
+            using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+            }
+            return sql;
+        }
+        
+        private static string InsertFileInfo(string pgConnection, string pgSchema, FileInfoStruct theFile)
+        {
+            string sql = $"insert into {pgSchema}.fileinfo (fname, fpath, fsize, biztype, module_name, direction, importedfrom, courier_sname, courier_mode, " +
+                "nprodrecords, archivepath, archiveafter, purgeafter, addedate, addedby, addedfromip, updatedate, " +
+                "updatedby, updatedfromip, isdeleted, inp_rec_status, inp_rec_status_ts_utc) " +
+                "values (@fname, @fpath, @fsize, @biztype, @module_name, @direction, @importedfrom, @courier_sname, @courier_mode, " +
+                "@nprodrecords, @archivepath, @archiveafter, @purgeafter, @addedate, @addedby, @addedfromip, @updatedate, " +
+                "@updatedby, @updatedfromip, @isdeleted, @inp_rec_status, @inp_rec_status_ts_utc" +
+                $") RETURNING id";
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@fname", theFile.fname);
+                    cmd.Parameters.AddWithValue("@fpath", theFile.fpath);
+                    cmd.Parameters.AddWithValue("@fsize", theFile.fsize);
+                    cmd.Parameters.AddWithValue("@biztype ", theFile.bizType);
+                    cmd.Parameters.AddWithValue("@module_name", theFile.moduleName);
+                    cmd.Parameters.AddWithValue("@direction", theFile.direction);
+                    cmd.Parameters.AddWithValue("@importedfrom", theFile.importedFrom);
+                    cmd.Parameters.AddWithValue("@courier_sname", theFile.courierSname);
+                    cmd.Parameters.AddWithValue("@courier_mode", theFile.courierMode);
+                    cmd.Parameters.AddWithValue("@nprodrecords", theFile.nprodRecords);
+                    cmd.Parameters.AddWithValue("@archivepath", theFile.archivePath);
+                    cmd.Parameters.AddWithValue("@archiveafter", theFile.archiveAfter);
+                    cmd.Parameters.AddWithValue("@purgeafter", theFile.purgeAfter);
+                    cmd.Parameters.AddWithValue("@addedate", theFile.addeDate);
+                    cmd.Parameters.AddWithValue("@addedby", theFile.addedBy);
+                    cmd.Parameters.AddWithValue("@addedfromip", theFile.addedfromIP);
+                    cmd.Parameters.AddWithValue("@updatedate", theFile.updateDate);
+                    cmd.Parameters.AddWithValue("@updatedby", theFile.updatedBy);
+                    cmd.Parameters.AddWithValue("@updatedfromip", theFile.updatedFromIP);
+                    cmd.Parameters.AddWithValue("@isdeleted", theFile.isDeleted);
+                    cmd.Parameters.AddWithValue("@inp_rec_status", theFile.inpRecStatus);
+                    cmd.Parameters.AddWithValue("@inp_rec_status_ts_utc", theFile.inpRecStatusDtUTC);
+
+                    conn.Open();
+                    var res = cmd.ExecuteScalar();
+                    int id = Convert.ToInt32(res);
+                    theFile.id = id;
+                    conn.Close();
+                }
+            }
+
+            return sql;
+        }
     }
 }
+
+/*
+ select geocodes.locality, geocodes.locality_slug, count(listings.id) as locality_count, geocodes.sub_locality, geocodes.sub_locality_slug, 
+count(listings.id) as sub_locality_count, 
+geocodes.postal_town, geocodes.postal_town_slug, 
+count(listings.id) as postal_town_count, 
+geocodes.neighborhood, geocodes.neighborhood_slug
+, count(listings.id) as neighborhood_count 
+from `listings` 
+inner join `geocodes` on `listings`.`uuid` = `geocodes`.`listing_uuid` 
+where `listing_status` in ('active', 'pending') 
+and exists (
+ select * from `geocodes` where `listings`.`uuid` = `geocodes`.`listing_uuid` 
+ and `country_long_slug` = 'united-states' 
+and `administrative_area_level_1_long_slug` = 'new-york' 
+and `administrative_area_level_2_slug` = 'westchester-county') 
+and `geocodes`.`neighborhood` is not null 
+and `listings`.`deleted_at` is null
+group by 
+`geocodes`.`locality`, `geocodes`.`locality_slug`, `geocodes`.`sub_locality`, `geocodes`.`sub_locality_slug`
+, `geocodes`.`postal_town`, `geocodes`.`postal_town_slug`, `geocodes`.`neighborhood`
+, `geocodes`.`neighborhood_slug` order by `neighborhood_count` desc
+
+ 
+ */
+

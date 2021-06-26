@@ -13,8 +13,8 @@ namespace NpsApy
         public const string BIZ_LITE = "lite";
         public const string BIZ_REG = "reg";
 
-        private string pgSchema;
-        private string pgConnection;
+        protected string pgSchema;
+        protected string pgConnection;
 
         protected string systemConfigDir;
         protected string inputRootDir;

@@ -1,4 +1,7 @@
-﻿using Logging;
+﻿using CommonUtil;
+using DbOps;
+using DbOps.Structs;
+using Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +11,7 @@ namespace NpsApy
     internal class FileProcessorLite : FileProcessor
     {
         private const string moduleName = "FileProcLite";
-
+        public int jobId { get; set; }
         public FileProcessorLite(string schemaName, string connectionStr) : base(schemaName, connectionStr)
         {
 
@@ -71,6 +74,7 @@ namespace NpsApy
             //Process files  -- this can go in parallel
             //read File Header table with status = "TO DO"
             //parallel process - pass file Id as param
+            //LOGGING - cannot be file based - multiple threads cannot use the same file safely
             //
         }
 
@@ -109,35 +113,77 @@ namespace NpsApy
 
         internal void CollectFilesNpsLiteApyDir(string dateAsDir, bool reprocess)
         {
-            CreateWorkDir(dateAsDir);
-            //---------------------- 1 ---------------- 
-            // for each file in dir:dateAsDir under 
+            Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"Directory started: {dateAsDir}");
 
-            //if record not found for the dateAsDir / file name - insert
-            //save all details as full input and work path - Copy file from input to work
+            string apyOutDir, liteOutDir, curWorkDir;
+            CreateWorkDir(dateAsDir, out apyOutDir, out liteOutDir, out curWorkDir);
+            
+            Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
 
-            //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work
-            //if reprocess == false and record found - ignore
+            //assuming input will be directly under yyyymmdd / npsLite_apy directory 
+            string inpFilesDir = dateAsDir + "/" + paramsDict["output_par"];
+            string[] curFileList = Directory.GetFiles(inpFilesDir);
+
+            // for each file in dir:dateAsDir under  date/npsLite_apy
+            for (int i = 0; i < curFileList.Length; i++)
+            {
+                var aFile = curFileList[i];
+                string fName = Path.GetFileName(aFile);
+                string workDest = curWorkDir + "\\" + fName;
+
+                if (File.Exists(workDest) == false || reprocess)
+                {
+                    File.Copy(aFile, workDest, reprocess);
+                }
+
+                //save all details as full input and work path - Copy file from input to work
+                FileInfoStruct fInfo = new FileInfoStruct() {
+                    fname = fName,
+                    fpath = curWorkDir,
+                    isDeleted = false,
+                    bizType = GetBizType(),
+                    moduleName = ConstantBag.LITE_IN,
+                    direction = ConstantBag.DIRECTION_IN,
+                    addeDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
+                    addedBy = ConstantBag.BATCH_USER,
+                    inpRecStatus = ConstantBag.FILE_LC_STEP_TODO,
+                    inpRecStatusDtUTC = DateTime.UtcNow
+                };
+
+                DbUtil.UpsertFileInfo(pgConnection, GetBizType(), moduleName, jobId, i, pgSchema, reprocess, fInfo, out string actionTaken);
+
+                Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {workDest}");
+            }
+
+            Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"Directory DONE: {dateAsDir}");
         }
 
-        private void CreateWorkDir(string dateAsDir)
+        private void CreateWorkDir(string dateAsPath, out string apyOutDir, out string liteOutDir, out string curWorkDir)
         {
+            string[] pathParts = dateAsPath.Split(new char[] { '/', '\\'});
+            string dateAsDir = pathParts[pathParts.Length -1];
+
             string curWorkDirForDt = workDir + "/" + dateAsDir;
             if (Directory.Exists(curWorkDirForDt) == false)
                 Directory.CreateDirectory(curWorkDirForDt);
 
             string outParentDir = paramsDict["output_par"];
-            curWorkDirForDt = curWorkDirForDt + "/" + outParentDir;
-            if (Directory.Exists(curWorkDirForDt) == false)
-                Directory.CreateDirectory(curWorkDirForDt);
-
-            string tmpOut = curWorkDirForDt + "/" + paramsDict["output_apy"];
+            string tmpOut = curWorkDirForDt + "/" + outParentDir;
             if (Directory.Exists(tmpOut) == false)
                 Directory.CreateDirectory(tmpOut);
 
-            tmpOut = curWorkDirForDt + "/" + paramsDict["output_lite"];
-            if (Directory.Exists(tmpOut) == false)
-                Directory.CreateDirectory(tmpOut);
+            liteOutDir = tmpOut + "/" + paramsDict["output_lite"];
+            if (Directory.Exists(liteOutDir) == false)
+                Directory.CreateDirectory(liteOutDir);
+
+            apyOutDir= tmpOut + "/" + paramsDict["output_apy"];
+            if (Directory.Exists(apyOutDir) == false)
+                Directory.CreateDirectory(apyOutDir);
+
+            curWorkDir = tmpOut + "/" + outParentDir + "_copy"; // to keep copy of input files
+            if (Directory.Exists(curWorkDir) == false)
+                Directory.CreateDirectory(curWorkDir);
+
         }
 
         internal void ProcessLiteApyFile(int fileID)
