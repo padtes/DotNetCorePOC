@@ -4,30 +4,30 @@ using DbOps.Structs;
 using Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 
 namespace NpsApy
 {
     internal class FileProcessorLite : FileProcessor
     {
-        private const string moduleName = "FileProcLite";
-        public int jobId { get; set; }
+        private const string logProgName = "FileProcLite";
         public FileProcessorLite(string schemaName, string connectionStr) : base(schemaName, connectionStr)
         {
 
         }
-        public override string GetBizType()
+        public override string GetModuleName()
         {
-            return BIZ_LITE;
+            return ConstantBag.MODULE_LITE;
         }
 
-        public override bool ProcessBiz(string operation, string runFor, string courierCsv)
+        public override bool ProcessModule(string operation, string runFor, string courierCsv)
         {
             staticParamList = new List<string>() { "output_par", "output_lite", "output_apy" };
-            LoadParam(BIZ_LITE);
-            ValidateStaticParam(BIZ_LITE);
+            LoadParam(ConstantBag.SYSTEM_PARAM);
+            ValidateStaticParam(ConstantBag.MODULE_LITE);
 
-            return base.ProcessBiz(operation, runFor, courierCsv);
+            return base.ProcessModule(operation, runFor, courierCsv);
         }
 
         public override void ProcessInput(string runFor)
@@ -67,7 +67,18 @@ namespace NpsApy
                 // collect file names to process - make entry in File Header table with status = "TO DO"
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess: (runFor != "all"));
             }
-            //------ 2 -----------
+
+            DataSet ds = GetDataSet(ConstantBag.FILE_LC_STEP_TODO);
+            if (ds.Tables.Count < 1)
+            {
+                Logger.WriteInfo(logProgName, "ProcessInput", 0
+                    , $"NO RECORDS {ConstantBag.FILE_LC_STEP_TODO} for {GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}");
+
+                return; //----------------------------
+            }
+
+
+
             //read json file Def for lite apy in systemDir
             //configLiteApyDef = json deserialize 
 
@@ -76,6 +87,11 @@ namespace NpsApy
             //parallel process - pass file Id as param
             //LOGGING - cannot be file based - multiple threads cannot use the same file safely
             //
+        }
+
+        private DataSet GetDataSet(string fileLifeStat)
+        {
+            return LiteApyDbOps.GetDataset(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)
@@ -113,7 +129,7 @@ namespace NpsApy
 
         internal void CollectFilesNpsLiteApyDir(string dateAsDir, bool reprocess)
         {
-            Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"Directory started: {dateAsDir}");
+            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory started: {dateAsDir}");
 
             string apyOutDir, liteOutDir, curWorkDir;
             CreateWorkDir(dateAsDir, out apyOutDir, out liteOutDir, out curWorkDir);
@@ -142,8 +158,8 @@ namespace NpsApy
                     fname = fName,
                     fpath = curWorkDir,
                     isDeleted = false,
-                    bizType = GetBizType(),
-                    moduleName = ConstantBag.LITE_IN,
+                    bizType = ConstantBag.LITE_IN,
+                    moduleName = GetModuleName(),
                     direction = ConstantBag.DIRECTION_IN,
                     addedDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
                     addedBy = ConstantBag.BATCH_USER,
@@ -163,12 +179,12 @@ namespace NpsApy
                     updatedFromIP = "localhost"
                 };
 
-                DbUtil.UpsertFileInfo(pgConnection, GetBizType(), moduleName, jobId, i, pgSchema, reprocess, fInfo, out string actionTaken);
+                DbUtil.UpsertFileInfo(pgConnection, GetModuleName(), logProgName, jobId, i, pgSchema, reprocess, fInfo, out string actionTaken);
 
-                Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {workDest}");
+                Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {workDest}");
             }
 
-            Logger.WriteInfo(moduleName, "CollectFilesNpsLiteApyDir", jobId, $"Directory DONE: {dateAsDir}");
+            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory DONE: {dateAsDir}");
         }
 
         private void CreateWorkDir(string dateAsPath, out string apyOutDir, out string liteOutDir, out string curWorkDir)

@@ -27,7 +27,7 @@ namespace WriteDocXML
 
         private string _outDir;
 
-        private const string moduleName = "DocxUtil";
+        private const string logProgramName = "DocxUtil";
 
         public DocxUtil(string pgConnection, string pgSchema, string jsonLetterDef, string templateFileName, string outDir)
         {
@@ -76,7 +76,7 @@ namespace WriteDocXML
         public bool CreateMultiPageFiles(string bizType, int jobId, int mergeCount, string[] args)
         {
             Stopwatch stopwatch = new Stopwatch();
-            Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All file Create Started, max pages per file:" + mergeCount);
+            Logger.WriteInfo(logProgramName, "CreateMultiPageFiles", 0, "All file Create Started, max pages per file:" + mergeCount);
 
             try
             {
@@ -87,11 +87,11 @@ namespace WriteDocXML
 
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, logProgramName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                 {
-                    Logger.Write(moduleName, "CreateMultiPageFiles", 0, "No Table returned check sql", Logger.WARNING);
-                    Logger.Write(moduleName, "CreateMultiPageFiles", 0, "sql:" + sql, Logger.WARNING);
+                    Logger.Write(logProgramName, "CreateMultiPageFiles", 0, "No Table returned check sql", Logger.WARNING);
+                    Logger.Write(logProgramName, "CreateMultiPageFiles", 0, "sql:" + sql, Logger.WARNING);
 
                     return false;
                 }
@@ -100,7 +100,7 @@ namespace WriteDocXML
                 bool hasUnPrinted = false;
                 int remainCount = ds.Tables[0].Rows.Count;
 
-                Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "Record count to process:" + remainCount);
+                Logger.WriteInfo(logProgramName, "CreateMultiPageFiles", 0, "Record count to process:" + remainCount);
 
                 List<KeyValuePair<string, string>> tokenMap = new List<KeyValuePair<string, string>>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
@@ -130,13 +130,13 @@ namespace WriteDocXML
                 }
 
                 stopwatch.Stop();
-                Logger.WriteInfo(moduleName, "CreateMultiPageFiles", 0, "All files [" + fileCount + "] Created. Time taken in sec:" + stopwatch.Elapsed.TotalSeconds);
+                Logger.WriteInfo(logProgramName, "CreateMultiPageFiles", 0, "All files [" + fileCount + "] Created. Time taken in sec:" + stopwatch.Elapsed.TotalSeconds);
 
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "CreateMultiPageFiles", 0, ex);
+                Logger.WriteEx(logProgramName, "CreateMultiPageFiles", 0, ex);
                 return false;
             }
         }
@@ -206,7 +206,7 @@ namespace WriteDocXML
                 string sql = SqlHelper.GetSelect(_pgSchema, _docxConfig.Placeholders, _docxConfig.System, args); //to do where condition
 
                 //to do order by
-                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, moduleName, jobId, sql);
+                DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, logProgramName, jobId, sql);
                 if (ds == null || ds.Tables.Count < 1)
                     return false;
 
@@ -243,7 +243,7 @@ namespace WriteDocXML
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "CreateAllSeparateFiles", 0, ex);
+                Logger.WriteEx(logProgramName, "CreateAllSeparateFiles", 0, ex);
                 return false;
             }
         }

@@ -8,7 +8,7 @@ namespace DbOps
 {
     public class DbUtil
     {
-        public static DataSet GetDataSet(string pgConnection, string bizType, string moduleName, int jobId, string sql)
+        public static DataSet GetDataSet(string pgConnection, string logProgramName, string moduleName, int jobId, string sql)
         {
             try
             {
@@ -28,12 +28,12 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                LogSqlError(bizType, moduleName, "GetDataSet", jobId, 0, sql, ex);
+                LogSqlError(moduleName, logProgramName, "GetDataSet", jobId, 0, sql, ex);
                 throw;
             }
         }
 
-        public static bool ExecuteNonSql(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql)
+        public static bool ExecuteNonSql(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql)
         {
             try
             {
@@ -48,42 +48,43 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                LogSqlError(bizType, moduleName, "ExecuteNonSql", jobId, rowNum, sql, ex);
+                LogSqlError(moduleName, logProgramName, "ExecuteNonSql", jobId, rowNum, sql, ex);
                 throw;
             }
             return true;
         }
-        public static bool ExecuteScalar(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql, out int pkId)
+        
+        //public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId)
+        //{
+        //    pkId = -1;
+        //    try
+        //    {
+        //        using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+        //        {
+        //            conn.Open();
+        //            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+        //            {
+        //                var res = cmd.ExecuteScalar();
+        //                pkId = Convert.ToInt32(res);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        LogSqlError(moduleName, logProgramName, "ExecuteScalar", jobId, rowNum, sql, ex);
+        //        throw;
+        //    }
+        //    return true;
+        //}
+
+        private static void LogSqlError(string moduleName, string logProgName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
         {
-            pkId = -1;
-            try
-            {
-                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
-                {
-                    conn.Open();
-                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        var res = cmd.ExecuteScalar();
-                        pkId = Convert.ToInt32(res);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogSqlError(bizType, moduleName, "ExecuteScalar", jobId, rowNum, sql, ex);
-                throw;
-            }
-            return true;
+            Logger.Write(moduleName + "_" + logProgName, methodNm, jobId, $"Error in row {rowNum}, see sql below", Logger.WARNING);
+            Logger.Write(moduleName + "_" + logProgName, methodNm, jobId, "Error Sql:" + sql, Logger.WARNING);
+            Logger.WriteEx(moduleName + "_" + logProgName, methodNm, jobId, ex);
         }
 
-        private static void LogSqlError(string bizType, string moduleName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
-        {
-            Logger.Write(bizType + "_" + moduleName, methodNm, jobId, $"Error in row {rowNum}, see sql below", Logger.WARNING);
-            Logger.Write(bizType + "_" + moduleName, methodNm, jobId, "Error Sql:" + sql, Logger.WARNING);
-            Logger.WriteEx(bizType + "_" + moduleName, methodNm, jobId, ex);
-        }
-
-        public static bool IsRecFound(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string sql, bool getId, out int id)
+        public static bool IsRecFound(string pgConnection, string moduleName, string logProgName, int jobId, int rowNum, string sql, bool getId, out int id)
         {
             bool recFound = false;
             id = -1;
@@ -110,7 +111,7 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                LogSqlError(bizType, moduleName, "IsRecFound", jobId, rowNum, sql, ex);
+                LogSqlError(moduleName, logProgName, "IsRecFound", jobId, rowNum, sql, ex);
                 throw;
             }
             return recFound;
@@ -136,14 +137,15 @@ namespace DbOps
 
         }
 
-        public static string GetParamsJsonStr(string pgConnection, string pgSchema, string bizType, string moduleName)
+        public static string GetParamsJsonStr(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string logProgramName)
         {
             try
             {
                 string utc = DateTime.UtcNow.ToString("yyyy/M/d HH:mm:ss");
                 string sql = $"select params_json from {pgSchema}.system_param where biztype = '{bizType}' and" +
                     $" module_name='{moduleName}' and '{utc}' >= start_ts_utc and (end_ts_utc is null or '{utc}' <= end_ts_utc);";
-                DataSet ds = GetDataSet(pgConnection, bizType, "GetParamsJsonStr", 0, sql);
+
+                DataSet ds = GetDataSet(pgConnection, logProgramName+ "_GetParamsJsonStr", moduleName, jobId, sql);
 
                 if (ds.Tables.Count > 0)
                 {
@@ -163,7 +165,7 @@ namespace DbOps
             return inVal.Replace("'", "''");
         }
 
-        public static void UpsertFileInfo(string pgConnection, string bizType, string moduleName, int jobId, int rowNum, string pgSchema, bool reprocess, FileInfoStruct theFile, out string actionTaken)
+        public static void UpsertFileInfo(string pgConnection, string moduleName, string logProgName, int jobId, int rowNum, string pgSchema, bool reprocess, FileInfoStruct theFile, out string actionTaken)
         {
             //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work
             //if reprocess == false and record found - ignore
@@ -171,7 +173,7 @@ namespace DbOps
             actionTaken = "";
 
             string sql = $"select id from {pgSchema}.fileinfo where fname='{MyEscape(theFile.fname)}' and fpath='{MyEscape(theFile.fpath)}'";
-            bool isUpdate = IsRecFound(pgConnection, bizType, moduleName, jobId, rowNum, sql, true, out int id);
+            bool isUpdate = IsRecFound(pgConnection, moduleName, logProgName, jobId, rowNum, sql, true, out int id);
 
             if (isUpdate && reprocess == false)
             {
@@ -195,12 +197,12 @@ namespace DbOps
             }
             catch (Exception ex)
             {
-                LogSqlError(bizType, moduleName, "InsertFileInfo", jobId, rowNum, sql, ex);
+                LogSqlError(moduleName, logProgName, "InsertFileInfo", jobId, rowNum, sql, ex);
                 throw;
             }
         }
 
-        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql) 
+        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
             sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
                 $" where id='{theFile.id}'";
@@ -215,7 +217,7 @@ namespace DbOps
             }
             return sql;
         }
-        
+
         private static string InsertFileInfo(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
             sql = $"insert into {pgSchema}.fileinfo (fname, fpath, fsize, biztype, module_name, direction, importedfrom, courier_sname, courier_mode, " +
@@ -255,7 +257,6 @@ namespace DbOps
 
                     conn.Open();
                     var res = cmd.ExecuteScalar();
-                    //cmd.ExecuteNonQuery();
                     int id = Convert.ToInt32(res);
                     theFile.id = id;
                     conn.Close();
@@ -266,29 +267,3 @@ namespace DbOps
         }
     }
 }
-
-/*
- select geocodes.locality, geocodes.locality_slug, count(listings.id) as locality_count, geocodes.sub_locality, geocodes.sub_locality_slug, 
-count(listings.id) as sub_locality_count, 
-geocodes.postal_town, geocodes.postal_town_slug, 
-count(listings.id) as postal_town_count, 
-geocodes.neighborhood, geocodes.neighborhood_slug
-, count(listings.id) as neighborhood_count 
-from `listings` 
-inner join `geocodes` on `listings`.`uuid` = `geocodes`.`listing_uuid` 
-where `listing_status` in ('active', 'pending') 
-and exists (
- select * from `geocodes` where `listings`.`uuid` = `geocodes`.`listing_uuid` 
- and `country_long_slug` = 'united-states' 
-and `administrative_area_level_1_long_slug` = 'new-york' 
-and `administrative_area_level_2_slug` = 'westchester-county') 
-and `geocodes`.`neighborhood` is not null 
-and `listings`.`deleted_at` is null
-group by 
-`geocodes`.`locality`, `geocodes`.`locality_slug`, `geocodes`.`sub_locality`, `geocodes`.`sub_locality_slug`
-, `geocodes`.`postal_town`, `geocodes`.`postal_town_slug`, `geocodes`.`neighborhood`
-, `geocodes`.`neighborhood_slug` order by `neighborhood_count` desc
-
- 
- */
-

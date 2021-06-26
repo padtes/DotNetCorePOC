@@ -13,7 +13,7 @@ namespace WriteWord
         private WordprocessingDocument wordDoc;
         private string docText;
 
-        private const string moduleName = "WordUtil";
+        private const string logProgramName = "WordUtil";
 
         public WordUtil(string templatePath, string outDir)
         {
@@ -46,7 +46,7 @@ namespace WriteWord
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "GetCopyForIdTest", 0, ex);
+                Logger.WriteEx(logProgramName, "GetCopyForIdTest", 0, ex);
                 return false;
             }
 
@@ -68,7 +68,7 @@ namespace WriteWord
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "LoadTemplate", 0, ex);
+                Logger.WriteEx(logProgramName, "LoadTemplate", 0, ex);
             }
         }
     }

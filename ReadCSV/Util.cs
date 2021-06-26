@@ -15,7 +15,7 @@ namespace ReadCSV
 {
     public class Util
     {
-        private static readonly string moduleName = "Util";
+        private static readonly string logProgName = "Util";
         //Hostname: qm20.siteground.biz Username: Lsg@arubapalmsrealtors.com Password: z#s%)F(913@2A Port: 21
         private static string poc_ftp_host = "qm20.siteground.biz";
         private static string poc_ftp_user = "Lsg@arubapalmsrealtors.com";
@@ -71,11 +71,11 @@ namespace ReadCSV
                 response.Close();
 
 
-                Logger.WriteInfo(moduleName, "DD", 0, "Ok");
+                Logger.WriteInfo(logProgName, "DD", 0, "Ok");
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "DownloadDir", 0, ex);
+                Logger.WriteEx(logProgName, "DownloadDir", 0, ex);
                 return false;
             }
 
@@ -92,9 +92,9 @@ namespace ReadCSV
         /// <param name="jsonParamFilePath">file path + name for file format definition json</param>
         /// to do: file details - in order to keep track of progress
 
-        public static bool SaveInputToDB(string pgConnection, string pgSchema, string bizType, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim)
+        public static bool SaveInputToDB(string pgConnection, string pgSchema, string moduleName, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim)
         {
-            Logger.Write(moduleName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} with delimiter: {theDelim}", Logger.WARNING);
+            Logger.Write(Util.logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} with delimiter: {theDelim}", Logger.WARNING);
 
             bool saveOk = true;
             Dictionary<string, List<string>> fileDefDict = new();
@@ -121,15 +121,15 @@ namespace ReadCSV
                         string[] cells = line.Split(theDelim);
                         if (cells.Length < SystemParam.RowTypeIndex + 1)
                         {
-                            Logger.Write(moduleName, "SaveInputToDB", 0, $"Section Type not found - ignored line {lineNo} of file {inputFilePathName}", Logger.WARNING);
+                            Logger.Write(Util.logProgName, "SaveInputToDB", 0, $"Section Type not found - ignored line {lineNo} of file {inputFilePathName}", Logger.WARNING);
                             //to do : create error reporting
                             continue; // skip the line
                         }
-                        ProcessDataRow(pgConnection, pgSchema, bizType, jobId, ref startRowNo, cells, inputHdr, ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName);
+                        ProcessDataRow(pgConnection, pgSchema, moduleName, jobId, ref startRowNo, cells, inputHdr, ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName);
                     }
                     if (curRec != null)
                     {
-                        if (InsertCurrRec(pgConnection, pgSchema, bizType, jobId, startRowNo, lineNo, inputHdr, curRec) == false)
+                        if (InsertCurrRec(pgConnection, pgSchema, moduleName, jobId, startRowNo, lineNo, inputHdr, curRec) == false)
                             saveOk = false;
                         //to do save the current rec - last record
                     }
@@ -137,14 +137,14 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "SaveInputToDB", 0, ex);
+                Logger.WriteEx(Util.logProgName, "SaveInputToDB", 0, ex);
                 return false;
             }
 
             return saveOk;
         }
 
-        private static bool ProcessDataRow(string pgConnection, string pgSchema, string bizType, int jobId, ref int startRowNo, string[] cells, InputHeader inputdr, ref InputRecord curRec, ref bool saveOk
+        private static bool ProcessDataRow(string pgConnection, string pgSchema, string moduleName, int jobId, ref int startRowNo, string[] cells, InputHeader inputdr, ref InputRecord curRec, ref bool saveOk
                 , Dictionary<string, List<KeyValuePair<string, string>>> dbMap
                 , Dictionary<string, List<string>> jsonSkip
                 , Dictionary<string, List<string>> fileDefDict, int lineNo, string inputFile)
@@ -155,7 +155,7 @@ namespace ReadCSV
             {
                 if (inputdr.HandleRow(fileDefDict[rowType], dbMap, null, rowType, cells) == false)
                 {
-                    Logger.Write(moduleName, "SaveInputToDB", 0, $"Failed to parse header line {lineNo} of file {inputFile}", Logger.ERROR);
+                    Logger.Write(logProgName, "SaveInputToDB", 0, $"Failed to parse header line {lineNo} of file {inputFile}", Logger.ERROR);
                     //to do : create error reporting
                     saveOk = false;
                     return false; //no point reading file
@@ -171,7 +171,7 @@ namespace ReadCSV
             {
                 if (curRec != null)
                 {
-                    if (InsertCurrRec(pgConnection, pgSchema, bizType, jobId, startRowNo, lineNo, inputdr, curRec) == false)
+                    if (InsertCurrRec(pgConnection, pgSchema, moduleName, jobId, startRowNo, lineNo, inputdr, curRec) == false)
                     {
                         //to do : create error reporting
                         saveOk = false;
@@ -182,7 +182,7 @@ namespace ReadCSV
             }
             if (curRec == null)
             {
-                Logger.Write(moduleName, "SaveInputToDB", 0, $"Failed to get started with Input Start Row. line {lineNo} of file {inputFile}", Logger.ERROR);
+                Logger.Write(logProgName, "SaveInputToDB", 0, $"Failed to get started with Input Start Row. line {lineNo} of file {inputFile}", Logger.ERROR);
                 //to do : create error reporting
                 saveOk = false;
                 return false; //no point reading file OR ignore startin rows ??
@@ -190,7 +190,7 @@ namespace ReadCSV
 
             if (curRec.HandleRow(fileDefDict[rowType], dbMap, jsonSkip, rowType, cells) == false)
             {
-                Logger.Write(moduleName, "SaveInputToDB", 0, $"Failed to parse data at line {lineNo} of file {inputFile}", Logger.ERROR);
+                Logger.Write(logProgName, "SaveInputToDB", 0, $"Failed to parse data at line {lineNo} of file {inputFile}", Logger.ERROR);
                 //to do : create error reporting
                 saveOk = false;
             }
@@ -267,7 +267,7 @@ namespace ReadCSV
                     else
                     {
                         gotErr = true;
-                        Logger.Write(moduleName, "LoadInputFileDef", 0, $"Column order not int {jp1.Name} of {rowType}", Logger.ERROR);
+                        Logger.Write(logProgName, "LoadInputFileDef", 0, $"Column order not int {jp1.Name} of {rowType}", Logger.ERROR);
                     }
                 }
 
@@ -297,12 +297,12 @@ namespace ReadCSV
             SystemParam.DataTableJsonCol = ((string)sysParam["data_table_json_col"]).ToLower();
         }
 
-        private static bool InsertCurrRec(string pgConnection, string pgSchema, string bizType, int jobId, int startRowNo, int inputLineNo, InputHeader inputHdr, InputRecord curRec)
+        private static bool InsertCurrRec(string pgConnection, string pgSchema, string moduleName, int jobId, int startRowNo, int inputLineNo, InputHeader inputHdr, InputRecord curRec)
         {
             string insSql = curRec.GenerateInsert(pgSchema, SystemParam.DataTableName, SystemParam.DataTableJsonCol, jobId, startRowNo, inputHdr);
             try
             {
-                return DbUtil.ExecuteNonSql(pgConnection, bizType, moduleName, jobId, inputLineNo, insSql);
+                return DbUtil.ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, inputLineNo, insSql);
             }
             catch 
             {
@@ -323,7 +323,7 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "DownloadDir", 0, ex);
+                Logger.WriteEx(logProgName, "DownloadDir", 0, ex);
                 return false;
             }
             return true;

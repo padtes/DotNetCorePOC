@@ -1,4 +1,5 @@
-﻿using DbOps;
+﻿using CommonUtil;
+using DbOps;
 using Logging;
 using Newtonsoft.Json;
 using System;
@@ -9,12 +10,11 @@ namespace NpsApy
 {
     internal abstract class FileProcessor
     {
-        private const string moduleName = "FileProcessor";
-        public const string BIZ_LITE = "lite";
-        public const string BIZ_REG = "reg";
+        private const string logProgName = "FileProcessor";
 
         protected string pgSchema;
         protected string pgConnection;
+        public int jobId { get; set; }
 
         protected string systemConfigDir;
         protected string inputRootDir;
@@ -31,11 +31,11 @@ namespace NpsApy
         protected void LoadParam(string bizType)
         {
             //read details based on date from system param table
-            string sysParamStr = DbUtil.GetParamsJsonStr(pgConnection, pgSchema, bizType, "directories");
+            string sysParamStr = DbUtil.GetParamsJsonStr(pgConnection, pgSchema, GetModuleName(), bizType, jobId, logProgName);
             if (sysParamStr == "")
             {
-                Logger.Write(moduleName, "LoadParam.1", 0, bizType + " directory struct not in system_param table", Logger.ERROR);
-                throw new Exception(bizType + " directory struct not in system_param table");
+                Logger.Write(logProgName, "LoadParam.1", 0, GetModuleName() + "_" + bizType + " record not in system_param table", Logger.ERROR);
+                throw new Exception(GetModuleName() + "_" + bizType + " record not in system_param table");
             }
             try
             {
@@ -46,8 +46,8 @@ namespace NpsApy
 
                 if (systemConfigDir == "" || inputRootDir == "" || workDir == "")
                 {
-                    Logger.Write(moduleName, "LoadParam.2", 0, bizType + " directory param blank", Logger.ERROR);
-                    throw new Exception(bizType + " directory param blank");
+                    Logger.Write(logProgName, "LoadParam.2", 0, GetModuleName() + "_" + bizType + " directory param blank", Logger.ERROR);
+                    throw new Exception(GetModuleName() + "_" + bizType + " directory param blank");
                 }
                 systemConfigDir.TrimEnd('/');
                 inputRootDir.TrimEnd('/');
@@ -55,8 +55,8 @@ namespace NpsApy
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "LoadParam.2", 0, ex);
-                throw new Exception(bizType + " directory param in error", ex);  //key not found
+                Logger.WriteEx(logProgName, "LoadParam.2", 0, ex);
+                throw new Exception(GetModuleName() + "_" + bizType + " directory param in error", ex);  //key not found
             }
 
             //confirm all the dirs exist  // if not exist, create and re-confirm OR die
@@ -75,15 +75,15 @@ namespace NpsApy
 
             if (Directory.Exists(dirName) == false)
             {
-                Logger.Write(moduleName, "ConfirmDirExists", 0, dirName + " does not exist" + (createIfMissing ? ", cannot create" : ""), Logger.ERROR);
+                Logger.Write(logProgName, "ConfirmDirExists", 0, dirName + " does not exist" + (createIfMissing ? ", cannot create" : ""), Logger.ERROR);
                 throw new Exception(dirName + " does not exist" + (createIfMissing ? ", cannot create" : ""));
             }
         }
 
-        internal static FileProcessor GetProcessorInstance(string bizType, string schemaName, string connectionStr)
+        internal static FileProcessor GetProcessorInstance(string moduleName, string schemaName, string connectionStr)
         {
             FileProcessor fp = null;
-            if (bizType == BIZ_LITE)
+            if (moduleName == ConstantBag.MODULE_LITE)
                 fp = new FileProcessorLite(schemaName, connectionStr);
             else
                 fp = new FileProcessorRegular(schemaName, connectionStr);
@@ -91,10 +91,10 @@ namespace NpsApy
             return fp; 
         }
 
-        public virtual bool ProcessBiz(string operation, string runFor, string courierCsv)
+        public virtual bool ProcessModule(string operation, string runFor, string courierCsv)
         {
-            Logger.WriteInfo(moduleName, "ProcessNpsLiteApy", 0
-                , $"LITE op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
+            Logger.WriteInfo(logProgName, "ProcessBiz", 0
+                , $"START {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
 
             //timer.start
 
@@ -111,16 +111,19 @@ namespace NpsApy
                     //process output
                     ProcessOutput(runFor, courierCsv);
                 }
-                return true;
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(moduleName, "ProcessNpsLiteApy", 0, ex);
+                Logger.WriteEx(logProgName, "ProcessNpsLiteApy", 0, ex);
                 return false;
             }
 
+            Logger.WriteInfo(logProgName, "ProcessBiz", 0
+                , $"GOOD Job!! {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
+
+            return true;
         }
-        public abstract string GetBizType();
+        public abstract string GetModuleName();
         public abstract void ProcessInput(string runFor);
         public abstract void ProcessOutput(string runFor, string courierCcsv);
 
@@ -136,7 +139,7 @@ namespace NpsApy
 
             if (erMsg != "")
             {
-                Logger.Write(moduleName, "ValidateStaticParam", 0, erMsg + " params are missing for " + bizType, Logger.ERROR);
+                Logger.Write(logProgName, "ValidateStaticParam", 0, erMsg + " params are missing for " + bizType, Logger.ERROR);
                 throw new Exception(erMsg + " params are missing for " + bizType);
             }
         }

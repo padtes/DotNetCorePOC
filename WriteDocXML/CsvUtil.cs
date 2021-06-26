@@ -16,7 +16,7 @@ namespace WriteDocXML
         private RootJsonParamCSV _csvConfig = null;
         private string _outDir;
 
-        private const string moduleName = "CsvUtil";
+        private const string logProgramName = "CsvUtil";
 
         public CsvUtil(string pgConnection, string pgSchema, string bizType, string jsonDef, string outDir)
         {
@@ -45,11 +45,11 @@ namespace WriteDocXML
             //get Data
             string sql = SqlHelper.GetSelect(_pgSchema, _csvConfig.Detail, _csvConfig.System, progParams);
 
-            DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, moduleName, jobId, sql);
+            DataSet ds = DbUtil.GetDataSet(_pgConnection, bizType, logProgramName, jobId, sql);
             if (ds == null || ds.Tables.Count < 1)
             {
-                Logger.Write(moduleName, "CreateFile", 0, "No Table returned check sql", Logger.WARNING);
-                Logger.Write(moduleName, "CreateFile", 0, "sql:" + sql, Logger.WARNING);
+                Logger.Write(logProgramName, "CreateFile", 0, "No Table returned check sql", Logger.WARNING);
+                Logger.Write(logProgramName, "CreateFile", 0, "sql:" + sql, Logger.WARNING);
 
                 return false;
             }

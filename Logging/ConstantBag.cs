@@ -4,13 +4,18 @@
     {
         //default user for Added By / Updated By
         public const string BATCH_USER = "batch";
+        public const string SYSTEM_PARAM = "system";
+
+        //Modules
+        public const string MODULE_LITE = "lite";
+        public const string MODULE_REG = "reg";
 
         //db actions
         public const string IGNORED = "IGNORE";
         public const string INSERTED = "INS";
         public const string UPDATED = "UPD";
 
-        //Lite Modules
+        //Lite bussiness
         public const string LITE_IN = "lite_inp";
         public const string LITE_OUT_STATUS = "lite_stat";
         public const string LITE_OUT_RESPONSE = "lite_resp";

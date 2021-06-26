@@ -1,4 +1,6 @@
-﻿namespace NpsApy
+﻿using CommonUtil;
+
+namespace NpsApy
 {
     internal class FileProcessorRegular : FileProcessor
     {
@@ -7,12 +9,12 @@
 
         }
 
-        public override string GetBizType()
+        public override string GetModuleName()
         {
-            return BIZ_REG;
+            return ConstantBag.MODULE_REG;
         }
 
-        public override bool ProcessBiz(string operation, string runFor, string courierCsv)
+        public override bool ProcessModule(string operation, string runFor, string courierCsv)
         {
             throw new System.NotImplementedException();
         }

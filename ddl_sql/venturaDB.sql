@@ -18,7 +18,7 @@ CREATE TABLE ventura.system_param (
 TABLESPACE pg_default;
 --
 insert into ventura.system_param (biztype, module_name, params_json) 
-values ('lite', 'directories',
+values ('system','lite',
 '{"inputdir":"c:/zunk/lite/input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY"
 , "workdir":"c:/zunk/lite/work", "systemdir":"c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql"}');
 

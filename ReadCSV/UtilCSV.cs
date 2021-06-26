@@ -11,7 +11,7 @@ namespace ReadCSV
 {
     public class UtilCSV
     {
-        private static string moduleName = "UtilCSV";
+        private static string logProgramName = "UtilCSV";
 
         public bool ReadCSV(string connectionStr, string pgSchema)
         {
@@ -20,11 +20,11 @@ namespace ReadCSV
 
             if (readJobs.Count == 0)
             {
-                Logger.WriteInfo(moduleName, "ReadCSV", 0, "No Read job found");
+                Logger.WriteInfo(logProgramName, "ReadCSV", 0, "No Read job found");
                 return true;
             }
             
-            Logger.WriteInfo(moduleName, "ProcessFile", 0, $"Count of Read jobs:{readJobs.Count}");
+            Logger.WriteInfo(logProgramName, "ProcessFile", 0, $"Count of Read jobs:{readJobs.Count}");
 
             foreach (ReadJob aJob in readJobs)
             {
@@ -38,13 +38,13 @@ namespace ReadCSV
 
         public void ProcessFile(string connectionStr, string pgSchema, ReadJob aJob)
         {
-            Logger.WriteInfo(moduleName, "ProcessFile", aJob.Id, $"Started Read job file {aJob.OutFileName}");
+            Logger.WriteInfo(logProgramName, "ProcessFile", aJob.Id, $"Started Read job file {aJob.OutFileName}");
             if (IsFileValid(connectionStr, pgSchema, aJob))
             {
                 WriteRawData(connectionStr, pgSchema, aJob);
 
                 UpdateStat(connectionStr, pgSchema, ReadJob.RAW_WRITTEN, aJob.Id, 0); //change status = readToRaw
-                Logger.WriteInfo(moduleName, "ProcessFile", aJob.Id, $"Done Read job file {aJob.OutFileName}");
+                Logger.WriteInfo(logProgramName, "ProcessFile", aJob.Id, $"Done Read job file {aJob.OutFileName}");
                 //to do
                 //define table to save Stored Proc to call for custom validation
                 //link to job
@@ -53,13 +53,13 @@ namespace ReadCSV
             else
             {
                 //status = error is done by isFileValid because it has details
-                Logger.Write(moduleName, "ProcessFile", aJob.Id, $"Error in file. See above. Read file {aJob.OutFileName}", Logger.ERROR);
+                Logger.Write(logProgramName, "ProcessFile", aJob.Id, $"Error in file. See above. Read file {aJob.OutFileName}", Logger.ERROR);
             }
         }
 
         private void WriteRawData(string connectionStr, string pgSchema, ReadJob aJob)
         {
-            Logger.WriteInfo(moduleName, "WriteRawData", aJob.Id, $"Started WriteRawData for job file {aJob.OutFileName}");
+            Logger.WriteInfo(logProgramName, "WriteRawData", aJob.Id, $"Started WriteRawData for job file {aJob.OutFileName}");
 
             ReadTemplateHeader templateHdr = new ReadTemplateHeader();
             LoadFileTemplateFromDB(connectionStr, pgSchema, aJob, templateHdr);
@@ -105,7 +105,7 @@ namespace ReadCSV
                 ExecuteInsert(connectionStr, sb.ToString(), aJob.Id, rowNum);
             }
 
-            Logger.Write(moduleName, "WriteRawData", aJob.Id, "Total Number of rows " + rowNum + ", error count:" + errCount, (errCount == 0 ? Logger.INFO : Logger.WARNING));
+            Logger.Write(logProgramName, "WriteRawData", aJob.Id, "Total Number of rows " + rowNum + ", error count:" + errCount, (errCount == 0 ? Logger.INFO : Logger.WARNING));
 
             //using(NpgsqlConnection conn = new NpgsqlConnection(connectionStr))
             //{
@@ -132,9 +132,9 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.Write(moduleName, "ExecuteInsert", jobId, $"Error inserting before row {rowNum}, see sql below", Logger.WARNING);
-                Logger.Write(moduleName, "ExecuteInsert", jobId, "Error Sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(moduleName, "ExecuteInsert", jobId, ex);
+                Logger.Write(logProgramName, "ExecuteInsert", jobId, $"Error inserting before row {rowNum}, see sql below", Logger.WARNING);
+                Logger.Write(logProgramName, "ExecuteInsert", jobId, "Error Sql:" + sql, Logger.WARNING);
+                Logger.WriteEx(logProgramName, "ExecuteInsert", jobId, ex);
                 throw;
             }
         }
@@ -156,9 +156,9 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.Write(moduleName, "UpdateStat", jobId, $"Error Updating Stat @row {rowNum}, see sql below", Logger.WARNING);
-                Logger.Write(moduleName, "UpdateStat", jobId, "Error Sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(moduleName, "UpdateStat", jobId, ex);
+                Logger.Write(logProgramName, "UpdateStat", jobId, $"Error Updating Stat @row {rowNum}, see sql below", Logger.WARNING);
+                Logger.Write(logProgramName, "UpdateStat", jobId, "Error Sql:" + sql, Logger.WARNING);
+                Logger.WriteEx(logProgramName, "UpdateStat", jobId, ex);
                 throw;
             }
         }
@@ -200,7 +200,7 @@ namespace ReadCSV
             {
                 errCount++;
                 //to do add this row to error log for the Job
-                Logger.Write(moduleName, "IsRowValid", jobId, sbEr.ToString(), Logger.ERROR);
+                Logger.Write(logProgramName, "IsRowValid", jobId, sbEr.ToString(), Logger.ERROR);
             }
 
             return isValid;
@@ -225,7 +225,7 @@ namespace ReadCSV
             if (File.Exists(fullFileName) == false)
             {
                 UpdateStat(connectionStr, pgSchema, ReadJob.ERR_FILE_MISSING, aJob.Id, 0); //mark the job as Fail- file missing
-                Logger.Write(moduleName, "FileIsValid", aJob.Id, $"file {fullFileName} missing", Logger.ERROR);
+                Logger.Write(logProgramName, "FileIsValid", aJob.Id, $"file {fullFileName} missing", Logger.ERROR);
                 return false;
             }
 
@@ -234,7 +234,7 @@ namespace ReadCSV
             if (templateOk == false)
             {
                 UpdateStat(connectionStr, pgSchema, ReadJob.ERR_TMPL_MISSING, aJob.Id, 0); //mark the job as Fail- template missing or err reading template
-                Logger.Write(moduleName, "FileIsValid", aJob.Id, $"Client: {aJob.ClientId} / {aJob.ReadTemplateId} file template missing", Logger.ERROR);
+                Logger.Write(logProgramName, "FileIsValid", aJob.Id, $"Client: {aJob.ClientId} / {aJob.ReadTemplateId} file template missing", Logger.ERROR);
                 return false;
             }
 
@@ -244,7 +244,7 @@ namespace ReadCSV
             if (isValid == false)
             {
                 UpdateStat(connectionStr, pgSchema, ReadJob.ERR_HDR_MIS, aJob.Id, 0); //mark the job as Fail- template headers mismatch
-                Logger.Write(moduleName, "FileIsValid", aJob.Id, $"header Not found in pos: {hdrMismatch}", Logger.ERROR);
+                Logger.Write(logProgramName, "FileIsValid", aJob.Id, $"header Not found in pos: {hdrMismatch}", Logger.ERROR);
             }
 
             //record level validation not done here.
@@ -315,8 +315,8 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.Write(moduleName, "LoadReadJobs", aJob.Id, "Failed sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(moduleName, "LoadReadJobs", aJob.Id, ex);
+                Logger.Write(logProgramName, "LoadReadJobs", aJob.Id, "Failed sql:" + sql, Logger.WARNING);
+                Logger.WriteEx(logProgramName, "LoadReadJobs", aJob.Id, ex);
             }
             return false;
         }
@@ -337,15 +337,15 @@ namespace ReadCSV
 
                 UpdateStat(connectionStr, pgSchema, ReadJob.DOWNLOADED, aJob.Id, 0); //mark the job status = downloaded
 
-                Logger.WriteInfo(moduleName, "DownloadFile", aJob.Id, $"Downloaded URL: {aJob.Url}");
+                Logger.WriteInfo(logProgramName, "DownloadFile", aJob.Id, $"Downloaded URL: {aJob.Url}");
 
                 return true;
             }
             catch (Exception ex)
             {
                 UpdateStat(connectionStr, pgSchema, ReadJob.ERR_DOWNLOAD, aJob.Id, 0); //mark the job as Fail- Download file failed
-                Logger.Write(moduleName, "DownloadFile", aJob.Id, $"Failed URL: {aJob.Url}", Logger.WARNING);
-                Logger.WriteEx(moduleName, "DownloadFile", aJob.Id, ex);
+                Logger.Write(logProgramName, "DownloadFile", aJob.Id, $"Failed URL: {aJob.Url}", Logger.WARNING);
+                Logger.WriteEx(logProgramName, "DownloadFile", aJob.Id, ex);
                 return false;
             }
         }
@@ -384,8 +384,8 @@ namespace ReadCSV
             }
             catch (Exception ex)
             {
-                Logger.Write(moduleName, "LoadReadJobs", 0, "Failed sql:" + sql, Logger.WARNING);
-                Logger.WriteEx(moduleName, "LoadReadJobs", 0, ex);
+                Logger.Write(logProgramName, "LoadReadJobs", 0, "Failed sql:" + sql, Logger.WARNING);
+                Logger.WriteEx(logProgramName, "LoadReadJobs", 0, ex);
             }
         }
     }

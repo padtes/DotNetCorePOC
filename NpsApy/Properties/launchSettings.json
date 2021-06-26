@@ -2,7 +2,7 @@
   "profiles": {
     "NpsApy": {
       "commandName": "Project",
-      "commandLineArgs": "-bizType=LITE -op=READ"
+      "commandLineArgs": "-moduleName=LITE -op=READ"
     }
   }
 }

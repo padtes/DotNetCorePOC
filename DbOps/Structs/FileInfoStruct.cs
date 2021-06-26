@@ -11,8 +11,8 @@ namespace DbOps.Structs
         public string fpath { get; set; }
         public int fsize { get; set; }
 
-        public string bizType { get; set; }
         public string moduleName { get; set; }
+        public string bizType { get; set; }
         public string direction { get; set; }
         public string importedFrom { get; set; }
         public string courierSname { get; set; }

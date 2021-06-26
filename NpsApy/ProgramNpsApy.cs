@@ -1,4 +1,5 @@
-﻿using DbOps;
+﻿using CommonUtil;
+using DbOps;
 using Logging;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -13,7 +14,7 @@ namespace NpsApy
         {
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
             {
-                Console.WriteLine("enter command as ProgramNpsApy -bizType=[Lite|Reg|All] -op=[Read|Write|Report] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
+                Console.WriteLine("enter command as ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
                 Console.WriteLine("for ex. NOTE the DASH");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=Read");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=write -courier=ABC,PQR");
@@ -70,25 +71,25 @@ namespace NpsApy
 
             if (bizType == "lite" || bizType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(FileProcessor.BIZ_LITE, pgSchema, pgConnection);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgSchema, pgConnection);
 
-                run = processor.ProcessBiz(operation, runFor, courierCcsv);
+                run = processor.ProcessModule(operation, runFor, courierCcsv);
             }
 
             if (bizType == "reg" || bizType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(FileProcessor.BIZ_REG, pgSchema, pgConnection);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgSchema, pgConnection);
 
-                run = processor.ProcessBiz(operation, runFor, courierCcsv);
+                run = processor.ProcessModule(operation, runFor, courierCcsv);
             }
             return run;
         }
 
-        private static void ParseCommandArgs(string[] args, out string bizType, out string operation, out string runFor, out string courierCSV)
+        private static void ParseCommandArgs(string[] args, out string moduleName, out string operation, out string runFor, out string courierCSV)
         {
             //enter command as ProgramNpsApy -bizType=Lite -op=Read -runFor=ALL -courier=ABC,PQR 
 
-            bizType = "all";
+            moduleName = "all";
             operation = "all";
             runFor = "all";
             courierCSV = "";
@@ -108,9 +109,9 @@ namespace NpsApy
                 }
             }
 
-            if (cmdArgs.ContainsKey("biztype"))
+            if (cmdArgs.ContainsKey("modulename"))
             {
-                bizType = cmdArgs["biztype"]; //ALL | LITE | REG 
+                moduleName = cmdArgs["modulename"]; //ALL | LITE | REG 
             }
             if (cmdArgs.ContainsKey("op"))
             {
@@ -125,9 +126,9 @@ namespace NpsApy
                 courierCSV = cmdArgs["courier"];
             }
 
-            if (!(bizType == "all" || bizType == "lite" || bizType == "reg"))
+            if (!(moduleName == "all" || moduleName == "lite" || moduleName == "reg"))
             {
-                throw new Exception("Invalid value for bizType. Must be ALL | LITE | REG");
+                throw new Exception("Invalid value for ModuleName. Must be ALL | LITE | REG");
             }
             if (!(operation == "all" || operation == "read" || operation == "write" || operation == "report"))
             {
