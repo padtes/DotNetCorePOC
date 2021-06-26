@@ -30,7 +30,7 @@ namespace NpsApy
             return base.ProcessBiz(operation, runFor, courierCsv);
         }
 
-        public  override void ProcessInput(string runFor)
+        public override void ProcessInput(string runFor)
         {
             /*
             INPUT directory structure
@@ -117,7 +117,7 @@ namespace NpsApy
 
             string apyOutDir, liteOutDir, curWorkDir;
             CreateWorkDir(dateAsDir, out apyOutDir, out liteOutDir, out curWorkDir);
-            
+
             Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
 
             //assuming input will be directly under yyyymmdd / npsLite_apy directory 
@@ -137,17 +137,30 @@ namespace NpsApy
                 }
 
                 //save all details as full input and work path - Copy file from input to work
-                FileInfoStruct fInfo = new FileInfoStruct() {
+                FileInfoStruct fInfo = new FileInfoStruct()
+                {
                     fname = fName,
                     fpath = curWorkDir,
                     isDeleted = false,
                     bizType = GetBizType(),
                     moduleName = ConstantBag.LITE_IN,
                     direction = ConstantBag.DIRECTION_IN,
-                    addeDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
+                    addedDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
                     addedBy = ConstantBag.BATCH_USER,
+                    updateDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
+                    updatedBy = ConstantBag.BATCH_USER,
                     inpRecStatus = ConstantBag.FILE_LC_STEP_TODO,
-                    inpRecStatusDtUTC = DateTime.UtcNow
+                    inpRecStatusDtUTC = DateTime.UtcNow,
+                    // TO BE DONE  --need to save a record NpgSql odd
+                    importedFrom = "TBD",
+                    courierSname = "",
+                    courierMode = "",
+                    nprodRecords = 0,
+                    archiveAfter = 0,
+                    archivePath = "TBD",
+                    purgeAfter=0,
+                    addedfromIP="localhost",
+                    updatedFromIP = "localhost"
                 };
 
                 DbUtil.UpsertFileInfo(pgConnection, GetBizType(), moduleName, jobId, i, pgSchema, reprocess, fInfo, out string actionTaken);
@@ -160,8 +173,8 @@ namespace NpsApy
 
         private void CreateWorkDir(string dateAsPath, out string apyOutDir, out string liteOutDir, out string curWorkDir)
         {
-            string[] pathParts = dateAsPath.Split(new char[] { '/', '\\'});
-            string dateAsDir = pathParts[pathParts.Length -1];
+            string[] pathParts = dateAsPath.Split(new char[] { '/', '\\' });
+            string dateAsDir = pathParts[pathParts.Length - 1];
 
             string curWorkDirForDt = workDir + "/" + dateAsDir;
             if (Directory.Exists(curWorkDirForDt) == false)
@@ -176,7 +189,7 @@ namespace NpsApy
             if (Directory.Exists(liteOutDir) == false)
                 Directory.CreateDirectory(liteOutDir);
 
-            apyOutDir= tmpOut + "/" + paramsDict["output_apy"];
+            apyOutDir = tmpOut + "/" + paramsDict["output_apy"];
             if (Directory.Exists(apyOutDir) == false)
                 Directory.CreateDirectory(apyOutDir);
 

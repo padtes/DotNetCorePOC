@@ -184,11 +184,13 @@ namespace DbOps
                 if (isUpdate)
                 {
                     theFile.id = id;
-                    sql = UpdateFileInfoStatus(pgConnection, pgSchema, theFile);
+                    UpdateFileInfoStatus(pgConnection, pgSchema, theFile, ref sql);
+                    actionTaken = CommonUtil.ConstantBag.UPDATED;
                 }
                 else
                 {
-                    sql = InsertFileInfo(pgConnection, pgSchema, theFile);
+                    InsertFileInfo(pgConnection, pgSchema, theFile, ref sql);
+                    actionTaken = CommonUtil.ConstantBag.INSERTED;
                 }
             }
             catch (Exception ex)
@@ -198,9 +200,9 @@ namespace DbOps
             }
         }
 
-        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile) 
+        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql) 
         {
-            string sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
+            sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
                 $" where id='{theFile.id}'";
             using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
             {
@@ -214,13 +216,13 @@ namespace DbOps
             return sql;
         }
         
-        private static string InsertFileInfo(string pgConnection, string pgSchema, FileInfoStruct theFile)
+        private static string InsertFileInfo(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
-            string sql = $"insert into {pgSchema}.fileinfo (fname, fpath, fsize, biztype, module_name, direction, importedfrom, courier_sname, courier_mode, " +
-                "nprodrecords, archivepath, archiveafter, purgeafter, addedate, addedby, addedfromip, updatedate, " +
+            sql = $"insert into {pgSchema}.fileinfo (fname, fpath, fsize, biztype, module_name, direction, importedfrom, courier_sname, courier_mode, " +
+                "nprodrecords, archivepath, archiveafter, purgeafter, addeddate, addedby, addedfromip, updatedate, " +
                 "updatedby, updatedfromip, isdeleted, inp_rec_status, inp_rec_status_ts_utc) " +
-                "values (@fname, @fpath, @fsize, @biztype, @module_name, @direction, @importedfrom, @courier_sname, @courier_mode, " +
-                "@nprodrecords, @archivepath, @archiveafter, @purgeafter, @addedate, @addedby, @addedfromip, @updatedate, " +
+                $"values (@fname, @fpath, @fsize, @biztype, @module_name, @direction, @importedfrom, @courier_sname, @courier_mode, " +
+                "@nprodrecords, @archivepath, @archiveafter, @purgeafter, @addeddate, @addedby, @addedfromip, @updatedate, " +
                 "@updatedby, @updatedfromip, @isdeleted, @inp_rec_status, @inp_rec_status_ts_utc" +
                 $") RETURNING id";
 
@@ -231,7 +233,7 @@ namespace DbOps
                     cmd.Parameters.AddWithValue("@fname", theFile.fname);
                     cmd.Parameters.AddWithValue("@fpath", theFile.fpath);
                     cmd.Parameters.AddWithValue("@fsize", theFile.fsize);
-                    cmd.Parameters.AddWithValue("@biztype ", theFile.bizType);
+                    cmd.Parameters.AddWithValue("@biztype", theFile.bizType);
                     cmd.Parameters.AddWithValue("@module_name", theFile.moduleName);
                     cmd.Parameters.AddWithValue("@direction", theFile.direction);
                     cmd.Parameters.AddWithValue("@importedfrom", theFile.importedFrom);
@@ -241,7 +243,7 @@ namespace DbOps
                     cmd.Parameters.AddWithValue("@archivepath", theFile.archivePath);
                     cmd.Parameters.AddWithValue("@archiveafter", theFile.archiveAfter);
                     cmd.Parameters.AddWithValue("@purgeafter", theFile.purgeAfter);
-                    cmd.Parameters.AddWithValue("@addedate", theFile.addeDate);
+                    cmd.Parameters.AddWithValue("@addeddate", theFile.addedDate);
                     cmd.Parameters.AddWithValue("@addedby", theFile.addedBy);
                     cmd.Parameters.AddWithValue("@addedfromip", theFile.addedfromIP);
                     cmd.Parameters.AddWithValue("@updatedate", theFile.updateDate);
@@ -253,6 +255,7 @@ namespace DbOps
 
                     conn.Open();
                     var res = cmd.ExecuteScalar();
+                    //cmd.ExecuteNonQuery();
                     int id = Convert.ToInt32(res);
                     theFile.id = id;
                     conn.Close();

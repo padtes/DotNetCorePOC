@@ -39,7 +39,7 @@ CREATE TABLE ventura.fileinfo (
 	archivepath	varchar(255),
 	archiveafter	integer,
 	purgeafter	integer,
-	addedate	TIMESTAMP,
+	addeddate	TIMESTAMP,
 	addedby	varchar,
 	addedfromip	varchar(16),
 	updatedate	TIMESTAMP,

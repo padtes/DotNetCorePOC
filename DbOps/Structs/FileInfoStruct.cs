@@ -23,7 +23,7 @@ namespace DbOps.Structs
         public int archiveAfter { get; set; }
         public int purgeAfter { get; set; }
 
-        public DateTime addeDate { get; set; }
+        public DateTime addedDate { get; set; }
         public string addedBy { get; set; }
         public string addedfromIP { get; set; }
         public DateTime updateDate { get; set; }
