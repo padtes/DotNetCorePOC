@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace NpsApy
+namespace DataProcessor
 {
-    internal abstract class FileProcessor
+    public abstract class FileProcessor
     {
         private const string logProgName = "FileProcessor";
 
@@ -80,7 +80,7 @@ namespace NpsApy
             }
         }
 
-        internal static FileProcessor GetProcessorInstance(string moduleName, string schemaName, string connectionStr)
+        public static FileProcessor GetProcessorInstance(string moduleName, string schemaName, string connectionStr)
         {
             FileProcessor fp = null;
             if (moduleName == ConstantBag.MODULE_LITE)

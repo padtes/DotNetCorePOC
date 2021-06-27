@@ -26,8 +26,8 @@
 	,"database":
 	[
 		{
-		"row_type" : "fh",
-		"H004_batch_id": "batch_id"
+		  "row_type" : "fh",
+		  "H004_batch_id": "batch_id"
 		}
 	  ,{
 		  "row_type" : "pd",
@@ -37,6 +37,17 @@
 		  "P049_signature" :"signature"
 	  }	
 	]
+	,"save_as_file":
+	[
+	  {
+		  "row_type" : "pd",
+		  "columns": 
+		  [
+			{"colName":"P048_photograph", "dir":"Photo","sub_dir":"Photo_{{LITE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_photo.jpg"},
+			{"colName":"P049_signature", "dir":"Sign","sub_dir":"Sig_{{LITE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_sign.jpg" }
+          ]
+      }
+	]	
 	,"json_skip":[
 		{
 			"row_type" : "fh",

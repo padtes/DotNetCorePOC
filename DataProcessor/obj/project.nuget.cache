@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "XR2lrkf8awQPcuLYEZfjy03vg1wDHCgFaV5HT6O8bQY+62h941DCud4YQP2lqlofFnymJeRQnGAOpRXKjoRuiw==",
+  "dgSpecHash": "E0rvjoiK7q00Qwhlqj6WheSjLMVla/rj76KMtzL43NclUkf0YVOVnC09qaV2ESftKSbHI5wPxH/g9BVBH8PNSA==",
   "success": true,
   "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\DataProcessor\\DataProcessor.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\spadte\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\npgsql\\5.0.5\\npgsql.5.0.5.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
+  ],
   "logs": []
 }

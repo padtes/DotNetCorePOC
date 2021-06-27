@@ -39,6 +39,7 @@
       "DbOps/1.0.0": {
         "dependencies": {
           "Logging": "1.0.0",
+          "Newtonsoft.Json": "13.0.1",
           "Npgsql": "5.0.5"
         },
         "runtime": {

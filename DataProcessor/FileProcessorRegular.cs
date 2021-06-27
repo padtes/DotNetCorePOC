@@ -1,8 +1,8 @@
 ﻿using CommonUtil;
 
-namespace NpsApy
+namespace DataProcessor
 {
-    internal class FileProcessorRegular : FileProcessor
+    public class FileProcessorRegular : FileProcessor
     {
         public FileProcessorRegular(string schemaName, string connectionStr) : base(schemaName, connectionStr)
         {

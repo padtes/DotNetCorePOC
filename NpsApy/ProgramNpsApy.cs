@@ -1,6 +1,7 @@
 ﻿using CommonUtil;
 using DbOps;
 using Logging;
+using DataProcessor;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

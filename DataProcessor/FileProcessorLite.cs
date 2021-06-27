@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
-namespace NpsApy
+namespace DataProcessor
 {
-    internal class FileProcessorLite : FileProcessor
+    public class FileProcessorLite : FileProcessor
     {
         private const string logProgName = "FileProcLite";
         public FileProcessorLite(string schemaName, string connectionStr) : base(schemaName, connectionStr)

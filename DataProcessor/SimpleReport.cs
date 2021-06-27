@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NpsApy
+namespace DataProcessor
 {
     public class SimpleReport
     {
