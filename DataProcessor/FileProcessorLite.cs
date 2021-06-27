@@ -61,14 +61,17 @@ namespace DataProcessor
                 }
             }
 
+
+            FileTypMaster fTypeMaster = GetFileTypMaster(ConstantBag.FILE_LC_STEP_TODO);
+
             //for each sub directory  -- this can go in parallel, not worth it - mostly 1 date at a time
             for (int i = 0; i < dateDirectories.Count; i++)
             {
                 // collect file names to process - make entry in File Header table with status = "TO DO"
+                //to do read fileTypeMaster - to see file name pattern to read files
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess: (runFor != "all"));
             }
 
-            FileTypMmaster fTypeMaster = GetDataSet(ConstantBag.FILE_LC_STEP_TODO);
             if (fTypeMaster == null)
             {
                 Logger.WriteInfo(logProgName, "ProcessInput", 0
@@ -89,9 +92,9 @@ namespace DataProcessor
             //
         }
 
-        private FileTypMmaster GetDataSet(string fileLifeStat)
+        private FileTypMaster GetFileTypMaster(string fileLifeStat)
         {
-            return DbUtil.GetFileTypMmaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
+            return DbUtil.GetFileTypMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)

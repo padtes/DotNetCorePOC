@@ -4,14 +4,15 @@ using System.Text;
 
 namespace DbOps.Structs
 {
-    public class SystemParam
+    public class SystemParamInput
     {
-        public static string FileType { get; set; }
-        public static int RowTypeIndex { get; set; }
-        public static string FileHeaderRowType { get; set; }
-        public static string DataRowType { get; set; }
-        public static string DataTableName { get; set; }
-        public static string DataTableJsonCol { get; set; }
+        public string FileType { get; set; }
+        public int RowTypeIndex { get; set; }
+        public string FileHeaderRowType { get; set; }
+        public string DataRowType { get; set; }
+        public string DataTableName { get; set; }
+        public string DataTableJsonCol { get; set; }
+        public string UniqueColumn { get; set; }
     }
 
 }

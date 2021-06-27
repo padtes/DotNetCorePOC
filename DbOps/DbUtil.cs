@@ -266,7 +266,7 @@ namespace DbOps
             return sql;
         }
 
-        public static FileTypMmaster GetFileTypMmaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string myStatus)
+        public static FileTypMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string myStatus)
         {
             string sql = $"select * from {pgSchema}.fileinfo where isdeleted='0' and biztype='{bizType}' and module_name='{moduleName}' and inp_rec_status= '{myStatus}' order by id";
 
@@ -276,7 +276,7 @@ namespace DbOps
 
             DataRow dr = ds.Tables[0].Rows[0];
 
-            FileTypMmaster fm = new FileTypMmaster()
+            FileTypMaster fm = new FileTypMaster()
             {
                 id = Convert.ToInt32(dr["id"]),
                 isActive = Convert.ToBoolean(dr["isactive"]),

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DbOps.Structs;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,10 +7,10 @@ namespace DataProcessor
 {
     public abstract class InputRecordAbs
     {
-        public List<KeyValuePair<string, string>> DbColsWithVals;
+        public List<KeyValuePair<string, string>> DbColsWithVals= new List<KeyValuePair<string, string>>();
 
         public abstract bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
-               , Dictionary<string, List<string>> jsonSkip
+               , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
            , string rowType, string[] cells);
 
         internal void ParseDbValues(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict, string rowType, string[] cells)
@@ -48,7 +49,7 @@ namespace DataProcessor
         public List<KeyValuePair<string, string>> hdrFields = new List<KeyValuePair<string, string>>();
 
         public override bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
-                , Dictionary<string, List<string>> jsonSkip
+                , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
             , string rowType, string[] cells)
         {
             if (allColumns == null || allColumns.Count != cells.Length)
@@ -143,16 +144,11 @@ namespace DataProcessor
 
     public class InputRecord : InputRecordAbs
     {
-        public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType;
-
-        public InputRecord()
-        {
-            DbColsWithVals = new List<KeyValuePair<string, string>>();
-            JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
-        }
-
+        public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
+        //List<columnsSaveAsFile> 
+        
         public override bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
-                , Dictionary<string, List<string>> jsonSkip
+                , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
             , string rowType, string[] cells)
         {
             if (allColumns == null || allColumns.Count != cells.Length)
@@ -184,10 +180,27 @@ namespace DataProcessor
             //    JsonByRowType[rowType] = rowsOfGivenRowType;  //not needed 
 
             ParseDbValues(allColumns, dbMapDict, rowType, cells);
+            
+            //SaveAsFileDef saveAsFileDefnn
 
             return true;
         }
 
+        public string GenerateRecFind(string pgSchema, SystemParamInput inpSysParam)
+        {
+            string valToCheck = "";
+            foreach (var dbColVal in DbColsWithVals)
+            {
+                if (dbColVal.Key.Equals(inpSysParam.UniqueColumn, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    valToCheck = dbColVal.Value.Replace("'", "''");
+                    break;
+                }
+            }
+
+            String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
+            return sql;
+        }
         public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, InputHeader inputHdr)
         {
             StringBuilder sb1 = new StringBuilder();

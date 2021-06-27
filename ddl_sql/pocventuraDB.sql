@@ -143,6 +143,12 @@ CREATE TABLE pocventura.main_data
     last_name character varying(50) COLLATE pg_catalog."default",
     dob date,
     service_length integer,
+    child_json jsonb,
+    batch_id character varying(12) COLLATE pg_catalog."default",
+    ack_number character varying(18) COLLATE pg_catalog."default",
+    pran_id character varying(12) COLLATE pg_catalog."default",
+    photograph character varying(10485760) COLLATE pg_catalog."default",
+    signature character varying(10485760) COLLATE pg_catalog."default",
     CONSTRAINT main_data_pkey PRIMARY KEY (id)
 )
 
@@ -150,7 +156,6 @@ TABLESPACE pg_default;
 
 ALTER TABLE pocventura.main_data
     OWNER to postgres;
-
 ---
 create table pocventura.serial_number 
 (

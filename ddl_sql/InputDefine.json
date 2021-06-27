@@ -13,7 +13,9 @@
 		"3": "optional: database is for table coulumns that are mapped in non-JSONB, might be repeated as JSONB too",
 		"3.1": "database properties are what input file column as defined in file_def per row_type, goes to what database_table_column",
 		"4": "optional: json_skip is for whatever to be skipped in JSONB",
-		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB"
+		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB",
+		"5": "optional: save_as_file is for columns to be saved as file",
+		"5.1": "this is list of input columns as defined in file_def per row_type, to SAVE as File giving dir/subdir/fileName pattern"
 	}
 	,"system":{
 		"file_type" : "nps_regular",
@@ -21,7 +23,8 @@
 		"file_header_row_type": "fh",
 		"data_row_type": "pd",
 		"data_table_name":"main_data",
-		"data_table_json_col":"child_json"
+		"data_table_json_col":"child_json",
+		"unique_column":"pran_id"
 	}
 	,"database":
 	[
@@ -37,17 +40,6 @@
 		  "P049_signature" :"signature"
 	  }	
 	]
-	,"save_as_file":
-	[
-	  {
-		  "row_type" : "pd",
-		  "columns": 
-		  [
-			{"colName":"P048_photograph", "dir":"Photo","sub_dir":"Photo_{{LITE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_photo.jpg"},
-			{"colName":"P049_signature", "dir":"Sign","sub_dir":"Sig_{{LITE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_sign.jpg" }
-          ]
-      }
-	]	
 	,"json_skip":[
 		{
 			"row_type" : "fh",
@@ -57,6 +49,17 @@
 		  "row_type" : "pd",
 		  "cols":["P009_acknowledgement_number","P008_pran","P048_photograph","P049_signature"]
 		}
+	]
+	,"save_as_file":
+	[
+	  {
+		  "row_type" : "pd",
+		  "columns": 
+		  [
+			{"colName":"P048_photograph", "dir":"Photo","sub_dir":"Photo_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_photo.jpg"},
+			{"colName":"P049_signature", "dir":"Sign","sub_dir":"Sig_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_sign.jpg" }
+          ]
+      }
 	]
 	, "file_def" : {
 		 "fh":{

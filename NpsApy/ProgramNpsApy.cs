@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DbOps.Structs;
 
 namespace NpsApy
 {
@@ -13,6 +14,9 @@ namespace NpsApy
     {
         static void Main(string[] args)
         {
+
+            //to do validate file based on column def - need to change col def for length, value range, empty ot not
+
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
             {
                 Console.WriteLine("enter command as ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
@@ -170,5 +174,41 @@ namespace NpsApy
             if (DbUtil.CanConnectToDB(pgConnection) == false)
                 throw new Exception("pgConnection Not in appSettings.json. ABORTING");
         }
+        #region TEST_CODE
+
+        private static void TestInp()
+        {
+            Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
+
+            string pgConnection = "Server=localhost; Port=5433; Database=postgres; User Id=userventura; Password=simpleuser; ";
+            string pgSchema = "ventura";
+            string moduleName = "LiteTest";
+            string inputFilePathName = @"C:\d\Personal\Learning\reg_test_in\PTGPRN0507202114070521001.TXT";
+            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
+            int jobId = 0;
+            char theDelim = '^';
+
+            bool suc = FileProcessorUtil.SaveInputToDB(pgConnection, pgSchema, moduleName, jobId, inputFilePathName, jsonParamFilePath, theDelim);
+            if (suc)
+                Console.WriteLine("Great Success");
+        }
+        private static void TestJasonLoad()
+        {
+            Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
+
+            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
+
+            Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
+            Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
+            SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
+            SystemParamInput inpSysParam = new SystemParamInput();
+
+            FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, dbMap, jsonSkip, fileDefDict, saveAsFileDefnn, inpSysParam);
+
+            Console.WriteLine("Great Success");
+        }
+        #endregion
+
     }
 }

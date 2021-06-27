@@ -35,7 +35,7 @@ namespace DbOps.Structs
         //meta
     }
 
-    public class FileTypMmaster
+    public class FileTypMaster
     {
         public int id { get; set; }
         public bool isActive { get; set; }
