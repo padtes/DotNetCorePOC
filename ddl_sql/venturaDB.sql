@@ -52,34 +52,22 @@ CREATE TABLE ventura.fileinfo (
 	CONSTRAINT fileinfo_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
-                        cmd.Parameters.AddWithValue("@fname", theFile.fname);
 
-                        cmd.Parameters.AddWithValue("@fname", theFile.fname);
-                        cmd.Parameters.AddWithValue("@fpath", theFile.fpath);
-                        cmd.Parameters.AddWithValue("@fsize", theFile.fsize);
-                        cmd.Parameters.AddWithValue("@biztype ", theFile.biztype);
-                        cmd.Parameters.AddWithValue("@module_name", theFile.module_name);
-                        cmd.Parameters.AddWithValue("@direction", theFile.direction);
-                        cmd.Parameters.AddWithValue("@importedfrom", theFile.importedfrom);
-                        cmd.Parameters.AddWithValue("@courier_sname", theFile.courier_sname);
-                        cmd.Parameters.AddWithValue("@courier_mode", theFile.courier_mode);
-                        cmd.Parameters.AddWithValue("@nprodrecords", theFile.nprodrecords);
-                        cmd.Parameters.AddWithValue("@archivepath", theFile.archivepath);
-                        cmd.Parameters.AddWithValue("@archiveafter", theFile.archiveafter);
-                        cmd.Parameters.AddWithValue("@purgeafter", theFile.purgeafter);
-                        cmd.Parameters.AddWithValue("@addedate", theFile.addedate);
-                        cmd.Parameters.AddWithValue("@addedby", theFile.addedby);
-                        cmd.Parameters.AddWithValue("@addedfromip", theFile.addedfromip);
-                        cmd.Parameters.AddWithValue("@updatedate", theFile.updatedate);
-                        cmd.Parameters.AddWithValue("@updatedby", theFile.updatedby);
-                        cmd.Parameters.AddWithValue("@updatedfromip", theFile.updatedfromip);
-                        cmd.Parameters.AddWithValue("@isdeleted", theFile.isdeleted);
-                        cmd.Parameters.AddWithValue("@inp_rec_status", theFile.inp_rec_status);
-                        cmd.Parameters.AddWithValue("@inp_rec_status_d", theFile.inp_rec_status_d);
-
-
-
-
-
-
+CREATE TABLE ventura.filetypemaster (
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	isactive	bool,
+	biztype  varchar(20),
+    module_name varchar(20),
+	archiveafter 	integer,
+	purgeafter 	integer,
+	fname_pattern	varchar(200),
+	fname_pattern_attr	varchar(200),
+	fname_pattern_name	varchar(200),
+	ext	varchar(5),
+	ftype	varchar(20),
+	file_def_json json,
+	file_def_json_fName varchar(50),
+	CONSTRAINT filetypemaster_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
 

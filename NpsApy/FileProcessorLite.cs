@@ -68,8 +68,8 @@ namespace NpsApy
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess: (runFor != "all"));
             }
 
-            DataSet ds = GetDataSet(ConstantBag.FILE_LC_STEP_TODO);
-            if (ds.Tables.Count < 1)
+            FileTypMmaster fTypeMaster = GetDataSet(ConstantBag.FILE_LC_STEP_TODO);
+            if (fTypeMaster == null)
             {
                 Logger.WriteInfo(logProgName, "ProcessInput", 0
                     , $"NO RECORDS {ConstantBag.FILE_LC_STEP_TODO} for {GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}");
@@ -89,9 +89,9 @@ namespace NpsApy
             //
         }
 
-        private DataSet GetDataSet(string fileLifeStat)
+        private FileTypMmaster GetDataSet(string fileLifeStat)
         {
-            return LiteApyDbOps.GetDataset(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
+            return DbUtil.GetFileTypMmaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)

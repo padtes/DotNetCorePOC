@@ -139,8 +139,8 @@ namespace NpsApy
 
             if (erMsg != "")
             {
-                Logger.Write(logProgName, "ValidateStaticParam", 0, erMsg + " params are missing for " + bizType, Logger.ERROR);
-                throw new Exception(erMsg + " params are missing for " + bizType);
+                Logger.Write(logProgName, "ValidateStaticParam", 0, erMsg + " params are missing for " + GetModuleName() + "_" + bizType, Logger.ERROR);
+                throw new Exception(erMsg + " params are missing for " + GetModuleName() + "_" + bizType);
             }
         }
 

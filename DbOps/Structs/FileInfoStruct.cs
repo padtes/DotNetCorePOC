@@ -34,4 +34,23 @@ namespace DbOps.Structs
         public DateTime inpRecStatusDtUTC { get; set; }
         //meta
     }
+
+    public class FileTypMmaster
+    {
+        public int id { get; set; }
+        public bool isActive { get; set; }
+        public string moduleName { get; set; }
+        public string bizType { get; set; }
+        public int archiveAfter { get; set; }
+        public int purgeAfter { get; set; }
+        public string fnamePattern { get; set; }
+        public string fnamePatternAttr { get; set; }
+        public string fnamePatternName { get; set; }
+        public string ext { get; set; }
+        public string fType { get; set; }
+        public string fileDefJson { get; set; }
+        public string fileDefJsonFName { get; set; }
+        
+    }
+
 }

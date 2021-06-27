@@ -265,5 +265,35 @@ namespace DbOps
 
             return sql;
         }
+
+        public static FileTypMmaster GetFileTypMmaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string myStatus)
+        {
+            string sql = $"select * from {pgSchema}.fileinfo where isdeleted='0' and biztype='{bizType}' and module_name='{moduleName}' and inp_rec_status= '{myStatus}' order by id";
+
+            DataSet ds = DbUtil.GetDataSet(pgConnection, bizType + "_GetDataset", moduleName, jobId, sql);
+            if (ds.Tables.Count < 1 || ds.Tables[0].Rows.Count < 1)
+                return null;
+
+            DataRow dr = ds.Tables[0].Rows[0];
+
+            FileTypMmaster fm = new FileTypMmaster()
+            {
+                id = Convert.ToInt32(dr["id"]),
+                isActive = Convert.ToBoolean(dr["isactive"]),
+                bizType = Convert.ToString(dr["biztype"]),
+                moduleName = Convert.ToString(dr["module_name"]),
+                archiveAfter = Convert.ToInt32(dr["archiveafter"]),
+                purgeAfter = Convert.ToInt32(dr["purgeafter"]),
+                fnamePattern = Convert.ToString(dr["fname_pattern"]),
+                fnamePatternAttr = Convert.ToString(dr["fname_pattern_attr"]),
+                fnamePatternName = Convert.ToString(dr["fname_pattern_name"]),
+                ext = Convert.ToString(dr["ext"]),
+                fType = Convert.ToString(dr["ftype"]),
+                fileDefJson = Convert.ToString(dr["file_def_json"]),
+                fileDefJsonFName = Convert.ToString(dr["file_def_json_fName"])
+            };
+
+            return fm;
+        }
     }
 }

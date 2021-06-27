@@ -1,0 +1,9 @@
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\DataProcessor.deps.json
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\DataProcessor.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\DataProcessor.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.csproj.AssemblyReference.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.AssemblyInfoInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.AssemblyInfo.cs
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.csproj.CoreCompileInputs.cache
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.pdb
