@@ -70,6 +70,8 @@ namespace DataProcessor
                 // collect file names to process - make entry in File Header table with status = "TO DO"
                 //to do read fileTypeMaster - to see file name pattern to read files
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess: (runFor != "all"));
+
+                //SavetoDb(dateDirectories[i])
             }
 
             if (fTypeMaster == null)
@@ -81,7 +83,7 @@ namespace DataProcessor
             }
 
 
-
+            //---------------------------- 2 ---------------
             //read json file Def for lite apy in systemDir
             //configLiteApyDef = json deserialize 
 
@@ -150,10 +152,10 @@ namespace DataProcessor
                 string fName = Path.GetFileName(aFile);
                 string workDest = curWorkDir + "\\" + fName;
 
-                if (File.Exists(workDest) == false || reprocess)
-                {
-                    File.Copy(aFile, workDest, reprocess);
-                }
+                //if (File.Exists(workDest) == false || reprocess)   //we do NOT COPY files from in to work
+                //{
+                //    File.Copy(aFile, workDest, reprocess);
+                //}
 
                 //save all details as full input and work path - Copy file from input to work
                 FileInfoStruct fInfo = new FileInfoStruct()
@@ -212,9 +214,10 @@ namespace DataProcessor
             if (Directory.Exists(apyOutDir) == false)
                 Directory.CreateDirectory(apyOutDir);
 
-            curWorkDir = tmpOut + "/" + outParentDir + "_copy"; // to keep copy of input files
-            if (Directory.Exists(curWorkDir) == false)
-                Directory.CreateDirectory(curWorkDir);
+            curWorkDir = dateAsPath; //we do NOT COPY files from in to work
+            //curWorkDir = tmpOut + "/" + paramsDict["output_duplicate"]; // to keep copy of input files
+            //if (Directory.Exists(curWorkDir) == false)
+            //    Directory.CreateDirectory(curWorkDir);
 
         }
 
@@ -224,8 +227,8 @@ namespace DataProcessor
             //copy file to work dir
             //use config defining input file structre loaded before calling this in loop
             //Save from txt file to data table
-            //save photos and signatures
-            //delete file from input dir
+            ////save photos and signatures
+            //delete file from input dir ???
         }
 
     }

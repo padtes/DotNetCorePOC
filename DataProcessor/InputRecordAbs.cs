@@ -41,7 +41,6 @@ namespace DataProcessor
                 }
             }
         }
-
     }
 
     public class InputHeader : InputRecordAbs
@@ -145,7 +144,7 @@ namespace DataProcessor
     public class InputRecord : InputRecordAbs
     {
         public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
-        //List<columnsSaveAsFile> 
+        public List<SaveAsFileColumn> saveAsFiles = new List<SaveAsFileColumn>();
         
         public override bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
                 , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
@@ -180,27 +179,36 @@ namespace DataProcessor
             //    JsonByRowType[rowType] = rowsOfGivenRowType;  //not needed 
 
             ParseDbValues(allColumns, dbMapDict, rowType, cells);
-            
-            //SaveAsFileDef saveAsFileDefnn
+
+            ParseSaveAsFileValues(allColumns, saveAsFileDefnn, rowType, cells);
 
             return true;
         }
 
         public string GenerateRecFind(string pgSchema, SystemParamInput inpSysParam)
         {
+            string valToCheck = GetColumnValue(inpSysParam.UniqueColumn);
+            valToCheck = valToCheck.Replace("'", "''");
+            
+            String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
+            return sql;
+        }
+
+        public string GetColumnValue(string theColName)
+        {
             string valToCheck = "";
             foreach (var dbColVal in DbColsWithVals)
             {
-                if (dbColVal.Key.Equals(inpSysParam.UniqueColumn, StringComparison.InvariantCultureIgnoreCase))
+                if (dbColVal.Key.Equals(theColName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    valToCheck = dbColVal.Value.Replace("'", "''");
+                    valToCheck = dbColVal.Value;
                     break;
                 }
             }
 
-            String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
-            return sql;
+            return valToCheck;
         }
+
         public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, InputHeader inputHdr)
         {
             StringBuilder sb1 = new StringBuilder();
@@ -249,6 +257,39 @@ namespace DataProcessor
                 sb1.Append(dbColVal.Key);
                 sb2.Append('\'').Append(dbColVal.Value.Replace("'", "''")).Append('\'');
 
+            }
+        }
+
+        private void ParseSaveAsFileValues(List<string> allColumns, SaveAsFileDef saveAsFileDefnn, string rowType, string[] cells)
+        {
+            SaveAsFile asFile = saveAsFileDefnn.GetFileDetailsByRow(rowType);
+            if (asFile != null)
+            {
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    string aColHdr = allColumns[i];
+                    AddDbColValAsFileDet(asFile, cells, i, aColHdr);
+                }
+            }
+        }
+
+        private void AddDbColValAsFileDet(SaveAsFile asFile, string[] cells, int i, string aColHdr)
+        {
+            foreach (var fileCol in asFile.Columns)  
+            {
+                if (fileCol.ColName.ToUpper() == aColHdr.ToUpper())
+                {
+                    SaveAsFileColumn tmpCol = new SaveAsFileColumn()
+                    {
+                        ColName = fileCol.ColName,
+                        Dir = fileCol.Dir,
+                        SubDir = fileCol.SubDir,
+                        FileName = fileCol.FileName,
+                        FileContent = cells[i]
+                    };
+                    saveAsFiles.Add(tmpCol);// new KeyValuePair<string, string>(dbCol.Value, cells[i]));
+                    break;
+                }
             }
         }
     }

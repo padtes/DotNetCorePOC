@@ -7,33 +7,28 @@ namespace DbOps.Structs
 {
     public class SaveAsFileDef
     {
+        public List<SaveAsFile> SaveAsFile { get; set; }
+
         public SaveAsFileDef()
         {
             SaveAsFile = new List<SaveAsFile>();
         }
-        public List<SaveAsFile> SaveAsFile { get; set; }
 
-        public SaveAsFileColumn GetFileDetails(string rowType, string colName)
+        public SaveAsFile GetFileDetailsByRow(string rowType)
         {
-            SaveAsFileColumn retSAC = null;
+            SaveAsFile retSAF = null;
             foreach (var item in this.SaveAsFile)
             {
                 if (item.RowType.Equals(rowType, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    foreach (var iCol in item.Columns)
-                    {
-                        if (iCol.ColName.Equals(colName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            retSAC = iCol;
-                            break;
-                        }
-                    }
-                }
-                if (retSAC != null)
+                    retSAF = item;
                     break;
+                }
             }
-            return retSAC;
+            return retSAF;
         }
+
+       
     }
     public class SaveAsFileColumn
     {
@@ -48,6 +43,10 @@ namespace DbOps.Structs
 
         [JsonProperty("file_name")]
         public string FileName { get; set; }
+
+        private string fileContent;
+        public string FileContent { get => fileContent; set => fileContent = value; }
+        public string PhysicalPath { get; set; }
     }
 
     public class SaveAsFile

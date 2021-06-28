@@ -22,7 +22,8 @@
 		"data_row_type": "pd",
 		"data_table_name":"filedetails",
 		"data_table_json_col":"data",
-		"unique_column":"prod_id"
+		"unique_column":"pran_id",
+		"courier_col":"courier_id"
 	}
 	,"database":
 	[
@@ -32,6 +33,7 @@
 		}
 	  ,{
 		  "row_type" : "pd",
+		  "P006_courier_id":"courier_id",
 		  "P009_acknowledgement_number": "ack_number",
 		  "P008_pran" : "pran_id",
 		  "P048_photograph" : "photograph",

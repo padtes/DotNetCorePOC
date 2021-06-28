@@ -24,7 +24,8 @@
 		"data_row_type": "pd",
 		"data_table_name":"main_data",
 		"data_table_json_col":"child_json",
-		"unique_column":"pran_id"
+		"unique_column":"pran_id",
+		"courier_col":"courier_id"
 	}
 	,"database":
 	[
@@ -34,6 +35,7 @@
 		}
 	  ,{
 		  "row_type" : "pd",
+		  "P006_courier_id":"courier_id",
 		  "P009_acknowledgement_number": "ack_number",
 		  "P008_pran" : "pran_id",
 		  "P048_photograph" : "photograph",
@@ -56,8 +58,8 @@
 		  "row_type" : "pd",
 		  "columns": 
 		  [
-			{"colName":"P048_photograph", "dir":"Photo","sub_dir":"Photo_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_photo.jpg"},
-			{"colName":"P049_signature", "dir":"Sign","sub_dir":"Sig_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{LITE_REC_SEQ}}_{{pran_id}}_sign.jpg" }
+			{"colName":"P048_photograph", "dir":"Photo","sub_dir":"Photo_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{courier_seq}}_{{unique_column}}_photo.jpg"},
+			{"colName":"P049_signature", "dir":"Sign","sub_dir":"Sig_{{LITE_DATE_DIR_SEQ}}","file_name" : "{{courier_seq}}_{{unique_column}}_sign.jpg" }
           ]
       }
 	]

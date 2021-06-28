@@ -30,6 +30,10 @@
         public const string FILE_LC_STEP_TO_DB = "DB_DONE";
         public const string FILE_LC_STEP_RESPONSE = "DONE_RESP";
 
+        public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
+        //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
+        public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
+
 // 3 flags - card print | letter | PTC entry
 // introduce batch concept
 

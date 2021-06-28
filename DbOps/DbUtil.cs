@@ -53,29 +53,35 @@ namespace DbOps
             }
             return true;
         }
-        
-        //public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId)
-        //{
-        //    pkId = -1;
-        //    try
-        //    {
-        //        using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
-        //        {
-        //            conn.Open();
-        //            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
-        //            {
-        //                var res = cmd.ExecuteScalar();
-        //                pkId = Convert.ToInt32(res);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        LogSqlError(moduleName, logProgramName, "ExecuteScalar", jobId, rowNum, sql, ex);
-        //        throw;
-        //    }
-        //    return true;
-        //}
+
+        public static bool Unlock(string pgSchema, string pgConnection)
+        {
+            string sql = $"update {pgSchema}.counters set lock_key='0' where  lock_key > '0' and parent_id > 0";
+            return ExecuteNonSql(pgConnection, "UNLOCK", "all", 0, 0, sql);
+        }
+
+        public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId)
+        {
+            pkId = -1;
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        var res = cmd.ExecuteScalar();
+                        pkId = Convert.ToInt32(res);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(moduleName, logProgramName, "ExecuteScalar", jobId, rowNum, sql, ex);
+                throw;
+            }
+            return true;
+        }
 
         private static void LogSqlError(string moduleName, string logProgName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
         {
