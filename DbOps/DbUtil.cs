@@ -54,7 +54,7 @@ namespace DbOps
             return true;
         }
 
-        public static bool Unlock(string pgSchema, string pgConnection)
+        public static bool Unlock(string pgConnection, string pgSchema)
         {
             string sql = $"update {pgSchema}.counters set lock_key='0' where  lock_key > '0' and parent_id > 0";
             return ExecuteNonSql(pgConnection, "UNLOCK", "all", 0, 0, sql);
@@ -62,6 +62,7 @@ namespace DbOps
 
         public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId)
         {
+            bool ret = false;
             pkId = -1;
             try
             {
@@ -70,17 +71,21 @@ namespace DbOps
                     conn.Open();
                     using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
                     {
-                        var res = cmd.ExecuteScalar();
-                        pkId = Convert.ToInt32(res);
+                        object res = cmd.ExecuteScalar();
+                        if (res != DBNull.Value)
+                        {
+                            pkId = Convert.ToInt32(res);
+                            ret = true;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogSqlError(moduleName, logProgramName, "ExecuteScalar", jobId, rowNum, sql, ex);
-                throw;
+                ret = false;
             }
-            return true;
+            return ret;
         }
 
         private static void LogSqlError(string moduleName, string logProgName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
@@ -272,9 +277,9 @@ namespace DbOps
             return sql;
         }
 
-        public static FileTypMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string myStatus)
+        public static FileTypMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId)
         {
-            string sql = $"select * from {pgSchema}.fileinfo where isdeleted='0' and biztype='{bizType}' and module_name='{moduleName}' and inp_rec_status= '{myStatus}' order by id";
+            string sql = $"select * from {pgSchema}.filetypemaster where isactive='1' and biztype='{bizType}' and module_name='{moduleName}' order by id";
 
             DataSet ds = DbUtil.GetDataSet(pgConnection, bizType + "_GetDataset", moduleName, jobId, sql);
             if (ds.Tables.Count < 1 || ds.Tables[0].Rows.Count < 1)

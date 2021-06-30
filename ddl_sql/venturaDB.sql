@@ -19,7 +19,7 @@ TABLESPACE pg_default;
 --
 insert into ventura.system_param (biztype, module_name, params_json) 
 values ('system','lite',
-'{"inputdir":"c:/zunk/lite/input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150"
+'{"inputdir":"c:/zunk/lite/input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
 , "workdir":"c:/zunk/lite/work", "systemdir":"c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql"}');
 
 
@@ -104,6 +104,7 @@ CREATE OR REPLACE FUNCTION ventura.get_serial_number(
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
+	SET search_path FROM CURRENT
 AS $BODY$
 declare 
   lser_no integer;
@@ -119,10 +120,10 @@ begin
 
   if not found then
     if init_if_need = '1' then
-	    insert into pocventura.counters (isactive, counter_name, descript, parent_id)
+	    insert into ventura.counters (isactive, counter_name, descript, parent_id)
  	    values (1, master_type, 'auto create', 0) RETURNING id into lmaster_id;
 
-		insert into pocventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
+		insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
  	    values (1, pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
  	    lser_no := 1;
@@ -142,7 +143,7 @@ begin
       where id =child_id;
  	else
 	  if init_if_need = '1' and lock_id <= 0 then
-		insert into pocventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
+		insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
  	    values (1, pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
  	    lser_no := 1;
@@ -154,7 +155,6 @@ begin
  
 end;
 $BODY$;
-
 ALTER FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer)
     OWNER TO postgres;
 
@@ -170,6 +170,7 @@ CREATE OR REPLACE FUNCTION ventura.lock_counter(
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
+	SET search_path FROM CURRENT
 AS $BODY$
 declare 
   lmaster_id INTEGER;
@@ -187,7 +188,7 @@ begin
     into child_id
     from ventura.counters
     where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-	 and lock_key <= 0
+	 and COALESCE(lock_key,0) <= 0
 	order by start_num limit 1;
 
     if found then

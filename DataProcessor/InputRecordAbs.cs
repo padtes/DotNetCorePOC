@@ -29,6 +29,20 @@ namespace DataProcessor
                 }
             }
         }
+        public string GetColumnValue(string theColName)
+        {
+            string valToCheck = "";
+            foreach (var dbColVal in DbColsWithVals)
+            {
+                if (dbColVal.Key.Equals(theColName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    valToCheck = dbColVal.Value;
+                    break;
+                }
+            }
+
+            return valToCheck;
+        }
 
         private void AddDbColVal(List<KeyValuePair<string, string>> dbMap, string[] cells, int i, string aColHdr)
         {
@@ -192,21 +206,6 @@ namespace DataProcessor
             
             String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
             return sql;
-        }
-
-        public string GetColumnValue(string theColName)
-        {
-            string valToCheck = "";
-            foreach (var dbColVal in DbColsWithVals)
-            {
-                if (dbColVal.Key.Equals(theColName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    valToCheck = dbColVal.Value;
-                    break;
-                }
-            }
-
-            return valToCheck;
         }
 
         public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, InputHeader inputHdr)

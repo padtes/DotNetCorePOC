@@ -21,13 +21,13 @@ namespace DataProcessor
             return ConstantBag.MODULE_LITE;
         }
 
-        public override bool ProcessModule(string operation, string runFor, string courierCsv)
+        protected override void LoadModuleParam(string operation, string runFor, string courierCsv)
         {
-            staticParamList = new List<string>() { "output_par", "output_lite", "output_apy" };
-            LoadParam(ConstantBag.SYSTEM_PARAM);
-            ValidateStaticParam(ConstantBag.MODULE_LITE);
+            staticParamList = new List<string>() { ConstantBag.PARAM_OUTPUT_PARENT_DIR, ConstantBag.PARAM_OUTPUT_LITE_DIR, ConstantBag.PARAM_OUTPUT_APY_DIR, ConstantBag.PARAM_IMAGE_LIMIT };
 
-            return base.ProcessModule(operation, runFor, courierCsv);
+            LoadParam(ConstantBag.SYSTEM_PARAM);
+
+            ValidateStaticParam(ConstantBag.MODULE_LITE);
         }
 
         public override void ProcessInput(string runFor)
@@ -62,7 +62,7 @@ namespace DataProcessor
             }
 
 
-            FileTypMaster fTypeMaster = GetFileTypMaster(ConstantBag.FILE_LC_STEP_TODO);
+            FileTypMaster fTypeMaster = GetFileTypMaster();
 
             //for each sub directory  -- this can go in parallel, not worth it - mostly 1 date at a time
             for (int i = 0; i < dateDirectories.Count; i++)
@@ -89,14 +89,16 @@ namespace DataProcessor
 
             //Process files  -- this can go in parallel
             //read File Header table with status = "TO DO"
+            //string sql = $"select * from {pgSchema}.fileinfo where isdeleted='0' and biztype='{bizType}' and module_name='{moduleName}' and inp_rec_status= '{myStatus}' order by id";
+
             //parallel process - pass file Id as param
             //LOGGING - cannot be file based - multiple threads cannot use the same file safely
             //
         }
 
-        private FileTypMaster GetFileTypMaster(string fileLifeStat)
+        private FileTypMaster GetFileTypMaster()
         {
-            return DbUtil.GetFileTypMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId, fileLifeStat);
+            return DbUtil.GetFileTypMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId);
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)
@@ -142,7 +144,7 @@ namespace DataProcessor
             Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
 
             //assuming input will be directly under yyyymmdd / npsLite_apy directory 
-            string inpFilesDir = dateAsDir + "/" + paramsDict["output_par"];
+            string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
             string[] curFileList = Directory.GetFiles(inpFilesDir);
 
             // for each file in dir:dateAsDir under  date/npsLite_apy
@@ -201,16 +203,16 @@ namespace DataProcessor
             if (Directory.Exists(curWorkDirForDt) == false)
                 Directory.CreateDirectory(curWorkDirForDt);
 
-            string outParentDir = paramsDict["output_par"];
+            string outParentDir = paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
             string tmpOut = curWorkDirForDt + "/" + outParentDir;
             if (Directory.Exists(tmpOut) == false)
                 Directory.CreateDirectory(tmpOut);
 
-            liteOutDir = tmpOut + "/" + paramsDict["output_lite"];
+            liteOutDir = tmpOut + "/" + paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
             if (Directory.Exists(liteOutDir) == false)
                 Directory.CreateDirectory(liteOutDir);
 
-            apyOutDir = tmpOut + "/" + paramsDict["output_apy"];
+            apyOutDir = tmpOut + "/" + paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
             if (Directory.Exists(apyOutDir) == false)
                 Directory.CreateDirectory(apyOutDir);
 
@@ -231,6 +233,18 @@ namespace DataProcessor
             //delete file from input dir ???
         }
 
+        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
+        {
+            if (inputRecord == null || inputRecord is InputHeader)
+            {
+                return "";
+            }
+
+            if (inputRecord.GetColumnValue("photograph") != "")  //to do ----- find what column to use
+                return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR]; 
+
+            return "";
+        }
     }
 
 }

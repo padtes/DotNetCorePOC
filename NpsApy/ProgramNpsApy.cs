@@ -6,11 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using DbOps.Structs;
 using System.Text;
-using System.IO;
-using System.Globalization;
-using System.Linq;
 
 namespace NpsApy
 {
@@ -18,7 +14,8 @@ namespace NpsApy
     {
         static void Main(string[] args)
         {
-            TestWrFile();
+            TestRun.TestCourierSeq();
+
             //to do validate file based on column def - need to change col def for length, value range, empty ot not
 
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
@@ -54,7 +51,7 @@ namespace NpsApy
             bool runResult;
             if (operation == "unlock")
             {
-                bool ok = DbUtil.Unlock(pgSchema, pgConnection);
+                bool ok = DbUtil.Unlock(pgConnection, pgSchema);
                 if (ok)
                     Console.WriteLine("Unlock done");
                 else
@@ -190,87 +187,7 @@ namespace NpsApy
             if (DbUtil.CanConnectToDB(pgConnection) == false)
                 throw new Exception("pgConnection Not in appSettings.json. ABORTING");
         }
-        #region TEST_CODE
-
-        private static void TestWrFile()
-        {
-            string hex = "";
-            string txtFile = @"C:\Zunk\Lite\work\20210620\nps_lite\NPSLite\someImage.txt";
-            using (StreamReader sr= new StreamReader(txtFile))
-            {
-                hex = sr.ReadToEnd();
-            }
-            var bytes = Enumerable.Range(0, hex.Length)
-                     .Where(x => x % 2 == 0)
-                     .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                     .ToArray();
-
-            File.WriteAllBytes(@"C:\Zunk\Lite\work\20210620\nps_lite\NPSLite\somImage.jpg", bytes);
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            hex = hex.Substring(2, hex.Length - 2);
-            if (hex.Length % 2 != 0)
-            {
-                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The binary key cannot have an odd number of digits: {0}", hex));
-            }
-
-            byte[] HexAsBytes = new byte[hex.Length / 2];
-
-            for (int index = 0; index < HexAsBytes.Length; index++)
-            {
-                string byteValue = hex.Substring(index * 2, 2);
-                HexAsBytes[index] = byte.Parse(byteValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-            }
-
-            return HexAsBytes;
-        }
-
-        private static void TestInp()
-        {
-            Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
-
-            string pgConnection = "Server=localhost; Port=5433; Database=postgres; User Id=userventura; Password=simpleuser; ";
-            string pgSchema = "ventura";
-            string moduleName = "LiteTest";
-            string inputFilePathName = @"C:\d\Personal\Learning\reg_test_in\PTGPRN0507202114070521001.TXT";
-            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
-            int jobId = 0;
-            char theDelim = '^';
-            Dictionary<string, string> paramsDict = new Dictionary<string, string>();
-            paramsDict.Add("systemdir", "c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql");
-            paramsDict.Add("inputdir", "c:/zunk/lite/input");
-            paramsDict.Add("workdir", "c:/zunk/lite/work");
-            paramsDict.Add("output_par", "nps_lite");
-            paramsDict.Add("output_lite", "NPSLite");
-            paramsDict.Add("output_apy", "APY");
-            //paramsDict.Add("output_duplicate", "nps_lite_copy");
-            paramsDict.Add("photo_max_per_dir", "150");
-            
-            string dateAsDir = "20210620";
-
-            bool suc = FileProcessorUtil.SaveInputToDB(pgConnection, pgSchema, moduleName, jobId, inputFilePathName, jsonParamFilePath, theDelim, paramsDict, dateAsDir);
-            if (suc)
-                Console.WriteLine("Great Success");
-        }
-        private static void TestJasonLoad()
-        {
-            Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
-
-            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
-
-            Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
-            Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
-            SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
-            SystemParamInput inpSysParam = new SystemParamInput();
-
-            FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, dbMap, jsonSkip, fileDefDict, saveAsFileDefnn, inpSysParam);
-
-            Console.WriteLine("Great Success");
-        }
-        #endregion
 
     }
+
 }

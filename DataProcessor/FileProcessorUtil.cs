@@ -14,7 +14,7 @@ namespace DataProcessor
     public class FileProcessorUtil
     {
         private const string logProgName = "FileProcessorUtil";
-        public static bool SaveInputToDB(string pgConnection, string pgSchema, string moduleName, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim
+        public static bool SaveInputToDB(FileProcessor fileProcessor, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
             Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} with delimiter: {theDelim}", Logger.WARNING);
@@ -52,7 +52,7 @@ namespace DataProcessor
                             errline = line;
                             continue; // skip the line
                         }
-                        ProcessDataRow(pgConnection, pgSchema, moduleName, jobId, ref startRowNo, cells, inputHdr
+                        ProcessDataRow(fileProcessor, jobId, ref startRowNo, cells, inputHdr
                             , ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName
                             , saveAsFileDefnn, inpSysParam, paramsDict, dateAsDir);
                     }
@@ -60,8 +60,8 @@ namespace DataProcessor
                     {
                         //to do REMOVE harcoded output_lite 
 
-                        if (InsertCurrRec(pgConnection, pgSchema, moduleName, jobId, inpSysParam, startRowNo, lineNo
-                            , inputHdr, curRec, paramsDict, dateAsDir, "output_lite") == false)
+                        if (InsertCurrRec(fileProcessor, jobId, inpSysParam, startRowNo, lineNo
+                            , inputHdr, curRec, paramsDict, dateAsDir) == false)
                             saveOk = false;
                         //to do save the current rec - last record
                     }
@@ -87,7 +87,7 @@ namespace DataProcessor
             }
         }
 
-        private static bool ProcessDataRow(string pgConnection, string pgSchema, string moduleName, int jobId, ref int startRowNo, string[] cells, InputHeader inputHdr
+        private static bool ProcessDataRow(FileProcessor fileProcessor, int jobId, ref int startRowNo, string[] cells, InputHeader inputHdr
             , ref InputRecord curRec, ref bool saveOk
             , Dictionary<string, List<KeyValuePair<string, string>>> dbMap
             , Dictionary<string, List<string>> jsonSkip
@@ -120,8 +120,8 @@ namespace DataProcessor
                 {
                     //to do REMOVE harcoded output_lite 
 
-                    if (InsertCurrRec(pgConnection, pgSchema, moduleName, jobId, inpSysParam, startRowNo, lineNo
-                        , inputHdr, curRec, paramsDict, dateAsDir, "output_lite") == false)
+                    if (InsertCurrRec(fileProcessor, jobId, inpSysParam, startRowNo, lineNo
+                        , inputHdr, curRec, paramsDict, dateAsDir) == false)
                     {
                         //to do : create error reporting
                         saveOk = false;
@@ -148,12 +148,15 @@ namespace DataProcessor
             return true;
         }
 
-        private static bool InsertCurrRec(string pgConnection, string pgSchema, string moduleName, int jobId, SystemParamInput inpSysParam, int startRowNo
+        private static bool InsertCurrRec(FileProcessor fileProcessor, int jobId, SystemParamInput inpSysParam, int startRowNo
             , int inputLineNo, InputHeader inputHdr, InputRecord curRec
-            , Dictionary<string, string> paramsDict, string dateAsDir, string bizTypeKey)
+            , Dictionary<string, string> paramsDict, string dateAsDir)
         {
+            string pgConnection = fileProcessor.GetConnection();
+            string pgSchema = fileProcessor.GetSchema();
+
             string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
-            if (DbUtil.IsRecFound(pgConnection, moduleName, logProgName, jobId, startRowNo, selSql, true, out int id))
+            if (DbUtil.IsRecFound(pgConnection, fileProcessor.GetModuleName(), logProgName, jobId, startRowNo, selSql, true, out int id))
             {
                 //to do mark dup ??
                 Logger.Write(logProgName, "InsertCurrRec", 0, $"ignored row {startRowNo} duplicate rec Was saved as id:{id}", Logger.ERROR);
@@ -162,10 +165,10 @@ namespace DataProcessor
 
             string courr = curRec.GetColumnValue(inpSysParam.CourierCol);
 
-            bool filesOk = WriteImageFiles(pgConnection, pgSchema, moduleName, jobId, paramsDict, startRowNo, curRec, dateAsDir, bizTypeKey, courr, inpSysParam);
+            bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec, dateAsDir, courr, inpSysParam);
             if (filesOk == false)
             {
-                Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {moduleName} : {jobId} : rows={startRowNo}-{inputLineNo} : date={dateAsDir} ", Logger.ERROR);
+                Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {fileProcessor.GetModuleName()} : {jobId} : rows={startRowNo}-{inputLineNo} : date={dateAsDir} ", Logger.ERROR);
                 //to do error handling
                 return false; //---------------- No more processing
             }
@@ -175,7 +178,7 @@ namespace DataProcessor
             string insSql = curRec.GenerateInsert(pgSchema, inpSysParam.DataTableName, inpSysParam.DataTableJsonCol, jobId, startRowNo, inputHdr);
             try
             {
-                DbUtil.ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, inputLineNo, insSql);
+                DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, insSql);
                 return true;
             }
             catch
@@ -184,33 +187,46 @@ namespace DataProcessor
             }
         }
 
-        private static bool WriteImageFiles(string pgConnection, string pgSchema, string moduleName, int jobId, Dictionary<string, string> paramsDict, int startRowNo, InputRecord curRec
-            , string dateAsDir, string bizTypeKey, string courierSName, SystemParamInput inpSysParam)
+        private static bool WriteImageFiles(string pgConnection, string pgSchema, FileProcessor fileProcessor, int jobId, Dictionary<string, string> paramsDict, int startRowNo, InputRecord curRec
+            , string dateAsDir, string courierSName, SystemParamInput inpSysParam)
         {
             try
             {
+                string bizDir = fileProcessor.GetBizTypeDirName(curRec);
                 string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
-                string courierSeq = "";                 //courier_seq - same seq # for all files
+                string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
+
+                int maxFilesPerSub = 150;
+                int maxDirExpexcted = 9999;
+                int.TryParse(paramsDict[ConstantBag.PARAM_IMAGE_LIMIT], out maxFilesPerSub);
+                int.TryParse(paramsDict[ConstantBag.PARAM_SUBDIR_APROX_LIMIT], out maxDirExpexcted);
 
                 foreach (var fileToWrite in curRec.saveAsFiles)
                 {
-                    // {{LITE_DATE_DIR_SEQ}} get sequence ("lite",  dateAsDir, Dir, paramsDict[bizTypeKey] with 150 limit
-
                     string derivedFN = fileToWrite.FileName.Replace(ConstantBag.FILE_NAME_TAG_UNIQUE_COL, curKey);
                     derivedFN = derivedFN.Replace(ConstantBag.FILE_NAME_TAG_COUR_SEQ, courierSeq);
 
-                    string fullFilePath = paramsDict["workdir"]
+                    string fullFilePath = paramsDict[ConstantBag.PARAM_WORK_DIR]
                         + "\\" + dateAsDir  // "yyyymmdd" 
-                        + "\\" + paramsDict["output_par"]
-                        + "\\" + paramsDict[bizTypeKey] // bizTypeKey = ("output_apy or output_lite") ---- hard coded in caller
+                        + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+                        + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") ---- hard coded in caller
                         + "\\" + courierSName + "_" + dateAsDir
-                        + "\\" + fileToWrite.Dir  //Photo | Sign
-                        + "\\" + fileToWrite.SubDir; //sig_001  Sig_{{LITE_DATE_DIR_SEQ}}
+                        + "\\" + fileToWrite.Dir;  //Photo | Sign
+
+                    string subDirWithNum = SequenceGen.GetFileDirWithSeq(fullFilePath
+                        , fileToWrite.SubDir  //sig_ or Photo_
+                        , maxFilesPerSub  //150 max per each sub dir
+                        , maxDirExpexcted //9999 will generate patter of 0001..9999
+                        );
+
+                    fullFilePath = fullFilePath
+                        // {{date_dir_seq}} get sequence ("lite",  dateAsDir, Dir, paramsDict[bizTypeKey] with 150 limit
+                        + "\\" + fileToWrite.SubDir; //sig_001 
 
                     if (Directory.Exists(fullFilePath) == false)
                         Directory.CreateDirectory(fullFilePath);
 
-                    string fullFilePathNm = fullFilePath + "\\" + derivedFN;  //{{LITE_REC_SEQ}}_{{pran_id}}_sign.jpg
+                    string fullFilePathNm = fullFilePath + "\\" + derivedFN;  //{{courier_seq}}_{{pran_id}}_sign.jpg
 
                     string hex = fileToWrite.FileContent;
                     
@@ -223,7 +239,7 @@ namespace DataProcessor
 
                     if (File.Exists(fullFilePathNm))
                     {
-                        Logger.Write(logProgName, "WriteFiles", jobId, moduleName + ", row:" + startRowNo + " deleting " + fileToWrite.Dir + ", full:" + fullFilePathNm, Logger.WARNING);
+                        Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " deleting " + fileToWrite.Dir + ", full:" + fullFilePathNm, Logger.WARNING);
                         File.Delete(fullFilePathNm);
                     }
                     fileToWrite.PhysicalPath = fullFilePathNm;
@@ -231,7 +247,7 @@ namespace DataProcessor
             }
             catch (Exception ex)
             {
-                Logger.Write(logProgName, "WriteFiles", jobId, moduleName + ", row:" + startRowNo + " courier:" + courierSName + " see error below", Logger.ERROR);
+                Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " courier:" + courierSName + " see error below", Logger.ERROR);
                 Logger.WriteEx(logProgName, "WriteFiles", jobId, ex);
                 return false;
             }

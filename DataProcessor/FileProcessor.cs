@@ -28,6 +28,9 @@ namespace DataProcessor
             pgConnection = connectionStr;
         }
 
+        public string GetSchema() { return pgSchema; }
+        public string GetConnection() { return pgConnection; }
+
         protected void LoadParam(string bizType)
         {
             //read details based on date from system param table
@@ -40,9 +43,9 @@ namespace DataProcessor
             try
             {
                 paramsDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(sysParamStr);
-                systemConfigDir = paramsDict["systemdir"];
-                inputRootDir = paramsDict["inputdir"];
-                workDir = paramsDict["workdir"];
+                systemConfigDir = paramsDict[ConstantBag.PARAM_SYS_DIR];
+                inputRootDir = paramsDict[ConstantBag.PARAM_INP_DIR];
+                workDir = paramsDict[ConstantBag.PARAM_WORK_DIR];
 
                 if (systemConfigDir == "" || inputRootDir == "" || workDir == "")
                 {
@@ -96,6 +99,8 @@ namespace DataProcessor
             Logger.WriteInfo(logProgName, "ProcessBiz", 0
                 , $"START {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
 
+            LoadModuleParam(operation, runFor, courierCsv);
+
             //timer.start
 
             try
@@ -104,6 +109,8 @@ namespace DataProcessor
                 {
                     // process input
                     ProcessInput(runFor);
+                    //unlock all courier serial number records 
+                    SequenceGen.UnlockAll(pgConnection, pgSchema);
                 }
 
                 if (operation == "all" || operation == "write")
@@ -123,9 +130,13 @@ namespace DataProcessor
 
             return true;
         }
+
+        protected abstract void LoadModuleParam(string operation, string runFor, string courierCsv);
         public abstract string GetModuleName();
         public abstract void ProcessInput(string runFor);
         public abstract void ProcessOutput(string runFor, string courierCcsv);
+
+        public abstract string GetBizTypeDirName(InputRecordAbs inputRecord);
 
         protected void ValidateStaticParam(string bizType)
         {

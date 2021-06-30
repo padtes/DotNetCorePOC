@@ -34,8 +34,19 @@
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
         public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
 
-// 3 flags - card print | letter | PTC entry
-// introduce batch concept
+        //All Module parameter
+        public const string PARAM_SYS_DIR = "systemdir";
+        public const string PARAM_INP_DIR = "inputdir";
+        public const string PARAM_WORK_DIR = "workdir";
+
+        //Lite Module parameter
+        public const string PARAM_OUTPUT_PARENT_DIR = "output_par";
+        public const string PARAM_OUTPUT_LITE_DIR = "output_lite";
+        public const string PARAM_OUTPUT_APY_DIR = "output_apy";
+        public const string PARAM_IMAGE_LIMIT = "photo_max_per_dir";
+        public const string PARAM_SUBDIR_APROX_LIMIT = "expect_max_subdir";
+        // 3 flags - card print | letter | PTC entry
+        // introduce batch concept
 
     }
 

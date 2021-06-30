@@ -14,7 +14,7 @@ namespace DataProcessor
             return ConstantBag.MODULE_REG;
         }
 
-        public override bool ProcessModule(string operation, string runFor, string courierCsv)
+        protected override void LoadModuleParam(string operation, string runFor, string courierCsv)
         {
             throw new System.NotImplementedException();
         }
@@ -25,6 +25,11 @@ namespace DataProcessor
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
         {
             throw new System.NotImplementedException();
         }

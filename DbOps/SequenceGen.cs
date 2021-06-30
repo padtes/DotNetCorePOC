@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace DbOps
 {
     public class SequenceGen
     {
-        private string logProName = "SequenceGen";
+        private const string logProName = "SequenceGen";
 
         private static object syncLock = new object();
         private static Dictionary<string, int> courierLocks = new Dictionary<string, int>();  //to make sure no other process or machine is using same courier
 
-        public string GetCourierSeq(string pgConnection, string pgSchema, string courierCode, int fixedLen = -1)
+        public static string GetCourierSeq(string pgConnection, string pgSchema, string courierCode, int fixedLen = -1)
         {
             bool ok = true;
             int lockKey = -9;
@@ -31,7 +32,7 @@ namespace DbOps
                     {
                         courierLocks.Add(courierCode, lockKey);
                     }
-                    else 
+                    else
                     {
                         ok = false;
                     }
@@ -48,7 +49,7 @@ namespace DbOps
             }
 
             //add to local static list of locks
-            string sql = $"SELECT {pgSchema}.get_serial_number('couriers','{courierCode}, 0, {lockKey}')";
+            string sql = $"SELECT {pgSchema}.get_serial_number('couriers','{courierCode}', '0', '{lockKey}')";
             lock (syncLock)
             {
                 ok = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql, out counterId);
@@ -59,11 +60,66 @@ namespace DbOps
             }
 
             string retStr = counterId.ToString();
-            if (retStr.Length < fixedLen )
+            if (retStr.Length < fixedLen)
             {
                 retStr = retStr.PadLeft(fixedLen, '0');
             }
             return retStr;
+        }
+
+        public static string GetFileDirWithSeq(string dirPath, string subDirPattern, int maxFilesPerSub, int maxDirExpexcted)
+        {
+            var curSubs = Directory.GetDirectories(dirPath, subDirPattern + "*");
+
+            int maxInUse = 0;
+            int tmp;
+            string curPartlyUsedDir = "";
+
+            foreach (var sDir in curSubs)
+            {
+                string justDirNm = new DirectoryInfo(sDir).Name; // such as SIG_001
+                string dirNum = justDirNm.Replace(subDirPattern, "");
+                if (curPartlyUsedDir == "")
+                {
+                    curPartlyUsedDir = sDir;
+                }
+
+                if (int.TryParse(dirNum, out tmp))
+                {
+                    if (tmp > maxInUse)  //do not just && above - may be & 
+                    {
+                        curPartlyUsedDir = sDir;
+                        maxInUse = tmp;
+                    }
+                }
+            }
+            if (curPartlyUsedDir != "")
+            {
+                if (Directory.GetFiles(curPartlyUsedDir).Length < maxFilesPerSub)
+                {
+                    string justDirNm = new DirectoryInfo(curPartlyUsedDir).Name; //currently more files can be added
+                    return justDirNm;
+                }
+            }
+
+            maxInUse++; //next num
+            string outSubDir;
+            if (maxInUse > maxDirExpexcted)
+            {
+                outSubDir = subDirPattern + maxInUse;
+            }
+            else
+            {
+                outSubDir = maxInUse.ToString();
+                tmp = maxDirExpexcted.ToString().Length;
+
+                if (tmp >= 1)
+                {
+                    outSubDir = outSubDir.PadLeft(tmp, '0');
+                }
+                outSubDir = subDirPattern + outSubDir;
+            }
+            return outSubDir;
         }
 
         public static void UnlockAll(string pgConnection, string pgSchema)
