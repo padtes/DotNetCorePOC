@@ -71,6 +71,9 @@ CREATE TABLE ventura.filetypemaster (
 )
 TABLESPACE pg_default;
 
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName)
+values('1','lite_inp','lite','lite_input.json');
+
 CREATE TABLE ventura.counters(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,
