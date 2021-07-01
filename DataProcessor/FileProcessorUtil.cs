@@ -14,10 +14,10 @@ namespace DataProcessor
     public class FileProcessorUtil
     {
         private const string logProgName = "FileProcessorUtil";
-        public static bool SaveInputToDB(FileProcessor fileProcessor, int jobId, string inputFilePathName, string jsonParamFilePath, char theDelim
+        public static bool SaveInputToDB(FileProcessor fileProcessor, int jobId, string inputFilePathName, string jsonParamFilePath
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
-            Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} with delimiter: {theDelim}", Logger.WARNING);
+            Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} ", Logger.WARNING);
 
             bool saveOk = true;
             Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
@@ -29,6 +29,7 @@ namespace DataProcessor
             try
             {
                 LoadJsonParamFile(jsonParamFilePath, dbMap, jsonSkip, fileDefDict, saveAsFileDefnn, inpSysParam);
+                char theDelim = inpSysParam.Delimt;
 
                 int lineNo = 0;
                 int startRowNo = 0;
@@ -156,7 +157,7 @@ namespace DataProcessor
             string pgSchema = fileProcessor.GetSchema();
 
             string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
-            if (DbUtil.IsRecFound(pgConnection, fileProcessor.GetModuleName(), logProgName, jobId, startRowNo, selSql, true, out int id))
+            if (DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int id))
             {
                 //to do mark dup ??
                 Logger.Write(logProgName, "InsertCurrRec", 0, $"ignored row {startRowNo} duplicate rec Was saved as id:{id}", Logger.ERROR);
@@ -369,16 +370,18 @@ namespace DataProcessor
 
         private static void SetupSystemParams(JObject oParams, SystemParamInput inpSysParam)
         {
-            JObject sysParamSect = (JObject)oParams["system"];
+            JObject sysParamSect = (JObject)oParams[ConstantBag.FD_SYSTEM_PARAM];
 
-            inpSysParam.FileType = (string)sysParamSect["file_type"];
-            inpSysParam.RowTypeIndex = Convert.ToInt32(sysParamSect["index_of_row_type"]);
-            inpSysParam.FileHeaderRowType = ((string)sysParamSect["file_header_row_type"]).ToUpper();
-            inpSysParam.DataRowType = ((string)sysParamSect["data_row_type"]).ToUpper();
-            inpSysParam.DataTableName = ((string)sysParamSect["data_table_name"]).ToLower();
-            inpSysParam.DataTableJsonCol = ((string)sysParamSect["data_table_json_col"]).ToLower();
-            inpSysParam.UniqueColumn = ((string)sysParamSect["unique_column"]).ToLower();
-            inpSysParam.CourierCol = ((string)sysParamSect["courier_col"]).ToLower();
+            inpSysParam.FileType = (string)sysParamSect[ConstantBag.FD_FILE_TYPE];
+            inpSysParam.Delimt = (char)sysParamSect[ConstantBag.FD_DELIMT];
+            inpSysParam.RowTypeIndex = Convert.ToInt32(sysParamSect[ConstantBag.FD_INDEX_OF_ROW_TYPE]);
+            inpSysParam.FileHeaderRowType = ((string)sysParamSect[ConstantBag.FD_FILE_HEADER_ROW_TYPE]).ToUpper();
+
+            inpSysParam.DataRowType = ((string)sysParamSect[ConstantBag.FD_DATA_ROW_TYPE]).ToUpper();
+            inpSysParam.DataTableName = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_NAME]).ToLower();
+            inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
+            inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();
+            inpSysParam.CourierCol = ((string)sysParamSect[ConstantBag.FD_COURIER_COL]).ToLower();
         }
 
         #endregion

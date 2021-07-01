@@ -2,6 +2,7 @@
 using Logging;
 using Npgsql;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace DbOps
@@ -95,7 +96,7 @@ namespace DbOps
             Logger.WriteEx(moduleName + "_" + logProgName, methodNm, jobId, ex);
         }
 
-        public static bool IsRecFound(string pgConnection, string moduleName, string logProgName, int jobId, int rowNum, string sql, bool getId, out int id)
+        public static bool IsRecFound(string pgConnection, string logProgName, string moduleName, int jobId, int rowNum, string sql, bool getId, out int id)
         {
             bool recFound = false;
             id = -1;
@@ -148,7 +149,7 @@ namespace DbOps
 
         }
 
-        public static string GetParamsJsonStr(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId, string logProgramName)
+        public static string GetParamsJsonStr(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizType, int jobId)
         {
             try
             {
@@ -156,7 +157,7 @@ namespace DbOps
                 string sql = $"select params_json from {pgSchema}.system_param where biztype = '{bizType}' and" +
                     $" module_name='{moduleName}' and '{utc}' >= start_ts_utc and (end_ts_utc is null or '{utc}' <= end_ts_utc);";
 
-                DataSet ds = GetDataSet(pgConnection, logProgramName+ "_GetParamsJsonStr", moduleName, jobId, sql);
+                DataSet ds = GetDataSet(pgConnection, logProgName + "_GetParamsJsonStr", moduleName, jobId, sql);
 
                 if (ds.Tables.Count > 0)
                 {
@@ -176,7 +177,25 @@ namespace DbOps
             return inVal.Replace("'", "''");
         }
 
-        public static void UpsertFileInfo(string pgConnection, string moduleName, string logProgName, int jobId, int rowNum, string pgSchema, bool reprocess, FileInfoStruct theFile, out string actionTaken)
+        public static void GetFileInfoList(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, List<FileInfoStruct> listFiles, string dateAsDir, string[] inpRecStatus)
+        {
+            string tmp = String.Join("','", inpRecStatus);
+            string sql = $"select id, fname, fpath from {pgSchema}.fileinfo where isdeleted='0' and inp_rec_status in ('{tmp}') and fpath ='{MyEscape(dateAsDir)}'";
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+            if (ds.Tables.Count > 1)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    listFiles.Add(new FileInfoStruct() { 
+                        id = Convert.ToInt32(dr["id"])
+                        , fname =Convert.ToString(dr["fname"])
+                        , fpath= Convert.ToString(dr["fpath"])
+                    });
+                }
+            }
+        }
+
+        public static void UpsertFileInfo(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum, bool reprocess, FileInfoStruct theFile, out string actionTaken)
         {
             //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work
             //if reprocess == false and record found - ignore
@@ -184,7 +203,7 @@ namespace DbOps
             actionTaken = "";
 
             string sql = $"select id from {pgSchema}.fileinfo where fname='{MyEscape(theFile.fname)}' and fpath='{MyEscape(theFile.fpath)}'";
-            bool isUpdate = IsRecFound(pgConnection, moduleName, logProgName, jobId, rowNum, sql, true, out int id);
+            bool isUpdate = IsRecFound(pgConnection, logProgName, moduleName, jobId, rowNum, sql, true, out int id);
 
             if (isUpdate && reprocess == false)
             {
@@ -213,7 +232,7 @@ namespace DbOps
             }
         }
 
-        private static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
+        public static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
             sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
                 $" where id='{theFile.id}'";
@@ -277,7 +296,7 @@ namespace DbOps
             return sql;
         }
 
-        public static FileTypMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId)
+        public static FileTypeMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId)
         {
             string sql = $"select * from {pgSchema}.filetypemaster where isactive='1' and biztype='{bizType}' and module_name='{moduleName}' order by id";
 
@@ -287,7 +306,7 @@ namespace DbOps
 
             DataRow dr = ds.Tables[0].Rows[0];
 
-            FileTypMaster fm = new FileTypMaster()
+            FileTypeMaster fm = new FileTypeMaster()
             {
                 id = Convert.ToInt32(dr["id"]),
                 isActive = Convert.ToBoolean(dr["isactive"]),

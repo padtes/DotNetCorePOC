@@ -90,7 +90,7 @@ namespace NpsApy
             string inputFilePathName = @"C:\d\Personal\Learning\reg_test_in\PTGPRN0507202114070521001.TXT";
             string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
             int jobId = 0;
-            char theDelim = '^';
+
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
             paramsDict.Add("systemdir", "c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql");
             paramsDict.Add("inputdir", "c:/zunk/lite/input");
@@ -105,7 +105,7 @@ namespace NpsApy
             string dateAsDir = "20210620";
             FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema);
 
-            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, jobId, inputFilePathName, jsonParamFilePath, theDelim, paramsDict, dateAsDir);
+            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, jobId, inputFilePathName, jsonParamFilePath, paramsDict, dateAsDir);
             if (suc)
                 Console.WriteLine("Great Success");
         }

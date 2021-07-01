@@ -34,7 +34,7 @@ namespace DataProcessor
         protected void LoadParam(string bizType)
         {
             //read details based on date from system param table
-            string sysParamStr = DbUtil.GetParamsJsonStr(pgConnection, pgSchema, GetModuleName(), bizType, jobId, logProgName);
+            string sysParamStr = DbUtil.GetParamsJsonStr(pgConnection, pgSchema, logProgName, GetModuleName(), bizType, jobId);
             if (sysParamStr == "")
             {
                 Logger.Write(logProgName, "LoadParam.1", 0, GetModuleName() + "_" + bizType + " record not in system_param table", Logger.ERROR);

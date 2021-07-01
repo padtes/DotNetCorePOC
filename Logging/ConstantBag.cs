@@ -27,6 +27,7 @@
 
         //file life cycle steps
         public const string FILE_LC_STEP_TODO = "TO-DO";
+        public const string FILE_LC_WIP = "WIP";  //work in progress
         public const string FILE_LC_STEP_TO_DB = "DB_DONE";
         public const string FILE_LC_STEP_RESPONSE = "DONE_RESP";
 
@@ -45,6 +46,18 @@
         public const string PARAM_OUTPUT_APY_DIR = "output_apy";
         public const string PARAM_IMAGE_LIMIT = "photo_max_per_dir";
         public const string PARAM_SUBDIR_APROX_LIMIT = "expect_max_subdir";
+
+        //file definition descriptors
+        public const string FD_SYSTEM_PARAM = "system";
+        public const string FD_FILE_TYPE = "file_type";
+        public const string FD_DELIMT = "delimt";
+        public const string FD_INDEX_OF_ROW_TYPE = "index_of_row_type";
+        public const string FD_FILE_HEADER_ROW_TYPE = "file_header_row_type";
+        public const string FD_DATA_ROW_TYPE = "data_row_type";
+        public const string FD_DATA_TABLE_NAME = "data_table_name";
+        public const string FD_DATA_TABLE_JSON_COL = "data_table_json_col";
+        public const string FD_UNIQUE_COLUMN = "unique_column";
+        public const string FD_COURIER_COL = "courier_col";
         // 3 flags - card print | letter | PTC entry
         // introduce batch concept
 

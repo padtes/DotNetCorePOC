@@ -17,6 +17,10 @@ namespace Logging
         public const int WARNING = 2;
         public const int ERROR = 3;
 
+        private static object syncLock = new object();
+        private static bool fileLogOff = false;
+        private static List<string> msgQue = new List<string>();
+
         public static void SetLogFileName(string fileName)
         {
             _fileName = fileName;
@@ -32,6 +36,25 @@ namespace Logging
             _fileName = _fileName + "_" + DateTime.Now.ToString("yyMMdd") + ".txt";
         }
 
+        public static void StopFileLog()
+        {
+            fileLogOff = true;
+        }
+        public static void StartFileLog()
+        {
+            lock (syncLock)
+            {
+                fileLogOff = false;
+
+                while (msgQue.Count > 0)
+                {
+                    string logLine = msgQue[0];
+                    WriteFileLine(logLine);
+                    msgQue.RemoveAt(0);
+                }
+            }
+        }
+
         public static void Write(string programName, string stepName, int jobId, string msg, int severity)
         {
             //to do
@@ -45,6 +68,17 @@ namespace Logging
         private static void WriteToFile(string programName, string stepName, int jobId, string msg, int severity)
         {
             string logLine = $"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} {GetText(severity)} \t {programName} - {stepName} job# {jobId}\t{msg}";
+
+            if (fileLogOff)
+            {
+                return;
+            }
+
+            WriteFileLine(logLine);
+        }
+
+        private static void WriteFileLine(string logLine)
+        {
             try
             {
                 using (StreamWriter sw = new StreamWriter(_fileName, true))
@@ -79,7 +113,7 @@ namespace Logging
 
             Exception innr = ex.InnerException;
             int i = 1;
-            while(innr != null)
+            while (innr != null)
             {
                 Write(programName, stepName, jobId, i + ":" + innr.Message, ERROR);
                 Write(programName, stepName, jobId, i + ":" + innr.StackTrace, ERROR);

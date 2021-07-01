@@ -7,6 +7,7 @@ namespace DbOps.Structs
     public class SystemParamInput
     {
         public string FileType { get; set; }
+        public char Delimt { get; set; }
         public int RowTypeIndex { get; set; }
         public string FileHeaderRowType { get; set; }
         public string DataRowType { get; set; }

@@ -61,19 +61,7 @@ namespace DataProcessor
                 }
             }
 
-
-            FileTypMaster fTypeMaster = GetFileTypMaster();
-
-            //for each sub directory  -- this can go in parallel, not worth it - mostly 1 date at a time
-            for (int i = 0; i < dateDirectories.Count; i++)
-            {
-                // collect file names to process - make entry in File Header table with status = "TO DO"
-                //to do read fileTypeMaster - to see file name pattern to read files
-                CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess: (runFor != "all"));
-
-                //SavetoDb(dateDirectories[i])
-            }
-
+            FileTypeMaster fTypeMaster = GetFileTypMaster();
             if (fTypeMaster == null)
             {
                 Logger.WriteInfo(logProgName, "ProcessInput", 0
@@ -82,21 +70,50 @@ namespace DataProcessor
                 return; //----------------------------
             }
 
+            string curWorkDir;
+            bool reprocess = (runFor != "all");
 
-            //---------------------------- 2 ---------------
-            //read json file Def for lite apy in systemDir
-            //configLiteApyDef = json deserialize 
+            //for each sub directory  -- this can go in parallel, not worth it - mostly 1 date at a time
+            for (int i = 0; i < dateDirectories.Count; i++)
+            {
+                // collect file names to process - make entry in File Header table with status = "TO DO"
+                //to do use fileTypeMaster - to see file name pattern to read files
+                CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess, out curWorkDir);
 
-            //Process files  -- this can go in parallel
-            //read File Header table with status = "TO DO"
-            //string sql = $"select * from {pgSchema}.fileinfo where isdeleted='0' and biztype='{bizType}' and module_name='{moduleName}' and inp_rec_status= '{myStatus}' order by id";
-
-            //parallel process - pass file Id as param
-            //LOGGING - cannot be file based - multiple threads cannot use the same file safely
-            //
+                SavetoDb(dateDirectories[i], fTypeMaster, reprocess);
+            }
         }
 
-        private FileTypMaster GetFileTypMaster()
+        private void SavetoDb(string dateAsDir, FileTypeMaster fTypeMaster, bool reprocess)
+        {
+            List<FileInfoStruct> listFiles = new List<FileInfoStruct>();
+            string[] statusToWork = null;
+            if (reprocess)
+            {
+                statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO, ConstantBag.FILE_LC_WIP };
+            }
+            else
+            {
+                //read File Header table with status = "TO DO"
+                statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO };
+            }
+
+            DbUtil.GetFileInfoList(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, listFiles, dateAsDir, statusToWork);
+
+            //LOGGING - cannot be file based - multiple threads cannot use the same file safely
+            Logger.StopFileLog();
+
+            //Process files  -- this can go in parallel  :: TO DO
+
+            foreach (FileInfoStruct inFile in listFiles)
+            {
+                ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir);
+            }
+
+            Logger.StartFileLog();
+        }
+
+        private FileTypeMaster GetFileTypMaster()
         {
             return DbUtil.GetFileTypMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId);
         }
@@ -134,11 +151,11 @@ namespace DataProcessor
             throw new NotImplementedException();
         }
 
-        internal void CollectFilesNpsLiteApyDir(string dateAsDir, bool reprocess)
+        internal void CollectFilesNpsLiteApyDir(string dateAsDir, bool reprocess, out string curWorkDir)
         {
             Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory started: {dateAsDir}");
 
-            string apyOutDir, liteOutDir, curWorkDir;
+            string apyOutDir, liteOutDir;
             CreateWorkDir(dateAsDir, out apyOutDir, out liteOutDir, out curWorkDir);
 
             Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
@@ -186,7 +203,7 @@ namespace DataProcessor
                     updatedFromIP = "localhost"
                 };
 
-                DbUtil.UpsertFileInfo(pgConnection, GetModuleName(), logProgName, jobId, i, pgSchema, reprocess, fInfo, out string actionTaken);
+                DbUtil.UpsertFileInfo(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, i, reprocess, fInfo, out string actionTaken);
 
                 Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {workDest}");
             }
@@ -223,13 +240,24 @@ namespace DataProcessor
 
         }
 
-        internal void ProcessLiteApyFile(int fileID)
+        internal void ProcessLiteApyFile(FileInfoStruct inpFileInfo, FileTypeMaster fTypeMaster, string dateAsDir)
         {
+            string tmpSql = "";
             //update header as WIP - dateTime of status update
-            //copy file to work dir
-            //use config defining input file structre loaded before calling this in loop
+            inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_WIP;
+            DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+
+            //paramsDict
+            string tmpFName = inpFileInfo.fpath + "\\" + inpFileInfo.fname;
+            string tmpJsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+
+            bool suc = FileProcessorUtil.SaveInputToDB(this, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir);
+
             //Save from txt file to data table
             ////save photos and signatures
+
+            inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
+            DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
             //delete file from input dir ???
         }
 

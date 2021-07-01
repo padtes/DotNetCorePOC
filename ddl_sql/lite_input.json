@@ -16,7 +16,8 @@
 		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB"
 	}
 	,"system":{
-		"file_type" : "nps_regular",
+		"file_type" : "nps_lite",
+		"delimt":"^",
 		"index_of_row_type" : "1",
 		"file_header_row_type": "fh",
 		"data_row_type": "pd",
