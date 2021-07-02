@@ -32,7 +32,7 @@ namespace DbOps.Structs
     }
     public class SaveAsFileColumn
     {
-        [JsonProperty("colName")]
+        [JsonProperty("col_name")]
         public string ColName { get; set; }
 
         [JsonProperty("dir")]
@@ -44,7 +44,9 @@ namespace DbOps.Structs
         [JsonProperty("file_name")]
         public string FileName { get; set; }
 
+        [JsonIgnore]
         private string fileContent;
+        [JsonIgnore]
         public string FileContent { get => fileContent; set => fileContent = value; }
         public string PhysicalPath { get; set; }
     }

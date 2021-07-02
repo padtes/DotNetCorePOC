@@ -67,12 +67,10 @@ namespace DataProcessor
                     }
                     if (curRec != null)
                     {
-                        //to do REMOVE harcoded output_lite 
-
+                        //save the current rec - last record
                         if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFilePathName, startRowNo, lineNo
                             , inputHdr, curRec, paramsDict, dateAsDir) == false)
                             saveOk = false;
-                        //to do save the current rec - last record
                     }
                 }
             }
@@ -124,8 +122,6 @@ namespace DataProcessor
             {
                 if (curRec != null)
                 {
-                    //to do REMOVE harcoded output_lite 
-
                     if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFile, startRowNo, lineNo
                         , inputHdr, curRec, paramsDict, dateAsDir) == false)
                     {
@@ -181,8 +177,6 @@ namespace DataProcessor
                 return false; //---------------- No more processing
             }
             
-            //to do populate fileJSONB - new column for saving {"photo" : "c:\...\photo\...jpg", "sign": "c:\...\sign...jpg" }
-
             string insSql = curRec.GenerateInsert(pgSchema, inpSysParam.DataTableName, inpSysParam.DataTableJsonCol, jobId, startRowNo, fileInfoStr.id, inputHdr);
             try
             {

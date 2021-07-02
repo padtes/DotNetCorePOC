@@ -58,8 +58,8 @@
 		  "row_type" : "pd",
 		  "columns": 
 		  [
-			{"colName":"p046_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{courier_seq}}_{{unique_column}}_photo.jpg"},
-			{"colName":"p047_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{courier_seq}}_{{unique_column}}_sign.jpg" }
+			{"col_name":"p046_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{courier_seq}}_{{unique_column}}_photo.jpg"},
+			{"col_name":"p047_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{courier_seq}}_{{unique_column}}_sign.jpg" }
           ]
       }
 	]

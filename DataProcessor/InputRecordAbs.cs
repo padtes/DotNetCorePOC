@@ -1,4 +1,5 @@
 ﻿using DbOps.Structs;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,7 @@ namespace DataProcessor
 {
     public abstract class InputRecordAbs
     {
-        public List<KeyValuePair<string, string>> DbColsWithVals= new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> DbColsWithVals = new List<KeyValuePair<string, string>>();
 
         public abstract bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
                , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
@@ -159,7 +160,7 @@ namespace DataProcessor
     {
         public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
         public List<SaveAsFileColumn> saveAsFiles = new List<SaveAsFileColumn>();
-        
+
         public override bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
                 , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
             , string rowType, string[] cells)
@@ -203,7 +204,7 @@ namespace DataProcessor
         {
             string valToCheck = GetColumnValue(inpSysParam.UniqueColumn);
             valToCheck = valToCheck.Replace("'", "''");
-            
+
             String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
             return sql;
         }
@@ -213,8 +214,8 @@ namespace DataProcessor
             StringBuilder sb1 = new StringBuilder();
             StringBuilder sb2 = new StringBuilder();
             sb1.Append("insert into ").Append(pgSchema).Append('.').Append(dataTableName);
-            sb1.Append("(fileinfo_id, row_number");
-            sb2.Append(fileinfoId).Append(',').Append(startRowNo);
+            sb1.Append("(fileinfo_id, row_number, files_saved");
+            sb2.Append(fileinfoId).Append(',').Append(startRowNo).Append(',').Append(GetFileSaveJsonSql());
 
             AppendDbMap(sb1, sb2, inputHdr.DbColsWithVals);
             AppendDbMap(sb1, sb2, DbColsWithVals);
@@ -246,6 +247,35 @@ namespace DataProcessor
             return sb1.ToString();
         }
 
+        private string GetFileSaveJsonSql()
+        {
+            string jsonSer;
+            //get json if files were saved
+            StringBuilder sbFS = new StringBuilder("'");
+
+            bool hasSaved = false;
+            foreach (SaveAsFileColumn fileToWrite in this.saveAsFiles)
+            {
+                if (fileToWrite.PhysicalPath != "")
+                {
+                    hasSaved = true;
+                    break;
+                }
+            }
+            if (hasSaved)
+            {
+                jsonSer = JsonConvert.SerializeObject(this.saveAsFiles);
+                jsonSer = jsonSer.Replace("'", "''");
+            }
+            else
+            {
+                jsonSer = "{}";
+            }
+            sbFS.Append(jsonSer).Append('\'');
+
+            return sbFS.ToString();
+        }
+
         private void AppendDbMap(StringBuilder sb1, StringBuilder sb2, List<KeyValuePair<string, string>> aDbColsWithVals)
         {
             foreach (var dbColVal in aDbColsWithVals)
@@ -274,7 +304,7 @@ namespace DataProcessor
 
         private void AddDbColValAsFileDet(SaveAsFile asFile, string[] cells, int i, string aColHdr)
         {
-            foreach (var fileCol in asFile.Columns)  
+            foreach (var fileCol in asFile.Columns)
             {
                 if (fileCol.ColName.ToLower() == aColHdr.ToLower())
                 {
@@ -284,7 +314,8 @@ namespace DataProcessor
                         Dir = fileCol.Dir,
                         SubDir = fileCol.SubDir,
                         FileName = fileCol.FileName,
-                        FileContent = cells[i]
+                        FileContent = cells[i],
+                        PhysicalPath = ""
                     };
                     saveAsFiles.Add(tmpCol);// new KeyValuePair<string, string>(dbCol.Value, cells[i]));
                     break;

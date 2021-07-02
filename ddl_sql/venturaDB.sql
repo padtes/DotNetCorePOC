@@ -19,8 +19,8 @@ TABLESPACE pg_default;
 --
 insert into ventura.system_param (biztype, module_name, params_json) 
 values ('system','lite',
-'{"inputdir":"c:/zunk/lite/input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
-, "workdir":"c:/zunk/lite/work", "systemdir":"c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql"}');
+'{"inputdir":"c:\\zunk\\lite\\input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
+, "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"}');
 
 
 CREATE TABLE ventura.fileinfo (
@@ -65,6 +65,7 @@ CREATE TABLE ventura.filedetails
 	row_number INTEGER,
 	ack_number varchar(20),
 	apy_flag char(1),
+	files_saved jsonb,
 	CONSTRAINT filedetails_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;

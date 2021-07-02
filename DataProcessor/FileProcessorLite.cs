@@ -170,21 +170,21 @@ namespace DataProcessor
             string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
             string[] curFileList = Directory.GetFiles(inpFilesDir);
 
-            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory : {dateAsDir} has {curFileList.Length} files");
+            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory : {inpFilesDir} has {curFileList.Length} files");
 
             // for each file in dir:dateAsDir under  date/npsLite_apy
             for (int i = 0; i < curFileList.Length; i++)
             {
-                var aFile = curFileList[i];
+                string aFile = curFileList[i];
                 string fName = Path.GetFileName(aFile);
-                string workDest = curWorkDir + "\\" + fName;
+                // string workDest = curWorkDir + "\\" + fName;
 
                 //if (File.Exists(workDest) == false || reprocess)   //we do NOT COPY files from in to work
                 //{
                 //    File.Copy(aFile, workDest, reprocess);
                 //}
 
-                //save all details as full input and work path - Copy file from input to work
+                //save all details as full input and work path
                 FileInfoStruct fInfo = new FileInfoStruct()
                 {
                     fname = fName,
@@ -213,7 +213,7 @@ namespace DataProcessor
 
                 DbUtil.UpsertFileInfo(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, i, reprocess, fInfo, out string actionTaken);
 
-                Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {workDest}");
+                Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"file #{i} - {actionTaken} : {aFile}");
             }
 
             Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory DONE: {dateAsDir}");
@@ -286,7 +286,7 @@ namespace DataProcessor
                 return "";
             }
 
-            string flag = inputRecord.GetColumnValue("apy_flag");   //to do ----- find what column to use
+            string flag = inputRecord.GetColumnValue("apy_flag");   //to do ----- find what column to use -What Value to use
 
             if (string.IsNullOrEmpty(flag) == false && inputRecord.GetColumnValue("apy_flag").ToLower() != "y")
                 return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
