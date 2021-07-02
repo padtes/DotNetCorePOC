@@ -286,7 +286,9 @@ namespace DataProcessor
                 return "";
             }
 
-            if (inputRecord.GetColumnValue("photograph") != "")  //to do ----- find what column to use
+            string flag = inputRecord.GetColumnValue("apy_flag");   //to do ----- find what column to use
+
+            if (string.IsNullOrEmpty(flag) == false && inputRecord.GetColumnValue("apy_flag").ToLower() != "y")
                 return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
 
             return "";

@@ -39,7 +39,7 @@
 		  "p006_courier_id":"courier_id",
 		  "p009_acknowledgement_number": "ack_number",
 		  "p008_pran" : "prod_id",
-		  "p046_photograph":"photograph"
+		  "p054_apy_flag":"apy_flag"
 	  }	
 	]
 	,"json_skip":[

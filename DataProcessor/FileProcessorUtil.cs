@@ -203,6 +203,10 @@ namespace DataProcessor
                 string yMdDirName = new DirectoryInfo(dateAsDir).Name;
 
                 string bizDir = fileProcessor.GetBizTypeDirName(curRec);
+                if (bizDir == "")
+                {
+                    return true; //no files to write
+                }
                 string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
                 string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
 
