@@ -69,6 +69,11 @@ namespace DbOps
 
         public static string GetFileDirWithSeq(string dirPath, string subDirPattern, int maxFilesPerSub, int maxDirExpexcted)
         {
+            if (Directory.Exists(dirPath) == false)
+            {
+                Directory.CreateDirectory(dirPath);
+
+            }
             var curSubs = Directory.GetDirectories(dirPath, subDirPattern + "*");
 
             int maxInUse = 0;

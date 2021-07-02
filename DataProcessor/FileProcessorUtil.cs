@@ -19,7 +19,7 @@ namespace DataProcessor
         public static bool SaveInputToDB(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, string inputFilePathName, string jsonParamFilePath
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
-            Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} ", Logger.WARNING);
+            Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file {inputFilePathName} ", Logger.WARNING);
 
             bool saveOk = true;
             try
@@ -69,7 +69,7 @@ namespace DataProcessor
                     {
                         //to do REMOVE harcoded output_lite 
 
-                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, startRowNo, lineNo
+                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFilePathName, startRowNo, lineNo
                             , inputHdr, curRec, paramsDict, dateAsDir) == false)
                             saveOk = false;
                         //to do save the current rec - last record
@@ -126,7 +126,7 @@ namespace DataProcessor
                 {
                     //to do REMOVE harcoded output_lite 
 
-                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, startRowNo, lineNo
+                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFile, startRowNo, lineNo
                         , inputHdr, curRec, paramsDict, dateAsDir) == false)
                     {
                         //to do : create error reporting
@@ -154,8 +154,9 @@ namespace DataProcessor
             return true;
         }
 
-        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, SystemParamInput inpSysParam, int startRowNo
-            , int inputLineNo, InputHeader inputHdr, InputRecord curRec
+        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, SystemParamInput inpSysParam
+            , string inputFile, int startRowNo, int inputLineNo
+            , InputHeader inputHdr, InputRecord curRec
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
             string pgConnection = fileProcessor.GetConnection();
@@ -165,7 +166,7 @@ namespace DataProcessor
             if (DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int id))
             {
                 //to do mark dup ??
-                Logger.Write(logProgName, "InsertCurrRec", 0, $"ignored row {startRowNo} duplicate rec Was saved as id:{id}", Logger.ERROR);
+                Logger.Write(logProgName, "InsertCurrRec", 0, $"ignored row {startRowNo} / {inputFile} duplicate rec Was saved as id:{id}", Logger.ERROR);
                 return false;
             }
 
@@ -174,7 +175,8 @@ namespace DataProcessor
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec, dateAsDir, courr, inpSysParam);
             if (filesOk == false)
             {
-                Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {fileProcessor.GetModuleName()} : {jobId} : rows={startRowNo}-{inputLineNo} : date={dateAsDir} ", Logger.ERROR);
+                Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {fileProcessor.GetModuleName()} : {jobId} : rows={startRowNo}-{inputLineNo} " +
+                    $": date={dateAsDir} file:{inputFile}", Logger.ERROR);
                 //to do error handling
                 return false; //---------------- No more processing
             }
@@ -198,6 +200,8 @@ namespace DataProcessor
         {
             try
             {
+                string yMdDirName = new DirectoryInfo(dateAsDir).Name;
+
                 string bizDir = fileProcessor.GetBizTypeDirName(curRec);
                 string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
                 string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
@@ -213,21 +217,20 @@ namespace DataProcessor
                     derivedFN = derivedFN.Replace(ConstantBag.FILE_NAME_TAG_COUR_SEQ, courierSeq);
 
                     string fullFilePath = paramsDict[ConstantBag.PARAM_WORK_DIR]
-                        + "\\" + dateAsDir  // "yyyymmdd" 
+                        + "\\" + yMdDirName // "yyyymmdd" 
                         + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
                         + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") ---- hard coded in caller
-                        + "\\" + courierSName + "_" + dateAsDir
+                        + "\\" + courierSName + "_" + yMdDirName
                         + "\\" + fileToWrite.Dir;  //Photo | Sign
 
+                    // {{date_dir_seq}} get sequence ("lite",  dateAsDir, Dir, paramsDict[bizTypeKey] with 150 limit
                     string subDirWithNum = SequenceGen.GetFileDirWithSeq(fullFilePath
                         , fileToWrite.SubDir  //sig_ or Photo_
                         , maxFilesPerSub  //150 max per each sub dir
                         , maxDirExpexcted //9999 will generate patter of 0001..9999
                         );
 
-                    fullFilePath = fullFilePath
-                        // {{date_dir_seq}} get sequence ("lite",  dateAsDir, Dir, paramsDict[bizTypeKey] with 150 limit
-                        + "\\" + fileToWrite.SubDir; //sig_001 
+                    fullFilePath = fullFilePath + "\\" + subDirWithNum; //sig_001 
 
                     if (Directory.Exists(fullFilePath) == false)
                         Directory.CreateDirectory(fullFilePath);
@@ -236,18 +239,22 @@ namespace DataProcessor
 
                     string hex = fileToWrite.FileContent;
                     
+                    if (hex.Length %2 != 0) //jpg file must have even number of Chars in Hex
+                    {
+                        Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " CANNOT CONVERT to jpg :" + fullFilePathNm, Logger.WARNING);
+                        return false;
+                    }
                     var bytes = Enumerable.Range(0, hex.Length)
                              .Where(x => x % 2 == 0)
                              .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                              .ToArray();
-
-                    File.WriteAllBytes(fullFilePathNm, bytes);
 
                     if (File.Exists(fullFilePathNm))
                     {
                         Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " deleting " + fileToWrite.Dir + ", full:" + fullFilePathNm, Logger.WARNING);
                         File.Delete(fullFilePathNm);
                     }
+                    File.WriteAllBytes(fullFilePathNm, bytes);
                     fileToWrite.PhysicalPath = fullFilePathNm;
                 }
             }

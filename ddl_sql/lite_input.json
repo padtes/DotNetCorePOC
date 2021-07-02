@@ -38,7 +38,8 @@
 		  "row_type" : "pd",
 		  "p006_courier_id":"courier_id",
 		  "p009_acknowledgement_number": "ack_number",
-		  "p008_pran" : "prod_id"
+		  "p008_pran" : "prod_id",
+		  "p046_photograph":"photograph"
 	  }	
 	]
 	,"json_skip":[
