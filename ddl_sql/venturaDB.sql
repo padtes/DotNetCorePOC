@@ -62,7 +62,10 @@ CREATE TABLE ventura.filedetails
 	-- docdate
 	courier_id varchar(10),
 	json_data jsonb,
-	 CONSTRAINT filedetails_pkey PRIMARY KEY (id)
+	row_number INTEGER,
+	ack_number varchar(20),
+	apy_flag char(1),
+	CONSTRAINT filedetails_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
 
