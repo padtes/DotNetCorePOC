@@ -48,7 +48,7 @@ namespace DataProcessor
         {
             foreach (var dbCol in dbMap)  //Note - no LINQ for KeyValuePair
             {
-                if (dbCol.Key.ToUpper() == aColHdr.ToUpper())
+                if (dbCol.Key.ToLower() == aColHdr.ToLower())
                 {
                     DbColsWithVals.Add(new KeyValuePair<string, string>(dbCol.Value, cells[i]));
                     break;
@@ -208,13 +208,13 @@ namespace DataProcessor
             return sql;
         }
 
-        public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, InputHeader inputHdr)
+        public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
         {
             StringBuilder sb1 = new StringBuilder();
             StringBuilder sb2 = new StringBuilder();
             sb1.Append("insert into ").Append(pgSchema).Append('.').Append(dataTableName);
-            sb1.Append("(job_id, row_number");
-            sb2.Append(jobId).Append(',').Append(startRowNo);
+            sb1.Append("(fileinfo_id, row_number");
+            sb2.Append(fileinfoId).Append(',').Append(startRowNo);
 
             AppendDbMap(sb1, sb2, inputHdr.DbColsWithVals);
             AppendDbMap(sb1, sb2, DbColsWithVals);
@@ -276,7 +276,7 @@ namespace DataProcessor
         {
             foreach (var fileCol in asFile.Columns)  
             {
-                if (fileCol.ColName.ToUpper() == aColHdr.ToUpper())
+                if (fileCol.ColName.ToLower() == aColHdr.ToLower())
                 {
                     SaveAsFileColumn tmpCol = new SaveAsFileColumn()
                     {

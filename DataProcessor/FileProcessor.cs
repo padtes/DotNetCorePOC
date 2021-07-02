@@ -12,8 +12,8 @@ namespace DataProcessor
     {
         private const string logProgName = "FileProcessor";
 
-        protected string pgSchema;
         protected string pgConnection;
+        protected string pgSchema;
         public int jobId { get; set; }
 
         protected string systemConfigDir;
@@ -22,10 +22,10 @@ namespace DataProcessor
         protected Dictionary<string, string> paramsDict = new Dictionary<string, string>();
         protected List<string> staticParamList = new List<string>();
 
-        public FileProcessor(string schemaName, string connectionStr)
+        public FileProcessor(string connectionStr, string schemaName)
         {
-            pgSchema = schemaName;
             pgConnection = connectionStr;
+            pgSchema = schemaName;
         }
 
         public string GetSchema() { return pgSchema; }
@@ -83,13 +83,13 @@ namespace DataProcessor
             }
         }
 
-        public static FileProcessor GetProcessorInstance(string moduleName, string schemaName, string connectionStr)
+        public static FileProcessor GetProcessorInstance(string moduleName, string connectionStr, string schemaName)
         {
             FileProcessor fp = null;
             if (moduleName == ConstantBag.MODULE_LITE)
-                fp = new FileProcessorLite(schemaName, connectionStr);
+                fp = new FileProcessorLite(connectionStr, schemaName);
             else
-                fp = new FileProcessorRegular(schemaName, connectionStr);
+                fp = new FileProcessorRegular(connectionStr, schemaName);
 
             return fp; 
         }

@@ -182,7 +182,7 @@ namespace DbOps
             string tmp = String.Join("','", inpRecStatus);
             string sql = $"select id, fname, fpath from {pgSchema}.fileinfo where isdeleted='0' and inp_rec_status in ('{tmp}') and fpath ='{MyEscape(dateAsDir)}'";
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
-            if (ds.Tables.Count > 1)
+            if (ds.Tables.Count > 0)
             {
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
@@ -234,7 +234,9 @@ namespace DbOps
 
         public static string UpdateFileInfoStatus(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
-            sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC}', isdeleted='{theFile.isDeleted}'" +
+            theFile.inpRecStatusDtUTC = DateTime.UtcNow;
+
+            sql = $"update {pgSchema}.fileinfo set inp_rec_status = '{theFile.inpRecStatus}', inp_rec_status_ts_utc='{theFile.inpRecStatusDtUTC.ToString("yyyy/MM/dd HH:mm:ss")}', isdeleted='{theFile.isDeleted}'" +
                 $" where id='{theFile.id}'";
             using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
             {
@@ -296,7 +298,7 @@ namespace DbOps
             return sql;
         }
 
-        public static FileTypeMaster GetFileTypMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId)
+        public static FileTypeMaster GetFileTypeMaster(string pgConnection, string pgSchema, string moduleName, string bizType, int jobId)
         {
             string sql = $"select * from {pgSchema}.filetypemaster where isactive='1' and biztype='{bizType}' and module_name='{moduleName}' order by id";
 
@@ -310,20 +312,33 @@ namespace DbOps
             {
                 id = Convert.ToInt32(dr["id"]),
                 isActive = Convert.ToBoolean(dr["isactive"]),
-                bizType = Convert.ToString(dr["biztype"]),
-                moduleName = Convert.ToString(dr["module_name"]),
-                archiveAfter = Convert.ToInt32(dr["archiveafter"]),
-                purgeAfter = Convert.ToInt32(dr["purgeafter"]),
-                fnamePattern = Convert.ToString(dr["fname_pattern"]),
-                fnamePatternAttr = Convert.ToString(dr["fname_pattern_attr"]),
-                fnamePatternName = Convert.ToString(dr["fname_pattern_name"]),
-                ext = Convert.ToString(dr["ext"]),
-                fType = Convert.ToString(dr["ftype"]),
-                fileDefJson = Convert.ToString(dr["file_def_json"]),
-                fileDefJsonFName = Convert.ToString(dr["file_def_json_fName"])
+                bizType = GetStringDbNullable(dr["biztype"]),
+                moduleName = GetStringDbNullable(dr["module_name"]),
+                archiveAfter = GetIntDbNullable(dr["archiveafter"]),
+                purgeAfter = GetIntDbNullable(dr["purgeafter"]),
+                fnamePattern = GetStringDbNullable(dr["fname_pattern"]),
+                fnamePatternAttr = GetStringDbNullable(dr["fname_pattern_attr"]),
+                fnamePatternName = GetStringDbNullable(dr["fname_pattern_name"]),
+                ext = GetStringDbNullable(dr["ext"]),
+                fType = GetStringDbNullable(dr["ftype"]),
+                fileDefJson = GetStringDbNullable(dr["file_def_json"]),
+                fileDefJsonFName = GetStringDbNullable(dr["file_def_json_fName"])
             };
 
             return fm;
         }
+        private static string GetStringDbNullable(object dbVal)
+        {
+            if (dbVal == DBNull.Value)
+                return "";
+            return Convert.ToString(dbVal);
+        }
+        private static int GetIntDbNullable(object dbVal)
+        {
+            if (dbVal == DBNull.Value)
+                return 0;
+            return Convert.ToInt32(dbVal);
+        }
+
     }
 }

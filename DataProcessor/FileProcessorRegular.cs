@@ -4,7 +4,7 @@ namespace DataProcessor
 {
     public class FileProcessorRegular : FileProcessor
     {
-        public FileProcessorRegular(string schemaName, string connectionStr) : base(schemaName, connectionStr)
+        public FileProcessorRegular(string connectionStr, string schemaName) : base(connectionStr, schemaName)
         {
 
         }

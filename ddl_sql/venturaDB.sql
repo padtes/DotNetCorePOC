@@ -53,6 +53,19 @@ CREATE TABLE ventura.fileinfo (
 )
 TABLESPACE pg_default;
 
+CREATE TABLE ventura.filedetails
+ (
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	fileinfo_id INTEGER,
+	-- doc_id 
+	prod_id varchar(40), 
+	-- docdate
+	courier_id varchar(10),
+	json_data jsonb,
+	 CONSTRAINT filedetails_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
+
 CREATE TABLE ventura.filetypemaster (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,
@@ -124,10 +137,10 @@ begin
   if not found then
     if init_if_need = '1' then
 	    insert into ventura.counters (isactive, counter_name, descript, parent_id)
- 	    values (1, master_type, 'auto create', 0) RETURNING id into lmaster_id;
+ 	    values ('1', master_type, 'auto create', 0) RETURNING id into lmaster_id;
 
 		insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
- 	    values (1, pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
+ 	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
  	    lser_no := 1;
     end if;
@@ -147,7 +160,7 @@ begin
  	else
 	  if init_if_need = '1' and lock_id <= 0 then
 		insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
- 	    values (1, pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
+ 	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
  	    lser_no := 1;
 	  end if;
@@ -158,6 +171,7 @@ begin
  
 end;
 $BODY$;
+
 ALTER FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer)
     OWNER TO postgres;
 

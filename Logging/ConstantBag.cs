@@ -29,6 +29,7 @@
         public const string FILE_LC_STEP_TODO = "TO-DO";
         public const string FILE_LC_WIP = "WIP";  //work in progress
         public const string FILE_LC_STEP_TO_DB = "DB_DONE";
+        public const string FILE_LC_STEP_ERR1 = "ERROR_1";
         public const string FILE_LC_STEP_RESPONSE = "DONE_RESP";
 
         public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";

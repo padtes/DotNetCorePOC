@@ -104,8 +104,12 @@ namespace NpsApy
 
             string dateAsDir = "20210620";
             FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema);
+            FileInfoStruct fileInfoStr = new FileInfoStruct()
+            {
+                id = 1  //the header Id for saving children
+            };
 
-            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, jobId, inputFilePathName, jsonParamFilePath, paramsDict, dateAsDir);
+            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, fileInfoStr, jobId, inputFilePathName, jsonParamFilePath, paramsDict, dateAsDir);
             if (suc)
                 Console.WriteLine("Great Success");
         }
@@ -116,13 +120,14 @@ namespace NpsApy
 
             string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
 
-            Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
-            Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
-            SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
-            SystemParamInput inpSysParam = new SystemParamInput();
+            //Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
+            //Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
+            //Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
+            //SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
+            //SystemParamInput inpSysParam = new SystemParamInput();
 
-            FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, dbMap, jsonSkip, fileDefDict, saveAsFileDefnn, inpSysParam);
+            JsonInputFileDef jDef = new JsonInputFileDef();
+            FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, jDef);
 
             Console.WriteLine("Great Success");
         }

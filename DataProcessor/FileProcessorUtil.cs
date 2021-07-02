@@ -14,22 +14,29 @@ namespace DataProcessor
     public class FileProcessorUtil
     {
         private const string logProgName = "FileProcessorUtil";
-        public static bool SaveInputToDB(FileProcessor fileProcessor, int jobId, string inputFilePathName, string jsonParamFilePath
+        private static Dictionary<string, JsonInputFileDef> jsonCache = new Dictionary<string, JsonInputFileDef>();
+
+        public static bool SaveInputToDB(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, string inputFilePathName, string jsonParamFilePath
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
             Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file{inputFilePathName} ", Logger.WARNING);
 
             bool saveOk = true;
-            Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
-            Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
-            SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
-            SystemParamInput inpSysParam = new SystemParamInput();
-
             try
             {
-                LoadJsonParamFile(jsonParamFilePath, dbMap, jsonSkip, fileDefDict, saveAsFileDefnn, inpSysParam);
-                char theDelim = inpSysParam.Delimt;
+                JsonInputFileDef jDef;
+                if (jsonCache.ContainsKey(jsonParamFilePath))
+                {
+                    jDef = jsonCache[jsonParamFilePath];
+                }
+                else
+                {
+                    jDef = new JsonInputFileDef();
+                    LoadJsonParamFile(jsonParamFilePath, jDef);
+                    jsonCache[jsonParamFilePath] = jDef;
+                }
+
+                char theDelim = jDef.inpSysParam.Delimt;
 
                 int lineNo = 0;
                 int startRowNo = 0;
@@ -48,20 +55,21 @@ namespace DataProcessor
 
                         lineNo++;
                         string[] cells = line.Split(theDelim);
-                        if (cells.Length < inpSysParam.RowTypeIndex + 1)
+                        if (cells.Length < jDef.inpSysParam.RowTypeIndex + 1)
                         {
                             errline = line;
                             continue; // skip the line
                         }
-                        ProcessDataRow(fileProcessor, jobId, ref startRowNo, cells, inputHdr
-                            , ref curRec, ref saveOk, dbMap, jsonSkip, fileDefDict, lineNo, inputFilePathName
-                            , saveAsFileDefnn, inpSysParam, paramsDict, dateAsDir);
+
+                        ProcessDataRow(fileProcessor, fileInfoStr, jobId, ref startRowNo, cells, inputHdr
+                            , ref curRec, ref saveOk, jDef, lineNo, inputFilePathName
+                            , paramsDict, dateAsDir);
                     }
                     if (curRec != null)
                     {
                         //to do REMOVE harcoded output_lite 
 
-                        if (InsertCurrRec(fileProcessor, jobId, inpSysParam, startRowNo, lineNo
+                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, startRowNo, lineNo
                             , inputHdr, curRec, paramsDict, dateAsDir) == false)
                             saveOk = false;
                         //to do save the current rec - last record
@@ -88,20 +96,17 @@ namespace DataProcessor
             }
         }
 
-        private static bool ProcessDataRow(FileProcessor fileProcessor, int jobId, ref int startRowNo, string[] cells, InputHeader inputHdr
+        private static bool ProcessDataRow(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, ref int startRowNo, string[] cells, InputHeader inputHdr
             , ref InputRecord curRec, ref bool saveOk
-            , Dictionary<string, List<KeyValuePair<string, string>>> dbMap
-            , Dictionary<string, List<string>> jsonSkip
-            , Dictionary<string, List<string>> fileDefDict, int lineNo, string inputFile
-            , SaveAsFileDef saveAsFileDefnn
-            , SystemParamInput inpSysParam
+            , JsonInputFileDef jDef
+            , int lineNo, string inputFile
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
-            string rowType = cells[inpSysParam.RowTypeIndex].ToUpper();
+            string rowType = cells[jDef.inpSysParam.RowTypeIndex].ToLower();
 
-            if (rowType == inpSysParam.FileHeaderRowType)
+            if (rowType == jDef.inpSysParam.FileHeaderRowType)
             {
-                if (inputHdr.HandleRow(fileDefDict[rowType], dbMap, null, null, rowType, cells) == false)
+                if (inputHdr.HandleRow(jDef.fileDefDict[rowType], jDef.dbMap, null, null, rowType, cells) == false)
                 {
                     Logger.Write(logProgName, "SaveInputToDB", 0, $"Failed to parse header line {lineNo} of file {inputFile}", Logger.ERROR);
                     //to do : create error reporting
@@ -115,13 +120,13 @@ namespace DataProcessor
                 return true;
             }
 
-            if (rowType == inpSysParam.DataRowType)
+            if (rowType == jDef.inpSysParam.DataRowType)
             {
                 if (curRec != null)
                 {
                     //to do REMOVE harcoded output_lite 
 
-                    if (InsertCurrRec(fileProcessor, jobId, inpSysParam, startRowNo, lineNo
+                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, startRowNo, lineNo
                         , inputHdr, curRec, paramsDict, dateAsDir) == false)
                     {
                         //to do : create error reporting
@@ -139,7 +144,7 @@ namespace DataProcessor
                 return false; //no point reading file OR ignore startin rows ??
             }
 
-            if (curRec.HandleRow(fileDefDict[rowType], dbMap, jsonSkip, saveAsFileDefnn, rowType, cells) == false)
+            if (curRec.HandleRow(jDef.fileDefDict[rowType], jDef.dbMap, jDef.jsonSkip, jDef.saveAsFileDefnn, rowType, cells) == false)
             {
                 Logger.Write(logProgName, "SaveInputToDB", 0, $"Failed to parse data at line {lineNo} of file {inputFile}", Logger.ERROR);
                 //to do : create error reporting
@@ -149,7 +154,7 @@ namespace DataProcessor
             return true;
         }
 
-        private static bool InsertCurrRec(FileProcessor fileProcessor, int jobId, SystemParamInput inpSysParam, int startRowNo
+        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, SystemParamInput inpSysParam, int startRowNo
             , int inputLineNo, InputHeader inputHdr, InputRecord curRec
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
@@ -176,7 +181,7 @@ namespace DataProcessor
             
             //to do populate fileJSONB - new column for saving {"photo" : "c:\...\photo\...jpg", "sign": "c:\...\sign...jpg" }
 
-            string insSql = curRec.GenerateInsert(pgSchema, inpSysParam.DataTableName, inpSysParam.DataTableJsonCol, jobId, startRowNo, inputHdr);
+            string insSql = curRec.GenerateInsert(pgSchema, inpSysParam.DataTableName, inpSysParam.DataTableJsonCol, jobId, startRowNo, fileInfoStr.id, inputHdr);
             try
             {
                 DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, insSql);
@@ -257,22 +262,17 @@ namespace DataProcessor
 
         #region LoadParams
 
-        public static void LoadJsonParamFile(string jsonParamFilePath
-            , Dictionary<string, List<KeyValuePair<string, string>>> dbMap
-            , Dictionary<string, List<string>> jsonSkip
-            , Dictionary<string, List<string>> fileDefDict
-            , SaveAsFileDef saveAsFileDefnn
-            , SystemParamInput inpSysParam)
+        public static void LoadJsonParamFile(string jsonParamFilePath, JsonInputFileDef jDef)
         {
             StreamReader sr = new StreamReader(jsonParamFilePath);
             string fileAsStr = sr.ReadToEnd();
 
             var oParams = JObject.Parse(fileAsStr);
-            SetupSystemParams(oParams, inpSysParam);
-            LoadDbMapFromJson(oParams, dbMap);
-            LoadSkipColumnsFromJson(oParams, jsonSkip);
-            LoadInputFileDef(oParams, fileDefDict);
-            LoadSaveAsFileDef(oParams, saveAsFileDefnn);
+            SetupSystemParams(oParams, jDef.inpSysParam);
+            LoadDbMapFromJson(oParams, jDef.dbMap);
+            LoadSkipColumnsFromJson(oParams, jDef.jsonSkip);
+            LoadInputFileDef(oParams, jDef.fileDefDict);
+            LoadSaveAsFileDef(oParams, jDef.saveAsFileDefnn);
         }
 
         private static void LoadSaveAsFileDef(JObject oParams, SaveAsFileDef saveAsFileDefnn)
@@ -282,7 +282,7 @@ namespace DataProcessor
             {
                 foreach (JObject chRowType in paramSect)
                 {
-                    string rowType = ((string)chRowType["row_type"]).ToUpper();
+                    string rowType = ((string)chRowType["row_type"]).ToLower();
                     JArray colsToSkipJA = (JArray)chRowType["columns"];
                     List<SaveAsFileColumn> tmpColumns = colsToSkipJA.ToObject<List<SaveAsFileColumn>>();
 
@@ -298,7 +298,7 @@ namespace DataProcessor
             {
                 foreach (JObject chRowType in paramSect)
                 {
-                    string rowType = ((string)chRowType["row_type"]).ToUpper();
+                    string rowType = ((string)chRowType["row_type"]).ToLower();
                     List<KeyValuePair<string, string>> dbColMap = new List<KeyValuePair<string, string>>();
 
                     foreach (JProperty jp in chRowType.Properties())
@@ -320,7 +320,7 @@ namespace DataProcessor
             {
                 foreach (JObject chRowType in paramSect)
                 {
-                    string rowType = ((string)chRowType["row_type"]).ToUpper();
+                    string rowType = ((string)chRowType["row_type"]).ToLower();
                     JArray colsToSkipJA = (JArray)chRowType["cols"];
                     List<string> columns = colsToSkipJA.ToObject<List<string>>();
 
@@ -336,7 +336,7 @@ namespace DataProcessor
             var rowNodes = inputFileDef.Children().Children().ToList();
             foreach (JToken ch in rowNodes)
             {
-                string rowType = ((JProperty)ch.Parent).Name.ToUpper(); //"FH" / "PD" / "CD"...
+                string rowType = ((JProperty)ch.Parent).Name.ToLower(); //"FH" / "PD" / "CD"...
                 Dictionary<int, string> keyValuePairs = new Dictionary<int, string>();
                 List<int> colOrder = new List<int>();
 
@@ -375,9 +375,9 @@ namespace DataProcessor
             inpSysParam.FileType = (string)sysParamSect[ConstantBag.FD_FILE_TYPE];
             inpSysParam.Delimt = (char)sysParamSect[ConstantBag.FD_DELIMT];
             inpSysParam.RowTypeIndex = Convert.ToInt32(sysParamSect[ConstantBag.FD_INDEX_OF_ROW_TYPE]);
-            inpSysParam.FileHeaderRowType = ((string)sysParamSect[ConstantBag.FD_FILE_HEADER_ROW_TYPE]).ToUpper();
+            inpSysParam.FileHeaderRowType = ((string)sysParamSect[ConstantBag.FD_FILE_HEADER_ROW_TYPE]).ToLower();
 
-            inpSysParam.DataRowType = ((string)sysParamSect[ConstantBag.FD_DATA_ROW_TYPE]).ToUpper();
+            inpSysParam.DataRowType = ((string)sysParamSect[ConstantBag.FD_DATA_ROW_TYPE]).ToLower();
             inpSysParam.DataTableName = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_NAME]).ToLower();
             inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
             inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,8 @@ namespace Logging
 
         public static void StopFileLog()
         {
-            fileLogOff = true;
+            if (Debugger.IsAttached == false)
+                fileLogOff = true;
         }
         public static void StartFileLog()
         {
@@ -71,6 +73,7 @@ namespace Logging
 
             if (fileLogOff)
             {
+                msgQue.Add(logLine);
                 return;
             }
 

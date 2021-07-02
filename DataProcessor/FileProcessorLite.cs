@@ -12,7 +12,7 @@ namespace DataProcessor
     public class FileProcessorLite : FileProcessor
     {
         private const string logProgName = "FileProcLite";
-        public FileProcessorLite(string schemaName, string connectionStr) : base(schemaName, connectionStr)
+        public FileProcessorLite(string connectionStr, string schemaName) : base(connectionStr, schemaName)
         {
 
         }
@@ -61,7 +61,7 @@ namespace DataProcessor
                 }
             }
 
-            FileTypeMaster fTypeMaster = GetFileTypMaster();
+            FileTypeMaster fTypeMaster = GetFileTypeMaster();
             if (fTypeMaster == null)
             {
                 Logger.WriteInfo(logProgName, "ProcessInput", 0
@@ -80,42 +80,48 @@ namespace DataProcessor
                 //to do use fileTypeMaster - to see file name pattern to read files
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess, out curWorkDir);
 
-                SavetoDb(dateDirectories[i], fTypeMaster, reprocess);
+                SaveToDb(dateDirectories[i], fTypeMaster, reprocess);
             }
         }
 
-        private void SavetoDb(string dateAsDir, FileTypeMaster fTypeMaster, bool reprocess)
+        private void SaveToDb(string dateAsDir, FileTypeMaster fTypeMaster, bool reprocess)
         {
             List<FileInfoStruct> listFiles = new List<FileInfoStruct>();
-            string[] statusToWork = null;
-            if (reprocess)
-            {
-                statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO, ConstantBag.FILE_LC_WIP };
-            }
-            else
-            {
-                //read File Header table with status = "TO DO"
-                statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO };
-            }
 
-            DbUtil.GetFileInfoList(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, listFiles, dateAsDir, statusToWork);
+            //read File Header table with status = "TO DO" OR in any Work in Progress from last failed job
+            //:: *********************************
+            //:: CAUTION - if there is job running as different instance or from different machine
+            //:: - it can pick actual Work in Progress from that one causing double processing
+            //::-- in that case will need lock / unlock and reset mechanism
+            //:: *********************************
+            string[] statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO, ConstantBag.FILE_LC_WIP };
+
+            //assuming input will be directly under yyyymmdd / npsLite_apy directory 
+            string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
+
+            DbUtil.GetFileInfoList(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, listFiles, inpFilesDir, statusToWork);
 
             //LOGGING - cannot be file based - multiple threads cannot use the same file safely
             Logger.StopFileLog();
-
-            //Process files  -- this can go in parallel  :: TO DO
-
-            foreach (FileInfoStruct inFile in listFiles)
+            try
             {
-                ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir);
-            }
+                //Process files  -- this can go in parallel  :: TO DO
 
+                foreach (FileInfoStruct inFile in listFiles)
+                {
+                    ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir);
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.WriteEx(logProgName, "SaveToDb", jobId, ex);
+            }
             Logger.StartFileLog();
         }
 
-        private FileTypeMaster GetFileTypMaster()
+        private FileTypeMaster GetFileTypeMaster()
         {
-            return DbUtil.GetFileTypMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId);
+            return DbUtil.GetFileTypeMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId);
         }
 
         public override void ProcessOutput(string runFor, string courierCcsv)
@@ -164,6 +170,8 @@ namespace DataProcessor
             string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
             string[] curFileList = Directory.GetFiles(inpFilesDir);
 
+            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory : {dateAsDir} has {curFileList.Length} files");
+
             // for each file in dir:dateAsDir under  date/npsLite_apy
             for (int i = 0; i < curFileList.Length; i++)
             {
@@ -180,7 +188,7 @@ namespace DataProcessor
                 FileInfoStruct fInfo = new FileInfoStruct()
                 {
                     fname = fName,
-                    fpath = curWorkDir,
+                    fpath = inpFilesDir,
                     isDeleted = false,
                     bizType = ConstantBag.LITE_IN,
                     moduleName = GetModuleName(),
@@ -198,8 +206,8 @@ namespace DataProcessor
                     nprodRecords = 0,
                     archiveAfter = 0,
                     archivePath = "TBD",
-                    purgeAfter=0,
-                    addedfromIP="localhost",
+                    purgeAfter = 0,
+                    addedfromIP = "localhost",
                     updatedFromIP = "localhost"
                 };
 
@@ -251,14 +259,24 @@ namespace DataProcessor
             string tmpFName = inpFileInfo.fpath + "\\" + inpFileInfo.fname;
             string tmpJsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
 
-            bool suc = FileProcessorUtil.SaveInputToDB(this, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir);
-
             //Save from txt file to data table
             ////save photos and signatures
+            bool suc = FileProcessorUtil.SaveInputToDB(this, inpFileInfo, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir);
 
-            inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
-            DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
-            //delete file from input dir ???
+            if (suc)
+            {
+                inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
+                DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+
+                //delete file from input dir ???
+                //TO DO
+                File.Move(tmpFName, @"c:\zunk\deleted_files\" + inpFileInfo.fname);
+            }
+            else
+            {
+                inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_ERR1;
+                DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+            }
         }
 
         public override string GetBizTypeDirName(InputRecordAbs inputRecord)
@@ -269,7 +287,7 @@ namespace DataProcessor
             }
 
             if (inputRecord.GetColumnValue("photograph") != "")  //to do ----- find what column to use
-                return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR]; 
+                return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
 
             return "";
         }

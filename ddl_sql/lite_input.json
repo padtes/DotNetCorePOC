@@ -24,8 +24,8 @@
 		"file_header_row_type": "fh",
 		"data_row_type": "pd",
 		"data_table_name":"filedetails",
-		"data_table_json_col":"data",
-		"unique_column":"pran_id",
+		"data_table_json_col":"json_data",
+		"unique_column":"prod_id",
 		"courier_col":"courier_id"
 	}
 	,"database":
@@ -38,7 +38,7 @@
 		  "row_type" : "pd",
 		  "p006_courier_id":"courier_id",
 		  "p009_acknowledgement_number": "ack_number",
-		  "p008_pran" : "pran_id"
+		  "p008_pran" : "prod_id"
 	  }	
 	]
 	,"json_skip":[
@@ -66,12 +66,12 @@
 		 "fh":{
 			"10":"h001_line_sequence_number",
 			"20":"h002_file_section_type",
-			"30":"h003_file_type",
-		    "40":"h004_batch_id",
-			"50":"h005_date_of_file_creation_mmddyyyy",
-			"60":"h006_printer_id",
-			"70":"h007_number_of_pran_request_records",
-			"80":"h008_type_of_sector"			
+			"30":"p003_file_type",
+			"40":"h003_batch_id",
+			"50":"h004_date_of_file_creation_mmddyyyy",
+			"60":"h005_printer_id",
+			"70":"h006_number_of_pran_request_records",
+			"80":"h006_type_of_sector"
 		}
 		,"pd":{
 			"10":"p001_line_sequence_number",
@@ -97,27 +97,27 @@
 			"210":"p021_subscriber_address_state",
 			"220":"p022_subscriber_address_country",
 			"230":"p023_subscriber_address_pin",
-			"240":"p024_nlao_nl_oo_office_name",
-			"250":"p025_nlao_nl_oo_reg_no",
-			"260":"p026_nlao_nl_oo_address_line_1",
-			"270":"p027_nlao_nl_oo_address_line_2",
-			"280":"p028_nlao_nl_oo_address_line_3",
-			"290":"p029_nlao_nl_oo_address_line_4",
-			"300":"p030_nlao_nl_ooaddress_state",
-			"310":"p031_nlao_nl_oo_address_country",
-			"320":"p032_nlao_nl_oo_address_pin",
-			"330":"p033_nlao_nl_cc_office_name",
-			"340":"p034_nlao_nl_cc_dept",
-			"350":"p035_nlao_nl_cc_reg_no",
-			"360":"p036_nlao_nl_cc_address_line_1",
-			"370":"p037_nlao_nl_cc_address_line_2",
-			"380":"p038_nlao_nl_cc_address_line_3",
-			"390":"p039_nlao_nl_cc_address_line_4",
-			"400":"p040_nlao_nl_cc_address_state",
-			"410":"p041_nlao_nl_cc_address_country",
-			"420":"p042_nlao_nl_cc_address_pin",
-			"430":"p043_nlao_nl_oo_bar_code",
-			"440":"p044_nlao_nl_cc_bar_code",
+			"240":"p024_nl_ao_nl_oo_office_name",
+			"250":"p025_nl_ao_nl_oo_reg_no",
+			"260":"p026_nl_ao_nl_oo_address_line_1",
+			"270":"p027_nl_ao_nl_oo_address_line_2",
+			"280":"p028_nl_ao_nl_oo_address_line_3",
+			"290":"p029_nl_ao_nl_oo_address_line_4",
+			"300":"p030_nl_ao_nl_ooaddress_state",
+			"310":"p031_nl_ao_nl_oo_address_country",
+			"320":"p032_nl_ao_nl_oo_address_pin",
+			"330":"p033_nl_ao_nl_cc_office_name",
+			"340":"p034_nl_ao_nl_cc_dept",
+			"350":"p035_nl_ao_nl_cc_reg_no",
+			"360":"p036_nl_ao_nl_cc_address_line_1",
+			"370":"p037_nl_ao_nl_cc_address_line_2",
+			"380":"p038_nl_ao_nl_cc_address_line_3",
+			"390":"p039_nl_ao_nl_cc_address_line_4",
+			"400":"p040_nl_ao_nl_cc_address_state",
+			"410":"p041_nl_ao_nl_cc_address_country",
+			"420":"p042_nl_ao_nl_cc_address_pin",
+			"430":"p043_nl_ao_nl_oo_bar_code",
+			"440":"p044_nl_ao_nl_cc_bar_code",
 			"450":"p045_subscriber_bar_code",
 			"460":"p046_photograph",
 			"470":"p047_signature",
@@ -126,7 +126,12 @@
 			"500":"p050_mothers_first_name",
 			"510":"p051_mothers_middle_name",
 			"520":"p052_mothers_last_name",
-			"530":"p053_sot_language_selected"
+			"530":"p053_sot_language_selected",
+			"540":"p054_apy_flag",
+			"550":"p055_spouse_name",
+			"560":"p056_apy_service_provider_name",
+			"570":"p057_pension_amount",
+			"580":"p058_pension_start_date"
 		}
 		,"cd":{
 			"10":"c001_line_sequence_number",
@@ -165,7 +170,7 @@
 			"340":"c034_sms_subscription_flag",
 			"350":"c035_email_subscription_flag",
 			"360":"c036_subscribers_bank_type",
-			"370":"c037_subscribers_bank_a_c_no",
+			"370":"c037_subscriber’s_bank_a_c_no",
 			"380":"c038_bank_name",
 			"390":"c039_bank_branch",
 			"400":"c040_bank_address",
@@ -187,33 +192,38 @@
 			"560":"c056_no_of_switch_used",
 			"570":"c057_govt_type_of_subscriber_record",
 			"580":"c058_scheme_pref_type",
-			"590":"c059_sub_hindi_card_print_flag",
-			"600":"c060_sub_hindi_first_name",
-			"610":"c061_sub_hindi_middle_name",
-			"620":"c062_sub_hindi_last_name",
-			"630":"c063_sub_fathers_hindi_first_name",
-			"640":"c064_sub_fathers_hindi_middle_name",
-			"650":"c065_sub_fathers_hindi_last_name",
+			"590":"c059_sub_regional_language_code",
+			"600":"c060_sub_regional_first_name",
+			"610":"c061_sub_regional_middle_name",
+			"620":"c062_subregional_last_name",
+			"630":"c063_sub_fathers_regional_first_name",
+			"640":"c064_sub_fathers_regional_middle_name",
+			"650":"c065_sub_fathers_regional_last_name",
 			"660":"c066_uid",
 			"670":"c067_membership_number",
-			"680":"c068_swavalamban_flag_",
-			"690":"c069_sub_comb_form_flag"
+			"680":"c068_swavalamban_flag",
+			"690":"c069_sub_comb_form_flag",
+			"700":"c070_apy_flag",
+			"710":"c071_spouse_name",
+			"720":"c072_apy_service_provider_name",
+			"730":"c073_pension_amount",
+			"740":"c074_pension_start_date"
 		}
 		,"nd":{
 			"10":"n001_line_sequence_number",
 			"20":"n002_file_section_type",
-			"30":"n003_nominee_serial_no",
-			"40":"n004_nominee_first_name",
-			"50":"n005_nominee_last_name",
-			"60":"n006_nominee_middle_name",
-			"70":"n007_nominee_date_of_birth",
-			"80":"n008_relationship",
-			"90":"n009_major_minor_flag",
-			"100":"n010_guardian_first_name",
-			"110":"n011_guardian_last_name",
-			"120":"n012_guardian_middle_name",
-			"130":"n013_percentage_share",
-			"140":"n014_nominee_invalid_condition"
+			"30":"n005_nominee_serial_no",
+			"40":"n006_nominee_first_name",
+			"50":"n007_nominee_last_name",
+			"60":"n008_nominee_middle_name",
+			"70":"n009_nominee_date_of_birth",
+			"80":"n010_relationship",
+			"90":"n011_major_minor_flag",
+			"100":"n012_guardian_first_name",
+			"110":"n013_guardian_last_name",
+			"120":"n014_guardian_middle_name",
+			"130":"n015_percentage_share",
+			"140":"n016_nominee_invalid_condition"
 		}
 		,"sd":{
 			"10":"s001_line_sequence_number",
@@ -223,7 +233,7 @@
 			"50":"s005_pfm_name",
 			"60":"s006_scheme_id",
 			"70":"s007_scheme_name",
-			"80":"s008_percentage_of_investment"
+			"80":"s008_percentage_of_investment",
 		}
 	}
 }

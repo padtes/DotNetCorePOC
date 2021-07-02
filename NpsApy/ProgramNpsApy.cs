@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Diagnostics;
 
 namespace NpsApy
 {
@@ -36,14 +37,14 @@ namespace NpsApy
 
             string paramsMsg = string.Join(' ', args);
             //get runtime parameter
-            string bizType;    //valid values ALL | LITE | REG 
+            string modType;    //valid values ALL | LITE | REG 
             string operation; //Op == Operation: READ or WRITE or REPORT -   All == READ as well as WRITE
             string runFor;    //default - no param - scan base directory and process all
             string courierCSV;
 
-            ParseCommandArgs(args, out bizType, out operation, out runFor, out courierCSV);
+            ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV);
 
-            Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Success " + string.Join(' ', args), Logger.INFO);
+            Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
 
             // read appSettings.json config
 
@@ -67,7 +68,9 @@ namespace NpsApy
             }
             else
             {
-                runResult = ProcessData(pgSchema, pgConnection, bizType, operation, runFor, courierCSV);
+                if (Debugger.IsAttached)
+                    DbUtil.Unlock(pgConnection, pgSchema);
+                runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV);
             }
 
             if (runResult == false)
@@ -83,20 +86,20 @@ namespace NpsApy
 
         }
 
-        private static bool ProcessData(string pgSchema, string pgConnection, string bizType, string operation, string runFor, string courierCcsv)
+        private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv)
         {
             bool run = false;
 
-            if (bizType == "lite" || bizType == "all") //NPS Lite + APY
+            if (modType == "lite" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgSchema, pgConnection);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv);
             }
 
-            if (bizType == "reg" || bizType == "all") //NPS Lite + APY
+            if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgSchema, pgConnection);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv);
             }
