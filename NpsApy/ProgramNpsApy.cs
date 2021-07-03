@@ -32,10 +32,12 @@ namespace NpsApy
 
             string pgSchema, pgConnection, logFileName;
 
+            // read appSettings.json config
             ReadSystemConfig(out pgSchema, out pgConnection, out logFileName);
             Logger.SetLogFileName(logFileName);
 
             string paramsMsg = string.Join(' ', args);
+
             //get runtime parameter
             string modType;    //valid values ALL | LITE | REG 
             string operation; //Op == Operation: READ or WRITE or REPORT -   All == READ as well as WRITE
@@ -45,9 +47,6 @@ namespace NpsApy
             ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV);
 
             Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
-
-            // read appSettings.json config
-
 
             bool runResult;
             if (operation == "unlock")
@@ -60,9 +59,18 @@ namespace NpsApy
 
                 return;            
             }
+            if (operation == "upload")
+            {
+                //change detail record status to print error or printed or reset sent to print To yet-to-print
+            }
             if (operation == "report")
             {
-                // REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
+                // summary REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
+
+                // to do add status to detail record: to print - printed - validation error | print error
+
+                // detail REPORT will dump < COURIER >, date YMD, file name, start row number where status = yet-to-print
+                // courier REPORT will dump < COURIER >, range - from-to and next
                 SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
                 runResult = rep.Print();
             }

@@ -166,9 +166,11 @@ namespace DataProcessor
                 return false;
             }
 
-            string courr = curRec.GetColumnValue(inpSysParam.CourierCol);
+            string courierSName = curRec.GetColumnValue(inpSysParam.CourierCol);
+            string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
 
-            bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec, dateAsDir, courr, inpSysParam);
+            bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec
+                , dateAsDir, courierSName, courierSeq, inpSysParam);
             if (filesOk == false)
             {
                 Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {fileProcessor.GetModuleName()} : {jobId} : rows={startRowNo}-{inputLineNo} " +
@@ -190,7 +192,7 @@ namespace DataProcessor
         }
 
         private static bool WriteImageFiles(string pgConnection, string pgSchema, FileProcessor fileProcessor, int jobId, Dictionary<string, string> paramsDict, int startRowNo, InputRecord curRec
-            , string dateAsDir, string courierSName, SystemParamInput inpSysParam)
+            , string dateAsDir, string courierSName, string courierSeq, SystemParamInput inpSysParam)
         {
             try
             {
@@ -202,7 +204,6 @@ namespace DataProcessor
                     return true; //no files to write
                 }
                 string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
-                string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
 
                 int maxFilesPerSub = 150;
                 int maxDirExpexcted = 9999;
