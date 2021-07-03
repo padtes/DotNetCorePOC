@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Logging;
 using WriteWord;
 using WriteDocXML;
+using NpsScriban;
 
 namespace POC_readCSV
 {
@@ -12,6 +13,8 @@ namespace POC_readCSV
     {
         static void Main(string[] args)
         {
+            TestScriban();
+
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                 .Build();
@@ -53,6 +56,11 @@ namespace POC_readCSV
                 }
 
             }
+        }
+
+        private static void TestScriban()
+        {
+            ScribanHandler.Test();
         }
 
         private static void TestWriteCSV(string[] args, int jobId)

@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NpsScriban\NpsScriban.csproj" />
     <ProjectReference Include="..\ReadCSV\ReadCSV.csproj" />
     <ProjectReference Include="..\WriteDocXML\WriteDocXML.csproj" />
     <ProjectReference Include="..\WriteWord\WriteWord.csproj" />

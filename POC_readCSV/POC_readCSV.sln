@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbOps", "..\DbOps\DbOps.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NpsApy", "..\NpsApy\NpsApy.csproj", "{841F0643-0EE3-4A10-A1DD-F2CCF7131F6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessor", "..\DataProcessor\DataProcessor.csproj", "{040C514C-5FC1-428E-9CAA-EB37AC46A588}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataProcessor", "..\DataProcessor\DataProcessor.csproj", "{040C514C-5FC1-428E-9CAA-EB37AC46A588}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NpsScriban", "..\NpsScriban\NpsScriban.csproj", "{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{040C514C-5FC1-428E-9CAA-EB37AC46A588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{040C514C-5FC1-428E-9CAA-EB37AC46A588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{040C514C-5FC1-428E-9CAA-EB37AC46A588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
