@@ -60,7 +60,7 @@ namespace POC_readCSV
 
         private static void TestScriban()
         {
-            ScribanHandler.Test();
+            ScribanTest.Test();
         }
 
         private static void TestWriteCSV(string[] args, int jobId)

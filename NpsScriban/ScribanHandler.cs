@@ -12,67 +12,14 @@ namespace NpsScriban
 {
     public class ScribanHandler
     {
-        public static void Test()
+        public static string Generate(string modelStr, string template, bool liquid = false, bool useMyCustomFunc = false)
         {
-            //OK_Test1();
-            Test2();
+            return Generate(JsonConvert.DeserializeObject<ExpandoObject>(modelStr), template, liquid, useMyCustomFunc);
         }
 
-        private static void Test2()
+        private static string Generate(object model, string template, bool liquid, bool useMyCustomFunc)
         {
-            string scrTemplate = "Dear {{ model.name | string.capitalize}} has {{ model.gpa | to_double | math.ceil }}, {{ model.cd[0].c015_pan + ',' + model.cd[0].c014_gender }}";
-            string scrTemplate1 =
-                @"Dear {{ model.name | capitalize }} and {{ to_upper model.name model.cd[0].c014_gender}} 
-                {{-if model.cd[0].c014_gender == 'M' 
-                    model.cd[0].c033_email
-                  else
-                    model.cd[0].c033_phone
-                  end
-                -}}
-                ";
-
-            string jsonStr = @"{
-                    ""name"":""ana bana"",
-                    ""gpa"":""3.7"",
-                    ""cd"": [
-                        {
-                        ""c015_pan"": ""ITEPS6508G"",
-                        ""c066_uid"": """",
-                        ""c003_pran"": ""500501273811"",
-                        ""c033_email"": ""DBAPU22@GMAIL.COM"",
-                        ""c033_phone"": ""630-333-2222"",
-                        ""c005_status"": ""V"",
-                        ""c014_gender"": ""F"", 
-                        ""c027_permanent_address_state_union_terr"": ""11""
-                        }
-                        ]
-                        }
-                    ";
-
-
-            string res = ScribanHandler.Generate(jsonStr, scrTemplate, liquid: false, useContext:true);
-
-            Console.WriteLine(res);
-        }
-
-        private static void OK_Test1()
-        {
-            string scrTemplate = "Dear {{ model.name }}";  //this "model" is hard-coded - no alternative
-            string jsonStr = "{ \"name\" : \"Nitin Mukesh\" }";
-
-            string res = ScribanHandler.Generate(jsonStr, scrTemplate);
-
-            Console.WriteLine(res);
-        }
-
-        private static string Generate(string modelStr, string template, bool liquid = false, bool useContext = false)
-        {
-            return Generate(JsonConvert.DeserializeObject<ExpandoObject>(modelStr), template, liquid, useContext);
-        }
-
-        private static string Generate(object model, string template, bool liquid, bool useContext)
-        {
-            if (useContext)
+            if (useMyCustomFunc)
             {
                 ScriptObject scriptObj = new MyCustomFunctions();
                 scriptObj["model"] = model;
@@ -96,9 +43,9 @@ namespace NpsScriban
             return inStr.Substring(0, 1).ToUpper() + inStr.Substring(1);
         }
 
-        public static string ToUpper(string inStr, string pad)
+        public static string ToUpperCat(string inStr, string catStr)
         {
-            return inStr.ToUpper() + "[" + pad + "]";
+            return inStr.ToUpper() + "[" + catStr + "]";
         }
 
         public static double ToDouble(string inStr)
