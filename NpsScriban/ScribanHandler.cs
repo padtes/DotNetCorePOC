@@ -20,8 +20,8 @@ namespace NpsScriban
 
         private static void Test2()
         {
-            //string scrTemplate = "Dear {{ model.name }} has {{ model.cd[0].c015_pan + ',' + model.cd[0].c014_gender }}";
-            string scrTemplate =
+            string scrTemplate = "Dear {{ model.name | string.capitalize}} has {{ model.gpa | to_double | math.ceil }}, {{ model.cd[0].c015_pan + ',' + model.cd[0].c014_gender }}";
+            string scrTemplate1 =
                 @"Dear {{ model.name | capitalize }} and {{ to_upper model.name model.cd[0].c014_gender}} 
                 {{-if model.cd[0].c014_gender == 'M' 
                     model.cd[0].c033_email
@@ -33,6 +33,7 @@ namespace NpsScriban
 
             string jsonStr = @"{
                     ""name"":""ana bana"",
+                    ""gpa"":""3.7"",
                     ""cd"": [
                         {
                         ""c015_pan"": ""ITEPS6508G"",
@@ -100,5 +101,9 @@ namespace NpsScriban
             return inStr.ToUpper() + "[" + pad + "]";
         }
 
+        public static double ToDouble(string inStr)
+        {
+            return Convert.ToDouble(inStr);
+        }
     }
 }
