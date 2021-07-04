@@ -68,7 +68,7 @@ namespace DataProcessor
                     if (curRec != null)
                     {
                         //save the current rec - last record
-                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFilePathName, startRowNo, lineNo
+                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFilePathName, startRowNo, lineNo
                             , inputHdr, curRec, paramsDict, dateAsDir) == false)
                             saveOk = false;
                     }
@@ -122,7 +122,7 @@ namespace DataProcessor
             {
                 if (curRec != null)
                 {
-                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef.inpSysParam, inputFile, startRowNo, lineNo
+                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
                         , inputHdr, curRec, paramsDict, dateAsDir) == false)
                     {
                         //to do : create error reporting
@@ -150,11 +150,12 @@ namespace DataProcessor
             return true;
         }
 
-        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, SystemParamInput inpSysParam
-            , string inputFile, int startRowNo, int inputLineNo
+        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId 
+            , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
             , InputHeader inputHdr, InputRecord curRec
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
+            SystemParamInput inpSysParam = jDef.inpSysParam;
             string pgConnection = fileProcessor.GetConnection();
             string pgSchema = fileProcessor.GetSchema();
 
@@ -167,7 +168,7 @@ namespace DataProcessor
             }
 
             string courierSName = curRec.GetColumnValue(inpSysParam.CourierCol);
-            string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, 5);                 //courier_seq - same seq # for all files
+            string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, inpSysParam.CourierSeqMaxLen);     //courier_seq - same seq # for all files
 
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec
                 , dateAsDir, courierSName, courierSeq, inpSysParam);
@@ -179,7 +180,7 @@ namespace DataProcessor
                 return false; //---------------- No more processing
             }
             
-            string insSql = curRec.GenerateInsert(pgSchema, inpSysParam.DataTableName, inpSysParam.DataTableJsonCol, jobId, startRowNo, fileInfoStr.id, inputHdr);
+            string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
             try
             {
                 DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, insSql);
@@ -279,6 +280,28 @@ namespace DataProcessor
             LoadSkipColumnsFromJson(oParams, jDef.jsonSkip);
             LoadInputFileDef(oParams, jDef.fileDefDict);
             LoadSaveAsFileDef(oParams, jDef.saveAsFileDefnn);
+            LoadMappedColList(oParams, jDef.mappedColDefnn);
+            LoadScriptedColList(oParams, jDef.scrpitedColDefnn);
+        }
+
+        private static void LoadScriptedColList(JObject oParams, ScriptedColDef scriptedColDefnn)
+        {
+            var paramSect = (JArray)oParams["script_columns"];
+            if (paramSect != null)
+            {
+                List<ScriptCol> tmpColumns = paramSect.ToObject<List<ScriptCol>>();
+                scriptedColDefnn.ScriptColList = tmpColumns;
+            }
+        }
+
+        private static void LoadMappedColList(JObject oParams, MappedColDef mappedColDefnn)
+        {
+            var paramSect = (JArray)oParams["mapped_columns"];
+            if (paramSect != null)
+            {
+                List<MappedCol> tmpColumns = paramSect.ToObject<List<MappedCol>>();
+                mappedColDefnn.MappedColList = tmpColumns;
+            }
         }
 
         private static void LoadSaveAsFileDef(JObject oParams, SaveAsFileDef saveAsFileDefnn)
@@ -388,6 +411,7 @@ namespace DataProcessor
             inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
             inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();
             inpSysParam.CourierCol = ((string)sysParamSect[ConstantBag.FD_COURIER_COL]).ToLower();
+            inpSysParam.CourierSeqMaxLen = Convert.ToInt32(sysParamSect[ConstantBag.FD_COURIER_COL_SEQ_LEN]);
         }
 
         #endregion

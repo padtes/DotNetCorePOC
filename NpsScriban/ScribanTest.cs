@@ -21,7 +21,7 @@ namespace NpsScriban
                 "}}";
             string jsonStr = "{ \"fname\" : \"Nitin\", \"lname\" : \"Sadanandani\" }";
 
-            string res = ScribanHandler.Generate(jsonStr, scrTemplate, false, false);
+            string res = ScribanHandler.Generate("test1", jsonStr, scrTemplate, false, false);
             //Console.WriteLine(res);
 
             string scrTemplate3 = "Dear {{ model.name | string.capitalize}} has {{ model.gpa | to_double | math.ceil }}, {{ model.cd[0].c015_pan + ',' + model.cd[0].c014_gender }}";
@@ -57,7 +57,7 @@ namespace NpsScriban
             //Console.WriteLine(res);
 
             scrTemplate = @"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}";
-            res = ScribanHandler.Generate(jsonStr2, scrTemplate, false,true);
+            res = ScribanHandler.Generate("test2", jsonStr2, scrTemplate, false,true);
             Console.WriteLine(res);
 
         }
@@ -72,9 +72,9 @@ namespace NpsScriban
             //
             //logger.write(@"Generating for {template} using {model}");
             if (liquid)
-                return ScribanUtils.RenderLiquid(template, new { model });
+                return ScribanHandler.RenderLiquid(template, new { model });
             else
-                return ScribanUtils.Render(template, new { model });
+                return ScribanHandler.Render(template, new { model });
         }
 
     }

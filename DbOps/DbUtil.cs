@@ -96,6 +96,36 @@ namespace DbOps
             Logger.WriteEx(moduleName + "_" + logProgName, methodNm, jobId, ex);
         }
 
+        public static string GetMappedVal(string pgConnection, string logProgName, string moduleName, int jobId, int rowNum, string sql, string mapFromVal)
+        {
+            string sql2 = string.Format(sql, MyEscape(mapFromVal));
+            string retVal = mapFromVal;
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql2, conn))
+                    using (NpgsqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            retVal = Convert.ToString(rdr[0]);
+                            break;
+                        }
+                    }
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(moduleName, logProgName, "GetMappedVal", jobId, rowNum, sql, ex);
+                throw;
+            }
+
+            return retVal;
+        }
+
         public static bool IsRecFound(string pgConnection, string logProgName, string moduleName, int jobId, int rowNum, string sql, bool getId, out int id)
         {
             bool recFound = false;

@@ -15,7 +15,7 @@ namespace NpsApy
     {
         static void Main(string[] args)
         {
-            //TestRun.TestCourierSeq();
+          TestRun.TestJasonLoad(); 
 
             //to do validate file based on column def - need to change col def for length, value range, empty ot not
 

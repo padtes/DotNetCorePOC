@@ -1,5 +1,7 @@
-﻿using DbOps.Structs;
+﻿using DbOps;
+using DbOps.Structs;
 using Newtonsoft.Json;
+using NpsScriban;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -105,8 +107,9 @@ namespace DataProcessor
             bool first = true;
             sb2.Append('{');
 
-            foreach (var jPair in JsonColValPairs)
+            for (int i = 0; i < JsonColValPairs.Count; i++)
             {
+                var jPair = JsonColValPairs[i];
                 if (first == false)
                 {
                     sb2.Append(',');
@@ -142,8 +145,9 @@ namespace DataProcessor
             sb2.Append('[');
             bool first = true;
 
-            foreach (var jColVal in JsonColsWithVals)
+            for (int i = 0; i <= JsonColsWithVals.Count; i++)
             {
+                var jColVal = JsonColsWithVals[i];
                 if (first == false)
                 {
                     sb2.Append(',');
@@ -209,8 +213,12 @@ namespace DataProcessor
             return sql;
         }
 
-        public string GenerateInsert(string pgSchema, string dataTableName, string jsonColName, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
+        public string GenerateInsert(string pgConnection, string pgSchema, string logProgName, string moduleName
+            , JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
         {
+            string dataTableName = jDef.inpSysParam.DataTableName;
+            string jsonColName = jDef.inpSysParam.DataTableJsonCol;
+
             StringBuilder sb1 = new StringBuilder();
             StringBuilder sb2 = new StringBuilder();
             sb1.Append("insert into ").Append(pgSchema).Append('.').Append(dataTableName);
@@ -238,6 +246,8 @@ namespace DataProcessor
                 jsonRow.Value.RenderJson(jStr);
                 first = false;
             }
+            GenerateMappedColumnPart(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo, first, jStr);
+            //done mapped columns
             jStr.Append('}');
 
             sb2.Append(jStr.Replace("'", "''"));
@@ -245,6 +255,95 @@ namespace DataProcessor
             sb1.Append(") values (").Append(sb2).Append(')');
 
             return sb1.ToString();
+        }
+
+        private void GenerateMappedColumnPart(string pgConnection, string pgSchema, string logProgName, string moduleName
+            , JsonInputFileDef jDef, int jobId, int startRowNo, bool hasNoOtherRows, StringBuilder jStr)
+        {
+            if (hasNoOtherRows == false)
+            {
+                jStr.Append(',');
+            }
+            jStr.Append('"').Append("xx").Append("\":"); //extended mapped and scripted values
+            jStr.Append('[');
+            bool first = true;
+            string srcVal;
+
+            for (int i = 0; i < jDef.mappedColDefnn.MappedColList.Count; i++)
+            {
+                if (first == false)
+                {
+                    jStr.Append(',');
+                }
+                var col = jDef.mappedColDefnn.MappedColList[i];
+                bool hasVal = GetInputVal(col, out srcVal);
+                if (hasVal == false)
+                    continue;
+
+                AddToJsonFromMapped(pgConnection, pgSchema, logProgName, moduleName, jobId, startRowNo, jStr, srcVal, col);
+                first = false;
+            }
+
+            string almostWholeJson = jStr.ToString() + "]}";
+            AddToJsonFromScriban(jStr, first, jDef, almostWholeJson);
+
+            jStr.Append(']');
+        }
+
+        private void AddToJsonFromScriban(StringBuilder jStr, bool hasNoOtherRows, JsonInputFileDef jDef, string almostWholeJson)
+        {
+            bool first = hasNoOtherRows;
+            foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
+            {
+                string scriptToRun = scrptCol.Script;
+                if (string.IsNullOrEmpty(scriptToRun))
+                {
+                    scriptToRun = scrptCol.ScriptFile; //to do load the file
+                }
+                string val = ScribanHandler.Generate(scrptCol.DestCol, almostWholeJson, scriptToRun, false, false);
+                if (first == false)
+                {
+                    jStr.Append(',');
+                }
+                jStr.Append('"').Append(scrptCol.DestCol).Append("\":");
+                jStr.Append('"').Append(val).Append("\"");
+                first = false;
+            }
+        }
+
+        private static void AddToJsonFromMapped(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int startRowNo
+            , StringBuilder jStr, string srcVal, MappedCol col)
+        {
+            string sqlRead = col.GetSqlStr(pgSchema);
+            string val = DbUtil.GetMappedVal(pgConnection, logProgName, moduleName, jobId, startRowNo, sqlRead, srcVal);
+
+            jStr.Append('"').Append(col.DestCol).Append("\":");
+            jStr.Append('"').Append(val).Append("\"");
+        }
+
+        private bool GetInputVal(MappedCol col, out string srcVal)
+        {
+            srcVal = "";
+            if (JsonByRowType.ContainsKey(col.RowType) == false)
+            {
+                return false;
+            }
+            JsonArrOfColsWithVals row = JsonByRowType[col.RowType];
+            if (row.JsonColsWithVals == null || row.JsonColsWithVals.Count < col.Index0 + 1)
+            {
+                return false;
+            }
+            JsonColsWithVals jColVal = row.JsonColsWithVals[col.Index0];
+
+            foreach (KeyValuePair<string, string> kv in jColVal.JsonColValPairs)
+            {
+                if (kv.Key == col.SourceCol)
+                {
+                    srcVal = kv.Value;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private string GetFileSaveJsonSql()

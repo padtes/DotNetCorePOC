@@ -7,6 +7,7 @@ using System.IO;
 using System.Globalization;
 using System.Linq;
 using DbOps;
+using NpsScriban;
 
 namespace NpsApy
 {
@@ -44,7 +45,10 @@ namespace NpsApy
             var newSeq = SequenceGen.GetFileDirWithSeq(dirPath, subDirPattern, maxFilesPerSub, maxDirExpexcted);
             Console.WriteLine(newSeq);
         }
-
+        public static void TestScriban()
+        {
+            ScribanTest.Test();
+        }
         public static void TestWrFile()
         {
             string hex = "";
@@ -118,13 +122,8 @@ namespace NpsApy
         {
             Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
 
-            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
-
-            //Dictionary<string, List<string>> fileDefDict = new Dictionary<string, List<string>>();
-            //Dictionary<string, List<string>> jsonSkip = new Dictionary<string, List<string>>();
-            //Dictionary<string, List<KeyValuePair<string, string>>> dbMap = new Dictionary<string, List<KeyValuePair<string, string>>>();
-            //SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
-            //SystemParamInput inpSysParam = new SystemParamInput();
+            // string jsonParamFilePathReg = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
+            string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\lite_input.json";
 
             JsonInputFileDef jDef = new JsonInputFileDef();
             FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, jDef);

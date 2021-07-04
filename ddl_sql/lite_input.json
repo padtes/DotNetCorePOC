@@ -9,6 +9,7 @@
 		"0.1.5" : "data_table_json_col is name of JSONB column for the data_table",
 		"0.1.6" : "unique_column is name of Database column from the data_table used in placeholder",
 		"0.1.7" : "courier_col is name of Database column from the data_table used in directory name gen",
+		"0.1.8" : "courier_seq_length is say 6 for sequence is preferred to be 6 char long.",
 		
 		"1" : "NOTE: all data in defintions is case sensitive in C-Sharp. only values for system section above 2 cases it is not case sensitive",
 		"2": "mandatory: file_def at end defines *ALL* row_types with column order and what json property name we want for JSONB column",
@@ -17,7 +18,9 @@
 		"4": "optional: json_skip is for whatever to be skipped in JSONB",
 		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB",
 		"5": "optional: save_as_file will take columns from rows by row-type such as PD or CD etc and those columns will be saved as image file",
-		"5.1":" files so are saved as jpg by converting Hex input"
+		"5.1":" files so are saved as jpg by converting Hex input",
+		"limitation_1":"the sections database, json_skip, save_as_file are assuming only one row of that type. To fix it, we will need additional index0 like mapped_columns",
+		"limitation_2":"the scriban script cannot refer anything other than the json. if it is skipped in json_skip - cannot refer it in a scriban"
 	}
 	,"system":{
 		"file_type" : "nps_lite",
@@ -28,7 +31,8 @@
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
 		"unique_column":"prod_id",
-		"courier_col":"courier_id"
+		"courier_col":"courier_id",
+		"courier_seq_length":"5"
 	}
 	,"database":
 	[
@@ -65,42 +69,42 @@
           ]
       }
 	]
-	,"mapped_col":[
-	  {"row_type" : "pd", "source_col":"p021_subscriber_address_state", "dest_col":"x_p021_subscriber_address_state"
+	,"mapped_columns":[
+	  {"row_type" : "pd", "index_0":"0", "source_col":"p021_subscriber_address_state", "dest_col":"x_p021_subscriber_address_state"
 	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-	  {"row_type" : "pd", "source_col":"p030_nl_ao_nl_ooaddress_state", "dest_col":"x_p030_nl_ao_nl_ooaddress_state"
+	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p030_nl_ao_nl_ooaddress_state", "dest_col":"x_p030_nl_ao_nl_ooaddress_state"
 	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-	  {"row_type" : "pd", "source_col":"p040_nl_ao_nl_cc_address_state", "dest_col":"x_p040_nl_ao_nl_cc_address_state"
+	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p040_nl_ao_nl_cc_address_state", "dest_col":"x_p040_nl_ao_nl_cc_address_state"
 	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-	  {"row_type" : "cd", "source_col":"c020_correspondence_state_union_terr", "dest_col":"x_c020_correspondence_state_union_terr"
+	 ,{"row_type" : "cd", "index_0":"0", "source_col":"c020_correspondence_state_union_terr", "dest_col":"x_c020_correspondence_state_union_terr"
 	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-	  {"row_type" : "cd", "source_col":"c027_permanent_address_state_union_terr", "dest_col":"x_c027_permanent_address_state_union_terr"
+	 ,{"row_type" : "cd", "index_0":"0", "source_col":"c027_permanent_address_state_union_terr", "dest_col":"x_c027_permanent_address_state_union_terr"
 	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	  
-	  {"row_type" : "pd", "source_col":"p022_subscriber_address_country", "dest_col":"x_p022_subscriber_address_country"
+	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p022_subscriber_address_country", "dest_col":"x_p022_subscriber_address_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-      {"row_type" : "pd", "source_col":"p031_nl_ao_nl_oo_address_country", "dest_col":"x_p031_nl_ao_nl_oo_address_country"
+     ,{"row_type" : "pd", "index_0":"0", "source_col":"p031_nl_ao_nl_oo_address_country", "dest_col":"x_p031_nl_ao_nl_oo_address_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-      {"row_type" : "pd", "source_col":"p041_nl_ao_nl_cc_address_country", "dest_col":"x_p041_nl_ao_nl_cc_address_country"
+     ,{"row_type" : "pd", "index_0":"0", "source_col":"p041_nl_ao_nl_cc_address_country", "dest_col":"x_p041_nl_ao_nl_cc_address_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-      {"row_type" : "cd", "source_col":"c021_correspondence_country", "dest_col":"x_c021_correspondence_country"
+     ,{"row_type" : "cd", "index_0":"0", "source_col":"c021_correspondence_country", "dest_col":"x_c021_correspondence_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
-      {"row_type" : "cd", "source_col":"c028_permanent_address_country", "dest_col":"x_c028_permanent_address_country"
+     ,{"row_type" : "cd", "index_0":"0", "source_col":"c028_permanent_address_country", "dest_col":"x_c028_permanent_address_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	]
-	,"script_col":[
+	,"script_columns":[
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
-		{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_sub.txt","script":""}
+	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
 	]
 	, "file_def" : {
 		 "fh":{
