@@ -15,7 +15,9 @@
 		"3": "optional: database is for table coulumns that are mapped in non-JSONB, might be repeated as JSONB too",
 		"3.1": "database properties are what input file column as defined in file_def per row_type, goes to what database_table_column",
 		"4": "optional: json_skip is for whatever to be skipped in JSONB",
-		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB"
+		"4.1": "this is list of input columns as defined in file_def per row_type, to NOT SAVE in the JSONB",
+		"5": "optional: save_as_file will take columns from rows by row-type such as PD or CD etc and those columns will be saved as image file",
+		"5.1":" files so are saved as jpg by converting Hex input"
 	}
 	,"system":{
 		"file_type" : "nps_lite",
@@ -62,6 +64,43 @@
 			{"col_name":"p047_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{courier_seq}}_{{unique_column}}_sign.jpg" }
           ]
       }
+	]
+	,"mapped_col":[
+	  {"row_type" : "pd", "source_col":"p021_subscriber_address_state", "dest_col":"x_p021_subscriber_address_state"
+	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	  {"row_type" : "pd", "source_col":"p030_nl_ao_nl_ooaddress_state", "dest_col":"x_p030_nl_ao_nl_ooaddress_state"
+	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	  {"row_type" : "pd", "source_col":"p040_nl_ao_nl_cc_address_state", "dest_col":"x_p040_nl_ao_nl_cc_address_state"
+	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	  {"row_type" : "cd", "source_col":"c020_correspondence_state_union_terr", "dest_col":"x_c020_correspondence_state_union_terr"
+	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	  {"row_type" : "cd", "source_col":"c027_permanent_address_state_union_terr", "dest_col":"x_c027_permanent_address_state_union_terr"
+	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	  
+	  {"row_type" : "pd", "source_col":"p022_subscriber_address_country", "dest_col":"x_p022_subscriber_address_country"
+	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+      {"row_type" : "pd", "source_col":"p031_nl_ao_nl_oo_address_country", "dest_col":"x_p031_nl_ao_nl_oo_address_country"
+	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+      {"row_type" : "pd", "source_col":"p041_nl_ao_nl_cc_address_country", "dest_col":"x_p041_nl_ao_nl_cc_address_country"
+	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+      {"row_type" : "cd", "source_col":"c021_correspondence_country", "dest_col":"x_c021_correspondence_country"
+	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+      {"row_type" : "cd", "source_col":"c028_permanent_address_country", "dest_col":"x_c028_permanent_address_country"
+	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
+	  }
+	]
+	,"script_col":[
+		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
+		{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_sub.txt","script":""}
 	]
 	, "file_def" : {
 		 "fh":{

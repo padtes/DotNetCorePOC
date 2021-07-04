@@ -11,7 +11,6 @@ namespace NpsScriban
         public static void Test()
         {
             string scrTemplate1 = "Dear {{ model.fname }} \n {{ model.lname }} ";  //this "model" is hard-coded - no alternative
-
             string scrTemplate = "Dear {{ model.fname }} \n" +
                 "{{ x = model.lname | string.size \n" +
                 " if x > 4 \n" +
@@ -21,7 +20,9 @@ namespace NpsScriban
                 " end \n" +
                 "}}";
             string jsonStr = "{ \"fname\" : \"Nitin\", \"lname\" : \"Sadanandani\" }";
+
             string res = ScribanHandler.Generate(jsonStr, scrTemplate, false, false);
+            //Console.WriteLine(res);
 
             string scrTemplate3 = "Dear {{ model.name | string.capitalize}} has {{ model.gpa | to_double | math.ceil }}, {{ model.cd[0].c015_pan + ',' + model.cd[0].c014_gender }}";
             string scrTemplate4 =
@@ -45,16 +46,20 @@ namespace NpsScriban
                         ""c033_email"": ""DBAPU22@GMAIL.COM"",
                         ""c033_phone"": ""630-333-2222"",
                         ""c005_status"": ""V"",
-                        ""c014_gender"": ""F"", 
+                        ""c014_gender"": ""M"", 
                         ""c027_permanent_address_state_union_terr"": ""11""
                         }
                     ]
                 }
             ";
 
-            string res = ScribanHandler.Generate(jsonStr, scrTemplate, false, true);
+            //res = ScribanHandler.Generate(jsonStr2, scrTemplate4, false, true);
+            //Console.WriteLine(res);
 
+            scrTemplate = @"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}";
+            res = ScribanHandler.Generate(jsonStr2, scrTemplate, false,true);
             Console.WriteLine(res);
+
         }
         private static string Generate(string modelStr, string template, bool liquid = false)
         {

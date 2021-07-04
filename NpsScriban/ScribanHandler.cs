@@ -14,15 +14,12 @@ namespace NpsScriban
     {
         public static string Generate(string modelStr, string template, bool liquid = false, bool useMyCustomFunc = false)
         {
-            return Generate(JsonConvert.DeserializeObject<ExpandoObject>(modelStr), template, liquid, useMyCustomFunc);
-        }
+            ExpandoObject model = JsonConvert.DeserializeObject<ExpandoObject>(modelStr);
 
-        private static string Generate(object model, string template, bool liquid, bool useMyCustomFunc)
-        {
             if (useMyCustomFunc)
             {
                 ScriptObject scriptObj = new MyCustomFunctions();
-                scriptObj["model"] = model;
+                scriptObj["model"] = model;  //this parameter name : "model" is what is used for interogating {{ model.name }}
                 var context = new TemplateContext();
                 context.PushGlobal(scriptObj);
                 return ScribanUtils.Render2(template, new { model }, context);
