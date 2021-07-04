@@ -111,6 +111,18 @@ CREATE TABLE ventura.counters(
 )
 TABLESPACE pg_default;
 
+/*
+select * from ventura.fileinfo ;
+select * from ventura.filedetails order by fileinfo_id, id;
+select * from ventura.counters;
+*/
+-- delete from ventura.fileinfo;
+-- ALTER SEQUENCE ventura.fileinfo_id_seq RESTART WITH 1;
+-- delete from ventura.filedetails;
+-- ALTER SEQUENCE ventura.filedetails_id_seq RESTART WITH 1;
+
+--update ventura.counters set next_num=start_num where parent_id > 0;
+
 -- FUNCTION: ventura.get_serial_number(character varying, character varying, boolean, integer)
 
 -- DROP FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer);
