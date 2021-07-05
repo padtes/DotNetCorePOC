@@ -3,6 +3,7 @@ using DbOps;
 using DbOps.Structs;
 using Logging;
 using Newtonsoft.Json.Linq;
+using NpsScriban;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +33,7 @@ namespace DataProcessor
                 else
                 {
                     jDef = new JsonInputFileDef();
-                    LoadJsonParamFile(jsonParamFilePath, jDef);
+                    LoadJsonParamFile(fileProcessor.GetConnection(), fileProcessor.GetSchema(), jsonParamFilePath, jDef, paramsDict);
                     jsonCache[jsonParamFilePath] = jDef;
                 }
 
@@ -179,8 +180,10 @@ namespace DataProcessor
                 //to do error handling
                 return false; //---------------- No more processing
             }
-            
-            string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
+
+            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+            string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
             try
             {
                 DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, insSql);
@@ -269,7 +272,7 @@ namespace DataProcessor
 
         #region LoadParams
 
-        public static void LoadJsonParamFile(string jsonParamFilePath, JsonInputFileDef jDef)
+        public static void LoadJsonParamFile(string pgConnection, string pgSchema, string jsonParamFilePath, JsonInputFileDef jDef, Dictionary<string, string> paramsDict)
         {
             StreamReader sr = new StreamReader(jsonParamFilePath);
             string fileAsStr = sr.ReadToEnd();
@@ -280,11 +283,11 @@ namespace DataProcessor
             LoadSkipColumnsFromJson(oParams, jDef.jsonSkip);
             LoadInputFileDef(oParams, jDef.fileDefDict);
             LoadSaveAsFileDef(oParams, jDef.saveAsFileDefnn);
-            LoadMappedColList(oParams, jDef.mappedColDefnn);
-            LoadScriptedColList(oParams, jDef.scrpitedColDefnn);
+            LoadMappedColList(oParams, pgConnection, pgSchema, jDef.mappedColDefnn);
+            LoadScriptedColList(oParams, jDef.scrpitedColDefnn, paramsDict);
         }
 
-        private static void LoadScriptedColList(JObject oParams, ScriptedColDef scriptedColDefnn)
+        private static void LoadScriptedColList(JObject oParams, ScriptedColDef scriptedColDefnn, Dictionary<string, string> paramsDict)
         {
             var paramSect = (JArray)oParams["script_columns"];
             if (paramSect != null)
@@ -292,15 +295,26 @@ namespace DataProcessor
                 List<ScriptCol> tmpColumns = paramSect.ToObject<List<ScriptCol>>();
                 scriptedColDefnn.ScriptColList = tmpColumns;
             }
+            //validate
+            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+            foreach (ScriptCol scrCol in scriptedColDefnn.ScriptColList)
+            {
+                ScribanHandler.ParseTemplate(sysPath, scrCol);
+            }
         }
 
-        private static void LoadMappedColList(JObject oParams, MappedColDef mappedColDefnn)
+        private static void LoadMappedColList(JObject oParams, string pgConnection, string pgSchema, MappedColDef mappedColDefnn)
         {
             var paramSect = (JArray)oParams["mapped_columns"];
             if (paramSect != null)
             {
                 List<MappedCol> tmpColumns = paramSect.ToObject<List<MappedCol>>();
                 mappedColDefnn.MappedColList = tmpColumns;
+            }
+            foreach (var col in mappedColDefnn.MappedColList)
+            {
+                string s = col.GetSqlStr(pgSchema);
+                string val = DbUtil.GetMappedVal(pgConnection, logProgName, "Load", 0, 0, s, "1");
             }
         }
 

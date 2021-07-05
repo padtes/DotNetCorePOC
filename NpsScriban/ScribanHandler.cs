@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using CommonUtil;
+using DbOps.Structs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Scriban;
@@ -13,39 +16,94 @@ namespace NpsScriban
 {
     public class ScribanHandler
     {
-        public static string Generate(string scriptName, string modelStr, string template, bool liquid = false, bool useMyCustomFunc = false)
+        private static Dictionary<string, string> cacheNameScript = new Dictionary<string, string>();
+        private static Dictionary<string, Template> cacheNameTemplate = new Dictionary<string, Template>();
+
+        public static string Generate(string sysPath, ScriptCol scrCol, string modelStr, bool liquid = false, bool useMyCustomFunc = false)
         {
+            Template template1;
+            if (cacheNameTemplate.ContainsKey(scrCol.DestCol))
+                template1 = cacheNameTemplate[scrCol.DestCol];
+            else
+                template1 = ParseTemplate(sysPath, scrCol);
+
             ExpandoObject model = JsonConvert.DeserializeObject<ExpandoObject>(modelStr);
 
             if (useMyCustomFunc)
             {
                 ScriptObject scriptObj = new MyCustomFunctions();
                 scriptObj["model"] = model;  //this parameter name : "model" is what is used for interogating {{ model.name }}
+
                 var context = new TemplateContext();
                 context.PushGlobal(scriptObj);
-                return Render2(template, new { model }, context);
+                //return Render2(templateStr, new { model }, context);
+                return template1.Render(context); 
             }
             //this parameter name : "model" is what is used for interogating {{ model.name }}
             //
             //logger.write(@"Generating for {template} using {model}");
             if (liquid)
-                return RenderLiquid(template, new { model });
+            {
+                //return RenderLiquid(templateStr, new { model });
+                return template1.Render(new { model }, member => LowerFirstCharacter(member.Name));
+            }
             else
-                return Render(template, new { model });
+            {
+                //return Render(templateStr, new { model });
+                return template1.Render(new { model }, member => LowerFirstCharacter(member.Name));
+            }
         }
 
-        public static string Render(string templateStr, object obj = null)
+        public static Template ParseTemplate(string sysPath, ScriptCol scrCol)
         {
-            var template = Template.Parse(templateStr);
+            string templateStr = scrCol.Script;
+            string templateStrOrFn = scrCol.Script;
+            if (string.IsNullOrEmpty(scrCol.Script))
+            {
+                if (string.IsNullOrEmpty(scrCol.ScriptFile))
+                    throw new Exception(" no file or script for scripted column " + scrCol.DestCol);
+                if (File.Exists(sysPath + scrCol.ScriptFile) == false)
+                    throw new Exception("file not found for scripted column " + scrCol.DestCol + "::" + sysPath + scrCol.ScriptFile);
+
+                templateStrOrFn = scrCol.ScriptFile;
+                templateStr = File.ReadAllText(sysPath + scrCol.ScriptFile);
+            }
+
+            string tmpSName = scrCol.DestCol.ToUpper();
+
+            Template template = Template.Parse(templateStr);
             if (template.HasErrors)
                 throw new Exception(string.Join("\n", template.Messages.Select(x => $"{x.Message} at {x.Span.ToStringSimple()}")));
+
+            if (cacheNameScript.ContainsKey(tmpSName) == false)
+            {
+                cacheNameScript.Add(tmpSName, templateStrOrFn);
+                cacheNameTemplate.Add(tmpSName, template);
+            }
+            else
+            {
+                string prScript = cacheNameScript[tmpSName];
+                if (prScript != templateStrOrFn)
+                    throw new Exception("Scripted more than once same column " + scrCol.DestCol + "\n " + prScript + "\n " + templateStrOrFn);
+            }
+            return template;
+        }
+
+        public static string Render(string templateStr, object obj = null, Template template = null)
+        {
+            if (template == null)
+            {
+                template = Template.Parse(templateStr);
+                if (template.HasErrors)
+                    throw new Exception(string.Join("\n", template.Messages.Select(x => $"{x.Message} at {x.Span.ToStringSimple()}")));
+            }
 
             return template.Render(obj, member => LowerFirstCharacter(member.Name));
         }
 
         public static string Render2(string templateStr, object obj, TemplateContext context)
         {
-            var template = Template.Parse(templateStr);
+            Template template = Template.Parse(templateStr);
             if (template.HasErrors)
                 throw new Exception(string.Join("\n", template.Messages.Select(x => $"{x.Message} at {x.Span.ToStringSimple()}")));
 
@@ -69,7 +127,7 @@ namespace NpsScriban
                 return char.ToLower(value[0]) + value.Substring(1);
             return value;
         }
-        
+
         //public static string Version => typeof(Scriban.Template).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
 
     }

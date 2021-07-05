@@ -127,6 +127,29 @@ select * from ventura.counters;
 
 -- DROP FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer);
 
+CREATE TABLE ventura.states (
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	isactive	bool,
+	code varchar(50) not null,
+	name varchar(100) not null,
+	country_code varchar(2),
+
+	CONSTRAINT states_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
+
+CREATE TABLE ventura.countries (
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	isactive	bool,
+	code varchar(2) not null,
+	code3 varchar(3),
+	name varchar(100) not null,
+
+	CONSTRAINT countries_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
+
+
 CREATE OR REPLACE FUNCTION ventura.get_serial_number(
 	master_type character varying,
 	pdoc_val character varying,
@@ -238,3 +261,145 @@ $BODY$;
 
 ALTER FUNCTION ventura.lock_counter(character varying, character varying, integer)
     OWNER TO postgres;
+
+
+insert into ventura.states(country_code,name,code) values('IN','ANDAMAN AND NICOBAR ISLANDS','01');
+insert into ventura.states(country_code,name,code) values('IN','ANDHRA PRADESH','02');
+insert into ventura.states(country_code,name,code) values('IN','ARUNACHAL PRADESH','03');
+insert into ventura.states(country_code,name,code) values('IN','ASSAM','04');
+insert into ventura.states(country_code,name,code) values('IN','BIHAR','05');
+insert into ventura.states(country_code,name,code) values('IN','CHANDIGARH','06');
+insert into ventura.states(country_code,name,code) values('IN','DADRA & NAGAR HAVELI','07');
+insert into ventura.states(country_code,name,code) values('IN','DAMAN & DIU','08');
+insert into ventura.states(country_code,name,code) values('IN','DELHI','09');
+insert into ventura.states(country_code,name,code) values('IN','GOA','10');
+insert into ventura.states(country_code,name,code) values('IN','GUJARAT','11');
+insert into ventura.states(country_code,name,code) values('IN','HARYANA','12');
+insert into ventura.states(country_code,name,code) values('IN','HIMACHAL PRADESH','13');
+insert into ventura.states(country_code,name,code) values('IN','JAMMU & KASHMIR','14');
+insert into ventura.states(country_code,name,code) values('IN','KARNATAKA','15');
+insert into ventura.states(country_code,name,code) values('IN','KERALA','16');
+insert into ventura.states(country_code,name,code) values('IN','LAKHSWADEEP','17');
+insert into ventura.states(country_code,name,code) values('IN','MADHYA PRADESH','18');
+insert into ventura.states(country_code,name,code) values('IN','MAHARASHTRA','19');
+insert into ventura.states(country_code,name,code) values('IN','MANIPUR','20');
+insert into ventura.states(country_code,name,code) values('IN','MEGHALAYA','21');
+insert into ventura.states(country_code,name,code) values('IN','MIZORAM','22');
+insert into ventura.states(country_code,name,code) values('IN','NAGALAND','23');
+insert into ventura.states(country_code,name,code) values('IN','ORISSA','24');
+insert into ventura.states(country_code,name,code) values('IN','PONDICHERRY','25');
+insert into ventura.states(country_code,name,code) values('IN','PUNJAB','26');
+insert into ventura.states(country_code,name,code) values('IN','RAJASTHAN','27');
+insert into ventura.states(country_code,name,code) values('IN','SIKKIM','28');
+insert into ventura.states(country_code,name,code) values('IN','TAMILNADU','29');
+insert into ventura.states(country_code,name,code) values('IN','TRIPURA','30');
+insert into ventura.states(country_code,name,code) values('IN','UTTAR PRADESH','31');
+insert into ventura.states(country_code,name,code) values('IN','WEST BENGAL','32');
+insert into ventura.states(country_code,name,code) values('IN','CHHATISHGARH','33');
+insert into ventura.states(country_code,name,code) values('IN','UTTARANCHAL','34');
+insert into ventura.states(country_code,name,code) values('IN','JHARKHAND','35');
+insert into ventura.states(country_code,name,code) values('IN','NRI (Foreign Address)','99');
+insert into ventura.states(country_code,name,code) values('IN','Defense','88');
+
+insert into ventura.countries(name, code, isactive) values 
+('Argentina','AR','1')
+,('Australia','AU','1')
+,('Austria','AT','1')
+,('Bahrain','BH','1')
+,('Bangladesh','BD','1')
+,('Barbados','BB','1')
+,('Belarus','BY','1')
+,('Belgium','BE','1')
+,('Bermuda','BM','1')
+,('Bhutan','BT','1')
+,('Botswana','BW','1')
+,('Brunei Darussalam','BN','1')
+,('Bulgaria','BG','1')
+,('Cambodia','KH','1')
+,('Canada','CA','1')
+,('Cape Verde','CV','1')
+,('Cayman Islands','KY','1')
+,('China','CN','1')
+,('Cuba','CU','1')
+,('Cyprus','CY','1')
+,('Denmark','DK','1')
+,('Egypt','EG','1')
+,('El Salvador','SV','1')
+,('Eritrea','ER','1')
+,('Estonia','EE','1')
+,('Ethiopia','ET','1')
+,('Fiji','FJ','1')
+,('France','FR','1')
+,('Georgia','GE','1')
+,('Germany','DE','1')
+,('Ghana','GH','1')
+,('Greece','GR','1')
+,('Guyana','GY','1')
+,('Hong Kong','HK','1')
+,('Hungary','HU','1')
+,('Iceland','IS','1')
+,('India','IN','1')
+,('Indonesia','ID','1')
+,('Iran, Islamic Republic of','IR','1')
+,('Iraq','IQ','1')
+,('Ireland','IE','1')
+,('Israel','IL','1')
+,('Italy','IT','1')
+,('Japan','JP','1')
+,('Jordan','JO','1')
+,('Kenya','KE','1')
+,('Korea, Democratic People''s Republic of','KP','1')
+,('Kuwait','KW','1')
+,('Latvia','LV','1')
+,('Luxembourg','LU','1')
+,('Macao','MO','1')
+,('Malawi','MW','1')
+,('Malaysia','MY','1')
+,('Maldives','MV','1')
+,('Mauritius','MU','1')
+,('Mexico','MX','1')
+,('Mongolia','MN','1')
+,('Morocco','MA','1')
+,('Namibia','NA','1')
+,('Nauru','NR','1')
+,('Nepal','NP','1')
+,('Netherlands','NL','1')
+,('New Zealand','NZ','1')
+,('Niger','NE','1')
+,('Nigeria','NG','1')
+,('Norway','NO','1')
+,('Oman','OM','1')
+,('Pakistan','PK','1')
+,('Panama','PA','1')
+,('Papua New Guinea','PG','1')
+,('Philippines','PH','1')
+,('Poland','PL','1')
+,('Portugal','PT','1')
+,('Qatar','QA','1')
+,('Romania','RO','1')
+,('Russian Federation','RU','1')
+,('Rwanda','RW','1')
+,('Saudi Arabia','SA','1')
+,('Senegal','SN','1')
+,('Singapore','SG','1')
+,('South Africa','ZA','1')
+,('Spain','ES','1')
+,('Sri Lanka','LK','1')
+,('Sudan','SD','1')
+,('Sweden','SE','1')
+,('Switzerland','CH','1')
+,('Taiwan, Province of China','TW','1')
+,('Tanzania, United Republic of','TZ','1')
+,('Thailand','TH','1')
+,('Tunisia','TN','1')
+,('Turkey','TR','1')
+,('Uganda','UG','1')
+,('Ukraine','UA','1')
+,('United Arab Emirates','AE','1')
+,('United Kingdom','GB','1')
+,('United States of America','US','1')
+,('Viet Nam','VN','1')
+,('Yemen','YE','1')
+,('Zair','ZR','1')
+,('Zimbabwe','ZW','1')
+

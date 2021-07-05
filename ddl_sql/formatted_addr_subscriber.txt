@@ -1,0 +1,21 @@
+To: 
+{{-
+x = 0
+model.pd[0].p017_subscriber_address_line_1
+if model.pd[0].p017_subscriber_address_line_1  != '';
+  x =1;
+end;
+if x == 1 && model.pd[0].p018_subscriber_address_line_2 != '';
+',\\n';
+x =1;
+end;
+model.pd[0].p018_subscriber_address_line_2
+if model.pd[0].p019_subscriber_address_line_3 != '';
+',\\n';
+end;
+model.pd[0].p019_subscriber_address_line_3
+if model.pd[0].p020_subscriber_address_line_4 != '';
+',\\n';
+end;
+model.pd[0].p020_subscriber_address_line_4
+-}}

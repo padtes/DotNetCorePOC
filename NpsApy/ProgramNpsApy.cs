@@ -15,7 +15,9 @@ namespace NpsApy
     {
         static void Main(string[] args)
         {
-          TestRun.TestJasonLoad(); 
+            //TestRun.TestJasonLoad();
+
+            //TestRun.TestScriban();
 
             //to do validate file based on column def - need to change col def for length, value range, empty ot not
 
@@ -57,7 +59,7 @@ namespace NpsApy
                 else
                     Console.WriteLine("Unlock FAILED, check exceptions");
 
-                return;            
+                return;
             }
             if (operation == "upload")
             {

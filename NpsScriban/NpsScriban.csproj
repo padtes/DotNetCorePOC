@@ -9,4 +9,8 @@
     <PackageReference Include="Scriban" Version="4.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DbOps\DbOps.csproj" />
+  </ItemGroup>
+
 </Project>

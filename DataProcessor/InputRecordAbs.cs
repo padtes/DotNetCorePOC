@@ -145,7 +145,7 @@ namespace DataProcessor
             sb2.Append('[');
             bool first = true;
 
-            for (int i = 0; i <= JsonColsWithVals.Count; i++)
+            for (int i = 0; i < JsonColsWithVals.Count; i++)
             {
                 var jColVal = JsonColsWithVals[i];
                 if (first == false)
@@ -214,7 +214,7 @@ namespace DataProcessor
         }
 
         public string GenerateInsert(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
         {
             string dataTableName = jDef.inpSysParam.DataTableName;
             string jsonColName = jDef.inpSysParam.DataTableJsonCol;
@@ -246,7 +246,7 @@ namespace DataProcessor
                 jsonRow.Value.RenderJson(jStr);
                 first = false;
             }
-            GenerateMappedColumnPart(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo, first, jStr);
+            GenerateMappedColumnPart(pgConnection, pgSchema, logProgName, moduleName, sysPath, jDef, jobId, startRowNo, first, jStr);
             //done mapped columns
             jStr.Append('}');
 
@@ -258,14 +258,14 @@ namespace DataProcessor
         }
 
         private void GenerateMappedColumnPart(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , JsonInputFileDef jDef, int jobId, int startRowNo, bool hasNoOtherRows, StringBuilder jStr)
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, bool hasNoOtherRows, StringBuilder jStr)
         {
             if (hasNoOtherRows == false)
             {
                 jStr.Append(',');
             }
             jStr.Append('"').Append("xx").Append("\":"); //extended mapped and scripted values
-            jStr.Append('[');
+            jStr.Append('{');
             bool first = true;
             string srcVal;
 
@@ -284,23 +284,18 @@ namespace DataProcessor
                 first = false;
             }
 
-            string almostWholeJson = jStr.ToString() + "]}";
-            AddToJsonFromScriban(jStr, first, jDef, almostWholeJson);
+            string almostWholeJson = jStr.ToString() + "}}";
+            AddToJsonFromScriban(jStr, first, sysPath, jDef, almostWholeJson);
 
-            jStr.Append(']');
+            jStr.Append('}'); //end "xx"
         }
 
-        private void AddToJsonFromScriban(StringBuilder jStr, bool hasNoOtherRows, JsonInputFileDef jDef, string almostWholeJson)
+        private void AddToJsonFromScriban(StringBuilder jStr, bool hasNoOtherRows, string sysPath, JsonInputFileDef jDef, string almostWholeJson)
         {
             bool first = hasNoOtherRows;
             foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
             {
-                string scriptToRun = scrptCol.Script;
-                if (string.IsNullOrEmpty(scriptToRun))
-                {
-                    scriptToRun = scrptCol.ScriptFile; //to do load the file
-                }
-                string val = ScribanHandler.Generate(scrptCol.DestCol, almostWholeJson, scriptToRun, false, false);
+                string val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
                 if (first == false)
                 {
                     jStr.Append(',');

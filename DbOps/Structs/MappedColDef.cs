@@ -36,7 +36,7 @@ namespace DbOps.Structs
         {
             if (sql == "")
             {
-                sql = $"select {MapValCol} from {pgSchema}.{MapTable} where {MapKeyCol} = {{0}}";
+                sql = $"select {MapValCol} from {pgSchema}.{MapTable} where {MapKeyCol} = '{{0}}'";
                 if (string.IsNullOrEmpty(Where) == false)
                 {
                     sql += " and " + Where;

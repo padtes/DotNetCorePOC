@@ -71,19 +71,19 @@
 	]
 	,"mapped_columns":[
 	  {"row_type" : "pd", "index_0":"0", "source_col":"p021_subscriber_address_state", "dest_col":"x_p021_subscriber_address_state"
-	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1' and code <> '99'"
 	  }
 	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p030_nl_ao_nl_ooaddress_state", "dest_col":"x_p030_nl_ao_nl_ooaddress_state"
-	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p040_nl_ao_nl_cc_address_state", "dest_col":"x_p040_nl_ao_nl_cc_address_state"
-	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	 ,{"row_type" : "cd", "index_0":"0", "source_col":"c020_correspondence_state_union_terr", "dest_col":"x_c020_correspondence_state_union_terr"
-	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	 ,{"row_type" : "cd", "index_0":"0", "source_col":"c027_permanent_address_state_union_terr", "dest_col":"x_c027_permanent_address_state_union_terr"
-	   , "map_table":"states","map_key_col":"id", "map_val_col":"name", "where" : "isactive='1'"
+	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	  
 	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p022_subscriber_address_country", "dest_col":"x_p022_subscriber_address_country"

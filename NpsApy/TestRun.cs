@@ -96,15 +96,7 @@ namespace NpsApy
             int jobId = 0;
 
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
-            paramsDict.Add("systemdir", "c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql");
-            paramsDict.Add("inputdir", "c:/zunk/lite/input");
-            paramsDict.Add("workdir", "c:/zunk/lite/work");
-            paramsDict.Add("output_par", "nps_lite");
-            paramsDict.Add("output_lite", "NPSLite");
-            paramsDict.Add("output_apy", "APY");
-            //paramsDict.Add("output_duplicate", "nps_lite_copy");
-            paramsDict.Add("photo_max_per_dir", "150");
-            paramsDict.Add("expect_max_subdir", "9990");
+            PopulateParamsDict(paramsDict);
 
             string dateAsDir = "20210620";
             FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema);
@@ -118,6 +110,19 @@ namespace NpsApy
                 Console.WriteLine("Great Success");
         }
 
+        private static void PopulateParamsDict(Dictionary<string, string> paramsDict)
+        {
+            paramsDict.Add("systemdir", "c:/users/spadte/source/repos/padtes/DotNetCorePOC/ddl_sql");
+            paramsDict.Add("inputdir", "c:/zunk/lite/input");
+            paramsDict.Add("workdir", "c:/zunk/lite/work");
+            paramsDict.Add("output_par", "nps_lite");
+            paramsDict.Add("output_lite", "NPSLite");
+            paramsDict.Add("output_apy", "APY");
+            //paramsDict.Add("output_duplicate", "nps_lite_copy");
+            paramsDict.Add("photo_max_per_dir", "150");
+            paramsDict.Add("expect_max_subdir", "9990");
+        }
+
         public static void TestJasonLoad()
         {
             Logger.SetLogFileName(@"C:\\Zunk\\POC_Log.txt");
@@ -125,8 +130,13 @@ namespace NpsApy
             // string jsonParamFilePathReg = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
             string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\lite_input.json";
 
+            Dictionary<string, string> paramsDict = new Dictionary<string, string>();
+            PopulateParamsDict(paramsDict);
+
             JsonInputFileDef jDef = new JsonInputFileDef();
-            FileProcessorUtil.LoadJsonParamFile(jsonParamFilePath, jDef);
+            string pgConnection = "Server=localhost; Port=5433; Database=postgres; User Id=userventura; Password=simpleuser; ";
+
+            FileProcessorUtil.LoadJsonParamFile(pgConnection, "ventura", jsonParamFilePath, jDef, paramsDict);
 
             Console.WriteLine("Great Success");
         }
