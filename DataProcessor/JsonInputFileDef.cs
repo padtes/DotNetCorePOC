@@ -13,7 +13,7 @@ namespace DataProcessor
         public SaveAsFileDef saveAsFileDefnn = new SaveAsFileDef();
         public MappedColDef mappedColDefnn = new MappedColDef();
         public ScriptedColDef scrpitedColDefnn = new ScriptedColDef();
-
+        public SequenceColDef sequenceColDefnn = new SequenceColDef();
         public SystemParamInput inpSysParam = new SystemParamInput();
     }
 }

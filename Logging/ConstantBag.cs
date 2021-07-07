@@ -59,7 +59,6 @@
         public const string FD_DATA_TABLE_JSON_COL = "data_table_json_col";
         public const string FD_UNIQUE_COLUMN = "unique_column";
         public const string FD_COURIER_COL = "courier_col";
-        public const string FD_COURIER_COL_SEQ_LEN = "courier_seq_length";
         // 3 flags - card print | letter | PTC entry
         // introduce batch concept
 

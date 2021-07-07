@@ -20,7 +20,8 @@
 		"5": "optional: save_as_file will take columns from rows by row-type such as PD or CD etc and those columns will be saved as image file",
 		"5.1":" files so are saved as jpg by converting Hex input",
 		"limitation_1":"the sections database, json_skip, save_as_file are assuming only one row of that type. To fix it, we will need additional index0 like mapped_columns",
-		"limitation_2":"the scriban script cannot refer anything other than the json. if it is skipped in json_skip - cannot refer it in a scriban"
+		"limitation_2":"the scriban script cannot refer anything other than the json. if it is skipped in json_skip - cannot refer it in a scriban",
+		"limitation_3":"must use a seq column in the System courier_col"
 	}
 	,"system":{
 		"file_type" : "nps_lite",
@@ -31,8 +32,9 @@
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
 		"unique_column":"prod_id",
-		"courier_col":"courier_id",
-		"courier_seq_length":"5"
+		"courier_col":"x_awb",
+		"zz_courier_seq_length":"5",
+		"zz_courier_seq_master_type":"couriers"
 	}
 	,"database":
 	[
@@ -105,6 +107,9 @@
 	,"script_columns":[
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
 	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
+	]
+	,"sequence_columns":[
+		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers", "seq_length":"6"}
 	]
 	, "file_def" : {
 		 "fh":{

@@ -24,11 +24,19 @@ namespace NpsApy
             int fixedLen = 5;
             try
             {
-                var newSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierCode,fixedLen);
+                var newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("first:" + newSeq);
 
-                newSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierCode, fixedLen);
+                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("secondt:" + newSeq);
+
+                courierCode = "PST";
+                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                Console.WriteLine("first:" + newSeq);
+
+                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                Console.WriteLine("secondt:" + newSeq);
+
             }
             catch (Exception ex)
             {

@@ -151,14 +151,17 @@ namespace DataProcessor
             return true;
         }
 
-        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId 
+        private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
             , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
             , InputHeader inputHdr, InputRecord curRec
             , Dictionary<string, string> paramsDict, string dateAsDir)
         {
-            SystemParamInput inpSysParam = jDef.inpSysParam;
             string pgConnection = fileProcessor.GetConnection();
             string pgSchema = fileProcessor.GetSchema();
+
+            GetSequenceValues(pgConnection, pgSchema, jDef, curRec);
+
+            SystemParamInput inpSysParam = jDef.inpSysParam;
 
             string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
             if (DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int id))
@@ -168,8 +171,12 @@ namespace DataProcessor
                 return false;
             }
 
-            string courierSName = curRec.GetColumnValue(inpSysParam.CourierCol);
-            string courierSeq = SequenceGen.GetCourierSeq(pgConnection, pgSchema, courierSName, inpSysParam.CourierSeqMaxLen);     //courier_seq - same seq # for all files
+            string courierSeq = "", courierSName = "";
+            GetCourierVal(pgConnection, pgSchema, curRec, inpSysParam, ref courierSeq, ref courierSName);
+            if (courierSName == "")//just for code-reading. Actuall Get Next Sequence will bomb out
+            {
+                throw new Exception("Courier Short name not found:" + inpSysParam.CourierCol);
+            }
 
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec
                 , dateAsDir, courierSName, courierSeq, inpSysParam);
@@ -192,6 +199,44 @@ namespace DataProcessor
             catch
             {
                 return false;  //---------------- No more processing
+            }
+        }
+
+        private static void GetCourierVal(string pgConnection, string pgSchema, InputRecord curRec, SystemParamInput inpSysParam, ref string courierSeq, ref string courierSName)
+        {
+            foreach (SequenceColWithVal col in curRec.sequenceCols)
+            {
+                if (col.DestCol == inpSysParam.CourierCol)
+                {
+                    courierSName = col.SequenceSrc;
+                    courierSeq = col.SequenceStr;
+                    break;
+                }
+            }
+            //else
+            //{
+            //    courierSName = curRec.GetColumnValue(inpSysParam.CourierCol);
+            //    courierSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, inpSysParam.CourierSeqMasterType, courierSName, inpSysParam.CourierSeqMaxLen);     //courier_seq - same seq # for all files
+            //}
+        }
+
+        private static void GetSequenceValues(string pgConnection, string pgSchema, JsonInputFileDef jDef, InputRecord curRec)
+        {
+            string srcVal;
+            foreach (SequenceCol col in jDef.sequenceColDefnn.SequenceColList)
+            {
+                bool hasVal = curRec.GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
+                if (hasVal == false)
+                    continue;
+
+                string newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength);
+
+                curRec.sequenceCols.Add(new SequenceColWithVal()
+                {
+                    DestCol = col.DestCol,
+                    SequenceSrc = srcVal,
+                    SequenceStr = newSeq
+                });
             }
         }
 
@@ -241,8 +286,8 @@ namespace DataProcessor
                     string fullFilePathNm = fullFilePath + "\\" + derivedFN;  //{{courier_seq}}_{{pran_id}}_sign.jpg
 
                     string hex = fileToWrite.FileContent;
-                    
-                    if (hex.Length %2 != 0) //jpg file must have even number of Chars in Hex
+
+                    if (hex.Length % 2 != 0) //jpg file must have even number of Chars in Hex
                     {
                         Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " CANNOT CONVERT to jpg :" + fullFilePathNm, Logger.WARNING);
                         return false;
@@ -285,6 +330,17 @@ namespace DataProcessor
             LoadSaveAsFileDef(oParams, jDef.saveAsFileDefnn);
             LoadMappedColList(oParams, pgConnection, pgSchema, jDef.mappedColDefnn);
             LoadScriptedColList(oParams, jDef.scrpitedColDefnn, paramsDict);
+            LoadSequenceColList(oParams, jDef.sequenceColDefnn, paramsDict);
+        }
+
+        private static void LoadSequenceColList(JObject oParams, SequenceColDef sequenceColDefnn, Dictionary<string, string> paramsDict)
+        {
+            var paramSect = (JArray)oParams["sequence_columns"];
+            if (paramSect != null)
+            {
+                List<SequenceCol> tmpColumns = paramSect.ToObject<List<SequenceCol>>();
+                sequenceColDefnn.SequenceColList = tmpColumns;
+            }
         }
 
         private static void LoadScriptedColList(JObject oParams, ScriptedColDef scriptedColDefnn, Dictionary<string, string> paramsDict)
@@ -425,7 +481,6 @@ namespace DataProcessor
             inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
             inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();
             inpSysParam.CourierCol = ((string)sysParamSect[ConstantBag.FD_COURIER_COL]).ToLower();
-            inpSysParam.CourierSeqMaxLen = Convert.ToInt32(sysParamSect[ConstantBag.FD_COURIER_COL_SEQ_LEN]);
         }
 
         #endregion

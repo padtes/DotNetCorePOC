@@ -12,25 +12,25 @@ namespace DbOps
         private static object syncLock = new object();
         private static Dictionary<string, int> courierLocks = new Dictionary<string, int>();  //to make sure no other process or machine is using same courier
 
-        public static string GetCourierSeq(string pgConnection, string pgSchema, string courierCode, int fixedLen = -1)
+        public static string GetNextSequence(string pgConnection, string pgSchema, string seqName, string seqSourceCode, int fixedLen = -1)
         {
             bool ok = true;
             int lockKey = -9;
             int counterId = -1;
 
-            if (courierLocks.ContainsKey(courierCode) == false)
+            if (courierLocks.ContainsKey(seqSourceCode) == false)
             {
                 lock (syncLock)
                 {
                     Random rand = new Random();
                     lockKey = rand.Next(10, 5000);
                     //lock
-                    string sql1 = $"SELECT {pgSchema}.lock_counter('couriers','{courierCode}','{lockKey}')";
+                    string sql1 = $"SELECT {pgSchema}.lock_counter('{seqName}','{seqSourceCode}','{lockKey}')";
                     ok = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql1, out counterId);
 
                     if (ok && counterId > 0)
                     {
-                        courierLocks.Add(courierCode, lockKey);
+                        courierLocks.Add(seqSourceCode, lockKey);
                     }
                     else
                     {
@@ -40,23 +40,23 @@ namespace DbOps
             }
             else
             {
-                lockKey = courierLocks[courierCode];
+                lockKey = courierLocks[seqSourceCode];
             }
 
             if (ok == false)
             {
-                throw new Exception("Could not lock Courier " + courierCode + " make sure no other instance running. Use -op=UNLOCK if sure.");
+                throw new Exception("Could not lock Courier " + seqSourceCode + " make sure no other instance running. Use -op=UNLOCK if sure.");
             }
 
             //add to local static list of locks
-            string sql = $"SELECT {pgSchema}.get_serial_number('couriers','{courierCode}', '0', '{lockKey}')";
+            string sql = $"SELECT {pgSchema}.get_serial_number('{seqName}','{seqSourceCode}', '0', '{lockKey}')";
             lock (syncLock)
             {
                 ok = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql, out counterId);
             }
             if (ok == false || counterId <= 0)
             {
-                throw new Exception("Could not get ser number for Courier " + courierCode + " see if there is enough range.");
+                throw new Exception("Could not get ser number for Courier " + seqSourceCode + " see if there is enough range.");
             }
 
             string retStr = counterId.ToString();

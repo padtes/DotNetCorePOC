@@ -15,7 +15,6 @@ namespace DbOps.Structs
         public string DataTableJsonCol { get; set; }
         public string UniqueColumn { get; set; }
         public string CourierCol { get; set; }
-        public int CourierSeqMaxLen { get; set; }
     }
 
 }

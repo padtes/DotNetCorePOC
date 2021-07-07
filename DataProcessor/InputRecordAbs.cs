@@ -164,6 +164,7 @@ namespace DataProcessor
     {
         public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
         public List<SaveAsFileColumn> saveAsFiles = new List<SaveAsFileColumn>();
+        public List<SequenceColWithVal> sequenceCols = new List<SequenceColWithVal>();
 
         public override bool HandleRow(List<string> allColumns, Dictionary<string, List<KeyValuePair<string, string>>> dbMapDict
                 , Dictionary<string, List<string>> jsonSkip, SaveAsFileDef saveAsFileDefnn
@@ -276,7 +277,7 @@ namespace DataProcessor
                     jStr.Append(',');
                 }
                 var col = jDef.mappedColDefnn.MappedColList[i];
-                bool hasVal = GetInputVal(col, out srcVal);
+                bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
                 if (hasVal == false)
                     continue;
 
@@ -284,10 +285,26 @@ namespace DataProcessor
                 first = false;
             }
 
+            AddToJsonFromSequences(jStr, ref first);
+
             string almostWholeJson = jStr.ToString() + "}}";
             AddToJsonFromScriban(jStr, first, sysPath, jDef, almostWholeJson);
 
             jStr.Append('}'); //end "xx"
+        }
+
+        private void AddToJsonFromSequences(StringBuilder jStr, ref bool hasNoOtherRows)
+        {
+            foreach (SequenceColWithVal seqCol in this.sequenceCols)
+            {
+                if (hasNoOtherRows == false)
+                {
+                    jStr.Append(',');
+                }
+                jStr.Append('"').Append(seqCol.DestCol).Append("\":");
+                jStr.Append('"').Append(seqCol.SequenceStr).Append("\"");
+                hasNoOtherRows = false;
+            }
         }
 
         private void AddToJsonFromScriban(StringBuilder jStr, bool hasNoOtherRows, string sysPath, JsonInputFileDef jDef, string almostWholeJson)
@@ -316,23 +333,23 @@ namespace DataProcessor
             jStr.Append('"').Append(val).Append("\"");
         }
 
-        private bool GetInputVal(MappedCol col, out string srcVal)
+        public bool GetInputVal(string rowType, int indOfRow, string sourceCol, out string srcVal)
         {
             srcVal = "";
-            if (JsonByRowType.ContainsKey(col.RowType) == false)
+            if (JsonByRowType.ContainsKey(rowType) == false)
             {
                 return false;
             }
-            JsonArrOfColsWithVals row = JsonByRowType[col.RowType];
-            if (row.JsonColsWithVals == null || row.JsonColsWithVals.Count < col.Index0 + 1)
+            JsonArrOfColsWithVals row = JsonByRowType[rowType];
+            if (row.JsonColsWithVals == null || row.JsonColsWithVals.Count < indOfRow + 1)
             {
                 return false;
             }
-            JsonColsWithVals jColVal = row.JsonColsWithVals[col.Index0];
+            JsonColsWithVals jColVal = row.JsonColsWithVals[indOfRow];
 
             foreach (KeyValuePair<string, string> kv in jColVal.JsonColValPairs)
             {
-                if (kv.Key == col.SourceCol)
+                if (kv.Key == sourceCol)
                 {
                     srcVal = kv.Value;
                     return true;
