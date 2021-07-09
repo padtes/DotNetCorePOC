@@ -216,6 +216,7 @@
       },
       "NpsScriban/1.0.0": {
         "dependencies": {
+          "DbOps": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "Scriban": "4.0.1"
         },

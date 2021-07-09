@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataProcessor
 {
@@ -159,7 +160,7 @@ namespace DataProcessor
             string pgConnection = fileProcessor.GetConnection();
             string pgSchema = fileProcessor.GetSchema();
 
-            GetSequenceValues(pgConnection, pgSchema, jDef, curRec);
+            curRec.PrepareColumns(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo);
 
             SystemParamInput inpSysParam = jDef.inpSysParam;
 
@@ -177,8 +178,12 @@ namespace DataProcessor
             {
                 throw new Exception("Courier Short name not found:" + inpSysParam.CourierCol);
             }
+            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+            string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
 
-            bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, paramsDict, startRowNo, curRec
+            bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, startRowNo
+                , paramsDict, curRec
                 , dateAsDir, courierSName, courierSeq, inpSysParam);
             if (filesOk == false)
             {
@@ -188,9 +193,8 @@ namespace DataProcessor
                 return false; //---------------- No more processing
             }
 
-            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
-            string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
-                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
+            insSql = curRec.ReplaceFileSaveJsonSql(insSql);
+
             try
             {
                 DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, insSql);
@@ -220,27 +224,8 @@ namespace DataProcessor
             //}
         }
 
-        private static void GetSequenceValues(string pgConnection, string pgSchema, JsonInputFileDef jDef, InputRecord curRec)
-        {
-            string srcVal;
-            foreach (SequenceCol col in jDef.sequenceColDefnn.SequenceColList)
-            {
-                bool hasVal = curRec.GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
-                if (hasVal == false)
-                    continue;
-
-                string newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength);
-
-                curRec.sequenceCols.Add(new SequenceColWithVal()
-                {
-                    DestCol = col.DestCol,
-                    SequenceSrc = srcVal,
-                    SequenceStr = newSeq
-                });
-            }
-        }
-
-        private static bool WriteImageFiles(string pgConnection, string pgSchema, FileProcessor fileProcessor, int jobId, Dictionary<string, string> paramsDict, int startRowNo, InputRecord curRec
+        private static bool WriteImageFiles(string pgConnection, string pgSchema, FileProcessor fileProcessor, int jobId, int startRowNo
+            , Dictionary<string, string> paramsDict, InputRecord curRec
             , string dateAsDir, string courierSName, string courierSeq, SystemParamInput inpSysParam)
         {
             try
@@ -252,7 +237,7 @@ namespace DataProcessor
                 {
                     return true; //no files to write
                 }
-                string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
+                //string curKey = curRec.GetColumnValue(inpSysParam.UniqueColumn);
 
                 int maxFilesPerSub = 150;
                 int maxDirExpexcted = 9999;
@@ -261,8 +246,8 @@ namespace DataProcessor
 
                 foreach (var fileToWrite in curRec.saveAsFiles)
                 {
-                    string derivedFN = fileToWrite.FileName.Replace(ConstantBag.FILE_NAME_TAG_UNIQUE_COL, curKey);
-                    derivedFN = derivedFN.Replace(ConstantBag.FILE_NAME_TAG_COUR_SEQ, courierSeq);
+                    //document id as file name 
+                    string derivedFN = SubstituteColValues(fileToWrite.FileName, curRec);
 
                     string fullFilePath = paramsDict[ConstantBag.PARAM_WORK_DIR]
                         + "\\" + yMdDirName // "yyyymmdd" 
@@ -313,6 +298,24 @@ namespace DataProcessor
                 return false;
             }
             return true;
+        }
+
+        private static string SubstituteColValues(string fileName, InputRecord curRec)
+        {
+            string derivedFN = fileName;
+            string pattern = ConstantBag.TAG_REG_PAT; // @"\{{(.*?)\}}";
+            var matches = Regex.Matches(fileName, pattern);
+            foreach (Match m in matches)
+            {
+                string colNm = m.Groups[1].ToString();
+                if (curRec.allDerivedColVal.ContainsKey(colNm) == false)
+                    throw new Exception(" output image file name pattern contains column not in input rec " + fileName);
+
+                string tmp = curRec.allDerivedColVal[colNm].Trim();
+                derivedFN = derivedFN.Replace(ConstantBag.TAG_START + colNm + ConstantBag.TAG_END, tmp);
+            }
+
+            return derivedFN;
         }
 
         #region LoadParams

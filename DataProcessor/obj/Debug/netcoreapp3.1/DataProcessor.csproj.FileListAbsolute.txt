@@ -12,3 +12,5 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcor
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\DbOps.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\Logging.pdb
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\obj\Debug\netcoreapp3.1\DataProcessor.csproj.CopyComplete
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\NpsScriban.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\DataProcessor\bin\Debug\netcoreapp3.1\NpsScriban.pdb

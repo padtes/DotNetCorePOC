@@ -45,6 +45,11 @@ namespace DbOps.Structs
             return sql; 
         }
     }
+    public class MappedColWithVal 
+    {
+        public MappedCol theDef { get; set; }
+        public string mappedResult { get; set; }
+    }
     public class MappedColDef
     {
         [JsonProperty("mapped_columns")]

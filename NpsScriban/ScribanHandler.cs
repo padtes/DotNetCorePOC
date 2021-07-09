@@ -22,8 +22,10 @@ namespace NpsScriban
         public static string Generate(string sysPath, ScriptCol scrCol, string modelStr, bool liquid = false, bool useMyCustomFunc = false)
         {
             Template template1;
-            if (cacheNameTemplate.ContainsKey(scrCol.DestCol))
-                template1 = cacheNameTemplate[scrCol.DestCol];
+            string colNm = scrCol.DestCol.ToUpper();// as used in ParseTemplate
+
+            if (cacheNameTemplate.ContainsKey(colNm))
+                template1 = cacheNameTemplate[colNm];
             else
                 template1 = ParseTemplate(sysPath, scrCol);
 

@@ -32,9 +32,12 @@
         public const string FILE_LC_STEP_ERR1 = "ERROR_1";
         public const string FILE_LC_STEP_RESPONSE = "DONE_RESP";
 
-        public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
+        //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
-        public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
+        //public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
+        public const string TAG_START = "{{";
+        public const string TAG_END = "}}";
+        public const string TAG_REG_PAT = @"\{{(.*?)\}}";
 
         //All Module parameter
         public const string PARAM_SYS_DIR = "systemdir";

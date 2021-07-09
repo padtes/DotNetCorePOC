@@ -57,7 +57,7 @@
 		}
 		,{
 		  "row_type" : "pd",
-		  "cols":["p009_acknowledgement_number","p046_photograph","p047_signature"]
+		  "cols":["p046_photograph","p047_signature"]
 		}
 	]
 	,"save_as_file":
@@ -66,8 +66,8 @@
 		  "row_type" : "pd",
 		  "columns": 
 		  [
-			{"col_name":"p046_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{courier_seq}}_{{unique_column}}_photo.jpg"},
-			{"col_name":"p047_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{courier_seq}}_{{unique_column}}_sign.jpg" }
+			{"col_name":"p046_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{x_awb}}_{{x_document_id}}_photo.jpg"},
+			{"col_name":"p047_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{x_awb}}_{{x_document_id}}_sign.jpg" }
           ]
       }
 	]
@@ -103,10 +103,16 @@
      ,{"row_type" : "cd", "index_0":"0", "source_col":"c028_permanent_address_country", "dest_col":"x_c028_permanent_address_country"
 	   , "map_table":"countries","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
+
+     ,{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_p006_courier_code2"
+	   , "map_table":"couriers","map_key_col":"code3", "map_val_col":"code", "where" : "isactive='1'"
+	  }
+
 	]
 	,"script_columns":[
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
 	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
+	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p009_acknowledgement_number | string.append '51' | string.append model.xx.x_p006_courier_code2}}" }
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers", "seq_length":"6"}

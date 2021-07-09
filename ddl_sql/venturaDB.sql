@@ -111,22 +111,6 @@ CREATE TABLE ventura.counters(
 )
 TABLESPACE pg_default;
 
-/*
-select * from ventura.fileinfo ;
-select * from ventura.filedetails order by fileinfo_id, id;
-select * from ventura.counters;
-*/
--- delete from ventura.fileinfo;
--- ALTER SEQUENCE ventura.fileinfo_id_seq RESTART WITH 1;
--- delete from ventura.filedetails;
--- ALTER SEQUENCE ventura.filedetails_id_seq RESTART WITH 1;
-
---update ventura.counters set next_num=start_num where parent_id > 0;
-
--- FUNCTION: ventura.get_serial_number(character varying, character varying, boolean, integer)
-
--- DROP FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer);
-
 CREATE TABLE ventura.states (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,
@@ -148,6 +132,39 @@ CREATE TABLE ventura.countries (
 	CONSTRAINT countries_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
+
+CREATE TABLE ventura.couriers(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	isactive	bool,
+	code varchar(2) not null,
+	code3 varchar(3),
+	name varchar(100) not null,
+
+	CONSTRAINT couriers_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
+
+--insert into ventura.couriers(isactive,code, code3, name) values
+--('1','D1','PRF','Prefered Courier TEST')
+--, ('1','A1','PST','Post TEST');
+
+---------
+
+/*
+select * from ventura.fileinfo ;
+select * from ventura.filedetails order by fileinfo_id, id;
+select * from ventura.counters;
+*/
+-- delete from ventura.fileinfo;
+-- ALTER SEQUENCE ventura.fileinfo_id_seq RESTART WITH 1;
+-- delete from ventura.filedetails;
+-- ALTER SEQUENCE ventura.filedetails_id_seq RESTART WITH 1;
+
+--update ventura.counters set next_num=start_num where parent_id > 0;
+
+-- FUNCTION: ventura.get_serial_number(character varying, character varying, boolean, integer)
+
+-- DROP FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer);
 
 
 CREATE OR REPLACE FUNCTION ventura.get_serial_number(

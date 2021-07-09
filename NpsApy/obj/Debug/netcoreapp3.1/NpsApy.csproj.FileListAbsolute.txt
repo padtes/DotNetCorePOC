@@ -44,3 +44,6 @@ C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\DataProcessor.dll
 C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\DataProcessor.pdb
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\Scriban.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\NpsScriban.dll
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1\NpsScriban.pdb
