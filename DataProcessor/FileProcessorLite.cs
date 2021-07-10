@@ -12,7 +12,7 @@ namespace DataProcessor
     public class FileProcessorLite : FileProcessor
     {
         private const string logProgName = "FileProcLite";
-        public FileProcessorLite(string connectionStr, string schemaName) : base(connectionStr, schemaName)
+        public FileProcessorLite(string connectionStr, string schemaName, string opName) : base(connectionStr, schemaName, opName)
         {
 
         }
@@ -21,13 +21,15 @@ namespace DataProcessor
             return ConstantBag.MODULE_LITE;
         }
 
-        protected override void LoadModuleParam(string operation, string runFor, string courierCsv)
+        protected override void LoadModuleParam(string runFor, string courierCsv)
         {
             staticParamList = new List<string>() { ConstantBag.PARAM_OUTPUT_PARENT_DIR, ConstantBag.PARAM_OUTPUT_LITE_DIR, ConstantBag.PARAM_OUTPUT_APY_DIR, ConstantBag.PARAM_IMAGE_LIMIT };
 
-            LoadParam(ConstantBag.SYSTEM_PARAM);
+            //read details based on date from system param table
+            paramsDict = ProcessorUtil.LoadSystemParam(pgConnection, pgSchema, logProgName, GetModuleName(), jobId
+                , out systemConfigDir, out inputRootDir, out workDir);
 
-            ValidateStaticParam(ConstantBag.MODULE_LITE);
+            ProcessorUtil.ValidateStaticParam(GetModuleName(), ConstantBag.MODULE_LITE, logProgName, paramsDict, staticParamList);
         }
 
         public override void ProcessInput(string runFor)
@@ -122,39 +124,6 @@ namespace DataProcessor
         private FileTypeMaster GetFileTypeMaster()
         {
             return DbUtil.GetFileTypeMaster(pgConnection, pgSchema, GetModuleName(), ConstantBag.LITE_IN, jobId);
-        }
-
-        public override void ProcessOutput(string runFor, string courierCcsv)
-        {
-            ProcessNpsLiteOutput(runFor, courierCcsv);
-
-            ProcessApyOutput(runFor, courierCcsv);
-        }
-        private void ProcessNpsLiteOutput(string runFor, string courierCcsv)
-        {
-            /*
-            OUTPUT file structure 
-            --NPS LITE
-                --- workDir / ddmmyyyy / nps_lite_apy / nps 
-                --- workDir / ddmmyyyy / nps_lite_apy / nps / <status file> <response file>
-                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / 
-                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / <PTC file> <card file> <letter files> 
-             */
-            //collect what all coutiers to process
-            //for each courier
-            //create outputs
-            throw new NotImplementedException();
-        }
-
-        private void ProcessApyOutput(string runFor, string courierCcsv)
-        {
-            /*
-            OUTPUT file structure 
-            --APY
-                workDir / ddmmyyyy / nps_lite_apy / apy
-                workDir / ddmmyyyy / nps_lite_apy / apy / courier_name_ddmmyy / <PTC file> <card file> <letter files>
-             */
-            throw new NotImplementedException();
         }
 
         internal void CollectFilesNpsLiteApyDir(string dateAsDir, bool reprocess, out string curWorkDir)
@@ -292,6 +261,11 @@ namespace DataProcessor
                 return paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
 
             return "";
+        }
+
+        public override ReportProcessor GetReportProcessor(string operation)
+        {
+            return new ReportProcessorLite(GetConnection(), GetSchema(), GetModuleName(), operation);
         }
     }
 

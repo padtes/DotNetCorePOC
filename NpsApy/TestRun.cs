@@ -102,12 +102,12 @@ namespace NpsApy
             string inputFilePathName = @"C:\d\Personal\Learning\reg_test_in\PTGPRN0507202114070521001.TXT";
             string jsonParamFilePath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\InputDefine.json";
             int jobId = 0;
+            string operation = "read";
 
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
             PopulateParamsDict(paramsDict);
-
             string dateAsDir = "20210620";
-            FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema);
+            FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema, operation);
             FileInfoStruct fileInfoStr = new FileInfoStruct()
             {
                 id = 1  //the header Id for saving children

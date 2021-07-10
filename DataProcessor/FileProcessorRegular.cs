@@ -4,7 +4,7 @@ namespace DataProcessor
 {
     public class FileProcessorRegular : FileProcessor
     {
-        public FileProcessorRegular(string connectionStr, string schemaName) : base(connectionStr, schemaName)
+        public FileProcessorRegular(string connectionStr, string schemaName, string opName) : base(connectionStr, schemaName, opName)
         {
 
         }
@@ -14,7 +14,7 @@ namespace DataProcessor
             return ConstantBag.MODULE_REG;
         }
 
-        protected override void LoadModuleParam(string operation, string runFor, string courierCsv)
+        protected override void LoadModuleParam(string runFor, string courierCsv)
         {
             throw new System.NotImplementedException();
         }
@@ -24,12 +24,12 @@ namespace DataProcessor
             throw new System.NotImplementedException();
         }
 
-        public override void ProcessOutput(string runFor, string courierCcsv)
+        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
+        public override ReportProcessor GetReportProcessor(string operation)
         {
             throw new System.NotImplementedException();
         }

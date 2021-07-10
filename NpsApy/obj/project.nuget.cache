@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "vwkVNU50ZJIQLiRItXdJ58lPYDetymZkcWZm4f+16c3reDyF8fe9iAeMR6BHkoeLnP75SFI97tfg/24C6bmSXw==",
+  "dgSpecHash": "jZhc4eactFFszaArUbhdUqgJZnFGi0z7kg4u6j8LfrblntkhFxRMCw+Uv7f5RnOLQ1pRYF7wpji4cdRrY1tCuQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\NpsApy\\NpsApy.csproj",
   "expectedPackageFiles": [
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration\\5.0.0\\microsoft.extensions.configuration.5.0.0.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\5.0.0\\microsoft.extensions.configuration.abstractions.5.0.0.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.configuration.binder\\5.0.0\\microsoft.extensions.configuration.binder.5.0.0.nupkg.sha512",
@@ -15,8 +16,10 @@
     "C:\\Users\\spadte\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.0\\microsoft.extensions.primitives.5.0.0.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\npgsql\\5.0.5\\npgsql.5.0.5.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\scriban\\4.0.1\\scriban.4.0.1.nupkg.sha512",
     "C:\\Users\\spadte\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512",
-    "C:\\Users\\spadte\\.nuget\\packages\\system.text.json\\5.0.0\\system.text.json.5.0.0.nupkg.sha512"
+    "C:\\Users\\spadte\\.nuget\\packages\\system.text.json\\5.0.0\\system.text.json.5.0.0.nupkg.sha512",
+    "C:\\Users\\spadte\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.0\\system.threading.tasks.extensions.4.5.0.nupkg.sha512"
   ],
   "logs": []
 }

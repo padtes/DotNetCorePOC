@@ -50,7 +50,30 @@ namespace DbOps.Structs
         public string fType { get; set; }
         public string fileDefJson { get; set; }
         public string fileDefJsonFName { get; set; }
-        
+
     }
 
+    public class FileDetailStruct
+    {
+        public int Id { get; set; }
+
+        public int FileinfoId { get; set; }
+        public string ProdId { get; set; }
+        public string CourierId { get; set; }
+        public string Jstr { get; set; }
+        public int StartRowNumber { get; set; }
+        public string AckNumber { get; set; }
+        public string ApyFlag { get; set; }
+        public string FilesSavedJstr { get; set; }
+
+        // public List<FiledetailActionStruct> actions { get; set; }
+    }
+
+    //public class FiledetailActionStruct
+    //{
+    //    public int Id { get; set; }
+    //    public int FiledetId { get; set; }
+    //    public string ActionDone { get; set; }
+    //    public bool IsVoid { get; set; }
+    //}
 }

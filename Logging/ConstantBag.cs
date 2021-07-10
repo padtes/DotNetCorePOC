@@ -5,6 +5,7 @@
         //default user for Added By / Updated By
         public const string BATCH_USER = "batch";
         public const string SYSTEM_PARAM = "system";
+        public const string LITE_OUT_PARAM = "lite_out";
 
         //Modules
         public const string MODULE_LITE = "lite";

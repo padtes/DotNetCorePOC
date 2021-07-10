@@ -40,7 +40,7 @@ CREATE TABLE ventura.fileinfo (
 	archiveafter	integer,
 	purgeafter	integer,
 	addeddate	TIMESTAMP,
-	addedby	varchar,
+	addedby	varchar(30),
 	addedfromip	varchar(16),
 	updatedate	TIMESTAMP,
 	updatedby	varchar(30),
@@ -70,6 +70,24 @@ CREATE TABLE ventura.filedetails
 )
 TABLESPACE pg_default;
 
+CREATE TABLE ventura.filedetail_actions
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    filedet_id integer,
+	action_done varchar(20),
+	action_void bool,
+	addeddate TIMESTAMP,
+	addedby varchar(30),
+	voiddate TIMESTAMP,
+	voidby varchar(30),
+    CONSTRAINT filedetail_actions_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE ventura.filedetail_actions
+    OWNER to postgres;
+	
 CREATE TABLE ventura.filetypemaster (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,

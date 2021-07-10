@@ -102,14 +102,14 @@ namespace NpsApy
 
             if (modType == "lite" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv);
             }
 
             if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv);
             }

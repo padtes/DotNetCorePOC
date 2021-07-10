@@ -225,6 +225,19 @@ namespace DbOps
             }
         }
 
+        public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId
+            , string waitingAction)
+        {
+            string sql = $"select * from {pgSchema}.filedetails fd" +
+                $" join {pgSchema}.fileinfo fi where fi.isdeleted='0' and" +
+                $" not exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = fd.id and" +
+                $" action_void = '0' and action_done='{waitingAction}')";
+
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+
+            return ds;
+        }
         public static void UpsertFileInfo(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum, bool reprocess, FileInfoStruct theFile, out string actionTaken)
         {
             //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work
