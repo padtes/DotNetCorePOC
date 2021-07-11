@@ -24,6 +24,10 @@ namespace NpsApy
             int fixedLen = 5;
             try
             {
+                string fileName = "PRNxyzRES100721";
+                string serNo = SequenceGen.GetNextSequence(pgConnection, pgSchema, "generic", fileName, 2, addIfNeeded: true);
+                Console.WriteLine("generic:" + serNo);
+
                 var newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("first:" + newSeq);
 

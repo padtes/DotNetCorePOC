@@ -113,6 +113,7 @@
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
 	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
 	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p009_acknowledgement_number | string.append '51' | string.append model.xx.x_p006_courier_code2}}" }
+	   ,{"dest_col":"x_hdr_date","script_file":"date_of_file_creation.txt","script": ""}
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers", "seq_length":"6"}

@@ -44,9 +44,9 @@ namespace DataProcessor
             return fp; 
         }
 
-        public virtual bool ProcessModule(string operation, string runFor, string courierCsv)
+        public virtual bool ProcessModule(string operation, string runFor, string courierCsv, string fileType)
         {
-            Logger.WriteInfo(logProgName, "ProcessBiz", 0
+            Logger.WriteInfo(logProgName, "ProcessModule", 0
                 , $"START {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
 
             //timer.start
@@ -66,7 +66,7 @@ namespace DataProcessor
                 {
                     //process output
                     var rep = GetReportProcessor(operation);
-                    rep.ProcessOutput(runFor, courierCsv);
+                    rep.ProcessOutput(runFor, courierCsv, fileType);
                 }
             }
             catch (Exception ex)
@@ -87,7 +87,7 @@ namespace DataProcessor
 
         public abstract ReportProcessor GetReportProcessor(string operation);
 
-        public abstract string GetBizTypeDirName(InputRecordAbs inputRecord);
+        public abstract string GetBizTypeImageDirName(InputRecordAbs inputRecord);
 
         #region JUNK
         //--input file definition json

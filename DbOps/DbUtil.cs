@@ -61,9 +61,17 @@ namespace DbOps
             return ExecuteNonSql(pgConnection, "UNLOCK", "all", 0, 0, sql);
         }
 
-        public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId)
+        public static bool Unlock(string pgConnection, string pgSchema, string masterType, string counterName, int lockedKey)
         {
-            bool ret = false;
+            string sql = $"update {pgSchema}.counters set lock_key='0' where counter_name = '{counterName}' and lock_key = '{lockedKey}' and parent_id > 0" +
+                $" and parent_id in (select id from {pgSchema}.counters where counter_name = '{masterType}' and parent_id = 0)";
+
+            return ExecuteNonSql(pgConnection, "UNLOCK", "child", 0, 0, sql);
+        }
+
+        public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId, out bool recFound)
+        {
+            recFound = false;
             pkId = -1;
             try
             {
@@ -76,7 +84,7 @@ namespace DbOps
                         if (res != DBNull.Value)
                         {
                             pkId = Convert.ToInt32(res);
-                            ret = true;
+                            recFound = true;
                         }
                     }
                 }
@@ -84,15 +92,15 @@ namespace DbOps
             catch (Exception ex)
             {
                 LogSqlError(moduleName, logProgramName, "ExecuteScalar", jobId, rowNum, sql, ex);
-                ret = false;
+                return false;
             }
-            return ret;
+            return true;
         }
 
         private static void LogSqlError(string moduleName, string logProgName, string methodNm, int jobId, int rowNum, string sql, Exception ex)
         {
             Logger.Write(moduleName + "_" + logProgName, methodNm, jobId, $"Error in row {rowNum}, see sql below", Logger.WARNING);
-            Logger.Write(moduleName + "_" + logProgName, methodNm, jobId, "Error Sql:" + sql, Logger.WARNING);
+            Logger.Write(moduleName + "_" + logProgName, methodNm, jobId, "Error Sql:" + sql, Logger.ERROR);
             Logger.WriteEx(moduleName + "_" + logProgName, methodNm, jobId, ex);
         }
 
@@ -225,19 +233,41 @@ namespace DbOps
             }
         }
 
-        public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId
-            , string waitingAction)
+        public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizType, int jobId
+            ,string colSelection, string waitingAction, string workdirYmd, string wherePart, string orderBy, out string sql)
         {
-            string sql = $"select * from {pgSchema}.filedetails fd" +
-                $" join {pgSchema}.fileinfo fi where fi.isdeleted='0' and" +
-                $" not exists" +
-                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = fd.id and" +
-                $" action_void = '0' and action_done='{waitingAction}')";
+            sql = $"select {colSelection} from {pgSchema}.filedetails" +
+                $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
+                $" where fileinfo.isdeleted='0'" +
+                $" and fileinfo.module_name = '{moduleName}'" +
+                $" and fileinfo.biztype = '{bizType}'" +
+                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                $" and not exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{waitingAction}')";
+
+            if (string.IsNullOrEmpty(wherePart) == false)
+            {
+                sql += $" and {wherePart}";
+            }
+            if (string.IsNullOrEmpty(orderBy) == false)
+            {
+                sql += $" order by {orderBy}";
+            }
+
+            Logger.Write(moduleName + "_" + logProgName, "GetFileDetailList", jobId, "Sql:" + sql, Logger.INFO);
 
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
 
             return ds;
         }
+        public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName,  int jobId, int rowNum, int detailId, string waitingAction)
+        {
+            string sql = $"insert into {pgSchema}.filedetail_actions(action_void, filedet_id, action_done" +
+                $") values ('0',{detailId}, '{waitingAction}')";
+            return ExecuteNonSql(pgConnection, logProgramName, moduleName, jobId, rowNum, sql);
+        }
+
         public static void UpsertFileInfo(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum, bool reprocess, FileInfoStruct theFile, out string actionTaken)
         {
             //if reprocess == true and record found - update status = TO DO and dateTime of status update, overwrite file from input to work

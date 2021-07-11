@@ -15,15 +15,14 @@ namespace NpsApy
     {
         static void Main(string[] args)
         {
-            //TestRun.TestJasonLoad();
-
-            //TestRun.TestScriban();
+            //TestSomething();
 
             //to do validate file based on column def - need to change col def for length, value range, empty ot not
 
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
             {
-                Console.WriteLine("enter command as ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
+                Console.WriteLine("enter command as following:");
+                Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
                 Console.WriteLine("for ex. NOTE the DASH");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=Read");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=write -courier=ABC,PQR");
@@ -44,9 +43,10 @@ namespace NpsApy
             string modType;    //valid values ALL | LITE | REG 
             string operation; //Op == Operation: READ or WRITE or REPORT -   All == READ as well as WRITE
             string runFor;    //default - no param - scan base directory and process all
+            string fileType;    //default - no param - write file : RESP = Response or STATUS or ...
             string courierCSV;
 
-            ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV);
+            ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV, out fileType);
 
             Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
 
@@ -80,7 +80,7 @@ namespace NpsApy
             {
                 if (Debugger.IsAttached)
                     DbUtil.Unlock(pgConnection, pgSchema);
-                runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV);
+                runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV, fileType);
             }
 
             if (runResult == false)
@@ -96,7 +96,7 @@ namespace NpsApy
 
         }
 
-        private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv)
+        private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv, string fileType)
         {
             bool run = false;
 
@@ -104,19 +104,19 @@ namespace NpsApy
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
             }
 
             if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
             }
             return run;
         }
 
-        private static void ParseCommandArgs(string[] args, out string moduleName, out string operation, out string runFor, out string courierCSV)
+        private static void ParseCommandArgs(string[] args, out string moduleName, out string operation, out string runFor, out string courierCSV, out string fileType)
         {
             //enter command as ProgramNpsApy -bizType=Lite -op=Read -runFor=ALL -courier=ABC,PQR 
 
@@ -124,6 +124,7 @@ namespace NpsApy
             operation = "all";
             runFor = "all";
             courierCSV = "";
+            fileType = "";
 
             Regex cmdRegEx = new Regex(@"-(?<name>.+?)=(?<val>.+)");
             Dictionary<string, string> cmdArgs = new Dictionary<string, string>();
@@ -155,6 +156,10 @@ namespace NpsApy
             if (cmdArgs.ContainsKey("courier"))
             {
                 courierCSV = cmdArgs["courier"];
+            }
+            if (cmdArgs.ContainsKey("file"))
+            {
+                fileType = cmdArgs["file"];
             }
 
             if (!(moduleName == "all" || moduleName == "lite" || moduleName == "reg"))
@@ -199,6 +204,16 @@ namespace NpsApy
 
             if (DbUtil.CanConnectToDB(pgConnection) == false)
                 throw new Exception("pgConnection Not in appSettings.json. ABORTING");
+        }
+
+        private static void TestSomething()
+        {
+            Logger.SetLogFileName(@"c:\Zunk\testPOC.txt");
+
+            TestRun.TestCourierSeq();
+            //TestRun.TestJasonLoad();
+
+            //TestRun.TestScriban();
         }
 
     }

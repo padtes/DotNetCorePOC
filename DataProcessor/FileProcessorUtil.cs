@@ -232,7 +232,7 @@ namespace DataProcessor
             {
                 string yMdDirName = new DirectoryInfo(dateAsDir).Name;
 
-                string bizDir = fileProcessor.GetBizTypeDirName(curRec);
+                string bizDir = fileProcessor.GetBizTypeImageDirName(curRec);
                 if (bizDir == "")
                 {
                     return true; //no files to write
@@ -252,7 +252,7 @@ namespace DataProcessor
                     string fullFilePath = paramsDict[ConstantBag.PARAM_WORK_DIR]
                         + "\\" + yMdDirName // "yyyymmdd" 
                         + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
-                        + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") ---- hard coded in caller
+                        + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
                         + "\\" + courierSName + "_" + yMdDirName
                         + "\\" + fileToWrite.Dir;  //Photo | Sign
 

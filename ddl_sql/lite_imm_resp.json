@@ -1,0 +1,41 @@
+{
+	"comments_on_usage_csv": {
+		"0": "this is to document the JSON"
+		,"1": "mandatory: system section: generic parameters about file and process"
+		,"2": "header is for first summary row. For structure- refer below"
+		,"3": "detail is for the multiple detail rows 1 per subscriber record"
+		,"3.1": "tag is for human reading"
+		,"3.2a": "src_type is code - needs C# to generate snippet, column- from data_table"
+		,"3.2b": "--sqlfuntion-same as column but actually a pgsql func, param- program parameter index 0 rel"
+		,"3.2c": "--srctype starting with # is comment - to be ignored, like TEST Mode or deprecated but kept for historical reasons"
+		,"3.3": "db_value is database column name or function name or named c# snippet"
+		,"limitation" : "detail_id as detail row Id is a must with that alias, must be selected"
+	}
+	,"system":{
+		"file_type" : "nps_lite_apy_imm_resp",
+		"write_type": "csv",
+		"delimt":"^",
+		"data_table_name":"filedetails",
+		"data_table_json_col":"json_data",
+		"data_where":"",
+		"data_order":"",
+		"where_cols": [
+		]
+	}
+	,"header":[
+		{"col":"0","tag":"Printer Code","src_type":"SYS_PARAM","db_value":"printer_code3"},
+		{"col":"1","tag":"Total number of records","src_type":"cfunction","db_value":"RowCount"},
+		{"col":"2","tag":"File Mode","src_type":"const","db_value":"RES"},
+		{"col":"3","tag":"Related Records","src_type":"const","db_value":"PRN"},
+		{"col":"4","tag":"Date of File","src_type":"cfunction","db_value":"DateFormat(now,dd-MMM-yyyy)"}
+	]
+	,"detail":[
+		{"col":"0", "tag":"Line Number","src_type":"code","db_value":"row_number", "alias":"line_number", "print_yn":"y"},
+		{"col":"1", "tag":"DocumentID","src_type":"json","db_value":"'xx'->>'x_document_id'", "print_yn":"y"},
+		{"col":"2", "tag":"PRAN","src_type":"json","db_value":"'pd'->0->>'p008_pran'", "print_yn":"y"},
+		{"col":"3", "tag":"Pickup Date DB","src_type":"json","db_value":"'xx'->>'x_hdr_date'", "print_yn":"n"},
+		{"col":"4", "tag":"Pickup Date","src_type":"cfunction","db_value":"DateFormat(dr[3],dd-MMM-yyyy)", "print_yn":"y"},
+		{"col":"5", "tag":"detail id","src_type":"COLUMN","db_value":"filedetails.id", "alias":"detail_id", "print_yn":"n"}
+	]
+}
+

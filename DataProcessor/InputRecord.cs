@@ -99,7 +99,7 @@ namespace DataProcessor
                 jsonRow.Value.RenderJson(jStr);
                 first = false;
             }
-            GenerateMappedColumnPart(pgConnection, pgSchema, logProgName, moduleName, sysPath, jDef, jobId, startRowNo, first, jStr);
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr);
             //done mapped columns
             jStr.Append('}');
 
@@ -110,8 +110,7 @@ namespace DataProcessor
             return sb1.ToString();
         }
 
-        private void GenerateMappedColumnPart(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, bool hasNoOtherRows, StringBuilder jStr)
+        private void GenerateMappedColumnPart(string sysPath, JsonInputFileDef jDef, InputHeader inputHdr, bool hasNoOtherRows, StringBuilder jStr)
         {
             if (hasNoOtherRows == false)
             {
@@ -134,10 +133,27 @@ namespace DataProcessor
 
             AddToJsonFromSequences(jStr, ref first);
 
-            string almostWholeJson = jStr.ToString() + "}}";
+            string almostWholeJson = jStr.ToString()
+                + "}" + AppendFileHeader(inputHdr) + "}";
             AddToJsonFromScriban(jStr, first, sysPath, jDef, almostWholeJson);
 
             jStr.Append('}'); //end "xx"
+        }
+
+        private string AppendFileHeader(InputHeader inputHdr)
+        {
+            char qt = '\"';
+            String stRet = $", {qt}fh{qt}:{{";
+            bool first = true;
+            foreach (KeyValuePair<string, string> item in inputHdr.hdrFields)
+            {
+                if (first == false)
+                    stRet += ",";
+                stRet += $"{qt}{item.Key}{qt}:{qt}{item.Value}{qt}";
+                first = false;
+            }
+            stRet += "}";
+            return stRet;
         }
 
         private void AddToJsonFromSequences(StringBuilder jStr, ref bool hasNoOtherRows)

@@ -24,7 +24,7 @@ namespace DataProcessor
             throw new System.NotImplementedException();
         }
 
-        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
+        public override string GetBizTypeImageDirName(InputRecordAbs inputRecord)
         {
             throw new System.NotImplementedException();
         }

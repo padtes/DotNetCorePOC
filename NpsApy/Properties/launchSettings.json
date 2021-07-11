@@ -2,7 +2,7 @@
   "profiles": {
     "NpsApy": {
       "commandName": "Project",
-      "commandLineArgs": "-moduleName=LITE -op=READ"
+      "commandLineArgs": "-moduleName=LITE -op=write -file=resp -runfor=20210620 "
     }
   }
 }

@@ -66,9 +66,18 @@ namespace DataProcessor
             FileTypeMaster fTypeMaster = GetFileTypeMaster();
             if (fTypeMaster == null)
             {
-                Logger.WriteInfo(logProgName, "ProcessInput", 0
-                    , $"NO RECORDS {ConstantBag.FILE_LC_STEP_TODO} for {GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}");
+                Logger.Write(logProgName, "ProcessInput", 0
+                    , $"NO FileTypeMaster for {ConstantBag.LITE_IN} module:{GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}"
+                    , Logger.ERROR);
 
+                return; //----------------------------
+            }
+            string jsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            if (File.Exists(jsonFName) == false)
+            {
+                Logger.Write(logProgName, "ProcessInput", 0
+                    , $"FILE NOT FOUND: {jsonFName}. Aborting. Check Filemaster  {ConstantBag.LITE_IN} for file name"
+                    , Logger.ERROR);
                 return; //----------------------------
             }
 
@@ -114,7 +123,7 @@ namespace DataProcessor
                     ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.WriteEx(logProgName, "SaveToDb", jobId, ex);
             }
@@ -211,9 +220,9 @@ namespace DataProcessor
                 Directory.CreateDirectory(apyOutDir);
 
             curWorkDir = dateAsPath; //we do NOT COPY files from in to work
-            //curWorkDir = tmpOut + "/" + paramsDict["output_duplicate"]; // to keep copy of input files
-            //if (Directory.Exists(curWorkDir) == false)
-            //    Directory.CreateDirectory(curWorkDir);
+                                     //curWorkDir = tmpOut + "/" + paramsDict["output_duplicate"]; // to keep copy of input files
+                                     //if (Directory.Exists(curWorkDir) == false)
+                                     //    Directory.CreateDirectory(curWorkDir);
 
         }
 
@@ -248,7 +257,7 @@ namespace DataProcessor
             }
         }
 
-        public override string GetBizTypeDirName(InputRecordAbs inputRecord)
+        public override string GetBizTypeImageDirName(InputRecordAbs inputRecord)
         {
             if (inputRecord == null || inputRecord is InputHeader)
             {

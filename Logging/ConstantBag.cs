@@ -5,7 +5,7 @@
         //default user for Added By / Updated By
         public const string BATCH_USER = "batch";
         public const string SYSTEM_PARAM = "system";
-        public const string LITE_OUT_PARAM = "lite_out";
+        //public const string LITE_OUT_PARAM = "lite_out";
 
         //Modules
         public const string MODULE_LITE = "lite";
@@ -31,7 +31,9 @@
         public const string FILE_LC_WIP = "WIP";  //work in progress
         public const string FILE_LC_STEP_TO_DB = "DB_DONE";
         public const string FILE_LC_STEP_ERR1 = "ERROR_1";
-        public const string FILE_LC_STEP_RESPONSE = "DONE_RESP";
+
+        //file detail record life cycle 
+        public const string DET_LC_STEP_RESPONSE = "IMM_RESP";
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
@@ -51,6 +53,8 @@
         public const string PARAM_OUTPUT_APY_DIR = "output_apy";
         public const string PARAM_IMAGE_LIMIT = "photo_max_per_dir";
         public const string PARAM_SUBDIR_APROX_LIMIT = "expect_max_subdir";
+        public const string PARAM_PRINTER_CODE2 = "printer_code2";
+        public const string PARAM_PRINTER_CODE3 = "printer_code3";
 
         //file definition descriptors
         public const string FD_SYSTEM_PARAM = "system";

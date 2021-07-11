@@ -1,0 +1,6 @@
+{{-
+  _mm = model.fh.h004_date_of_file_creation_mmddyyyy | string.slice 0 2; 
+  _dd = model.fh.h004_date_of_file_creation_mmddyyyy | string.slice 2 2; 
+  _yr = model.fh.h004_date_of_file_creation_mmddyyyy | string.slice 4 4;
+ _yr | string.append '/' | string.append _mm | string.append '/' | string.append _dd 
+-}}

@@ -66,9 +66,13 @@ namespace NpsScriban
                         ""p021_subscriber_address_state"": ""27""
                       } 
                     ]
+                , ""fh"":{""h004_date_of_file_creation_mmddyyyy"": ""02152022""}
                 }";
 
-            ScriptCol scrCol4 = new ScriptCol() { DestCol= "x_test1", ScriptFile= "formatted_addr_subscriber.txt", Script =""};  //scrTemplate4
+
+            ScriptCol scrCol4 = new ScriptCol() { DestCol = "x_test1", ScriptFile = "date_of_file_creation.txt", Script = "" };  //scrTemplate4
+
+            //ScriptCol scrCol4 = new ScriptCol() { DestCol= "x_test1", ScriptFile= "formatted_addr_subscriber.txt", Script =""};  //scrTemplate4
             sysPath = @"C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\";
             res =  ScribanHandler.Generate(sysPath, scrCol4, jsonStr2, false, false); //ScribanHandler.Generate(jsonStr2, scrTemplate4, false, true);
             Console.WriteLine(res);

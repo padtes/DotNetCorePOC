@@ -20,7 +20,8 @@ TABLESPACE pg_default;
 insert into ventura.system_param (biztype, module_name, params_json) 
 values ('system','lite',
 '{"inputdir":"c:\\zunk\\lite\\input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
-, "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"}');
+, "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
+, "printer_code3":"XYZ", "printer_code2":"51"}');
 
 
 CREATE TABLE ventura.fileinfo (
@@ -108,6 +109,8 @@ TABLESPACE pg_default;
 
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName)
 values('1','lite_inp','lite','lite_input.json');
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_resp','lite','lite_imm_resp.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{Serial No}}.txt');
 
 CREATE TABLE ventura.counters(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -125,9 +128,14 @@ CREATE TABLE ventura.counters(
 	next_num	integer,
 	autoreset	bool,
 	lock_key integer,
+	addeddate	timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT counters_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
+
+insert into ventura.counters(isactive,counter_name,parent_id) values ('1','generic',0)
+--"couriers" master rec for couriers
+--"detail rec for couriers"
 
 CREATE TABLE ventura.states (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -227,9 +235,8 @@ begin
 	order by start_num limit 1;
 
     if found then
-      lser_no := lser_no + 1;
       update ventura.counters 
-	  set next_num = lser_no
+	  set next_num = lser_no + 1
       where id =child_id;
  	else
 	  if init_if_need = '1' and lock_id <= 0 then
@@ -256,7 +263,8 @@ ALTER FUNCTION ventura.get_serial_number(character varying, character varying, b
 CREATE OR REPLACE FUNCTION ventura.lock_counter(
 	master_type character varying,
 	pdoc_val character varying,
-	lock_id integer)
+	lock_id integer,
+	ok_to_add bit)
     RETURNS integer
     LANGUAGE 'plpgsql'
     COST 100
@@ -286,6 +294,17 @@ begin
       update ventura.counters 
 	  set lock_key = lock_id
       where id =child_id;
+	else
+	  if ok_to_add = '1' then
+	  	insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
+ 	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 1, lock_id);
+
+		select id 
+		into child_id
+		from ventura.counters
+		where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+		 and lock_key = lock_id;
+	  end if; 
 	end if;
   end if;
 
