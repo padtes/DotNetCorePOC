@@ -107,7 +107,7 @@ namespace DbOps
             return "'" + progParams[indx].Replace("'", "''") + "'";
         }
 
-        private static string GetDictParamValue(Dictionary<string, string> paramsDict, ColumnDetail phCol)
+        public static string GetDictParamValue(Dictionary<string, string> paramsDict, ColumnDetail phCol)
         {
             if (paramsDict.ContainsKey(phCol.DbValue)==false)
                 throw new Exception($"invalid sys param name {phCol.DbValue} for column {phCol.Tag}, check system_param record @system");

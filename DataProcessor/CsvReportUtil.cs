@@ -85,7 +85,7 @@ namespace DataProcessor
 
             //print header
             CsvOutputHdrHandler hdrHandler = new CsvOutputHdrHandler();
-            string hdr = hdrHandler.GetHeader(csvConfig.Header, ds, progParams, csvConfig.System.Delimt);
+            string hdr = hdrHandler.GetHeader(csvConfig.Header, ds, progParams, paramsDict, csvConfig.System.Delimt);
             sw.WriteLine(hdr);
 
             //print details

@@ -27,7 +27,6 @@ namespace DataProcessor
             if (fileType == "resp") //immdeiate resp //to do define const
             {
                 string bizType = ConstantBag.LITE_OUT_RESPONSE;
-                string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
 
                 FileTypeMaster fTypeMaster = DbUtil.GetFileTypeMaster(pgConnection, pgSchema, moduleName, bizType, JobId);
 
@@ -50,6 +49,7 @@ namespace DataProcessor
                 }
 
                 string bizTypeToRead = ConstantBag.LITE_IN;
+                string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
                 ProcessNpsApyLiteOutputImmResp(bizTypeToRead, fTypeMaster, runFor, bizDir, false);
 
                 bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];

@@ -23,11 +23,11 @@
 		]
 	}
 	,"header":[
-		{"col":"0","tag":"Printer Code","src_type":"SYS_PARAM","db_value":"printer_code3"},
-		{"col":"1","tag":"Total number of records","src_type":"cfunction","db_value":"RowCount"},
-		{"col":"2","tag":"File Mode","src_type":"const","db_value":"RES"},
-		{"col":"3","tag":"Related Records","src_type":"const","db_value":"PRN"},
-		{"col":"4","tag":"Date of File","src_type":"cfunction","db_value":"DateFormat(now,dd-MMM-yyyy)"}
+		{"col":"0","tag":"Printer Code","src_type":"SYS_PARAM","db_value":"printer_code3", "print_yn":"y"},
+		{"col":"1","tag":"Total number of records","src_type":"cfunction","db_value":"RowCount", "print_yn":"y"},
+		{"col":"2","tag":"File Mode","src_type":"const","db_value":"RES", "print_yn":"y"},
+		{"col":"3","tag":"Related Records","src_type":"const","db_value":"PRN", "print_yn":"y"},
+		{"col":"4","tag":"Date of File","src_type":"cfunction","db_value":"DateFormat(now,dd-MMM-yyyy)", "print_yn":"y"}
 	]
 	,"detail":[
 		{"col":"0", "tag":"Line Number","src_type":"code","db_value":"row_number", "alias":"line_number", "print_yn":"y"},

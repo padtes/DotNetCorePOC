@@ -8,7 +8,7 @@ namespace DataProcessor
 {
     public class CsvOutputHandler
     {
-        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, CommandHandler cmdHandler)
+        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, Dictionary<string, string> paramsDict, CommandHandler cmdHandler)
         {
             string val = columnDetail.DbValue; //default / "CONST"
 
@@ -16,6 +16,10 @@ namespace DataProcessor
             {
                 case "PARAM":
                     val = SqlHelper.GetParamValue(progParams, columnDetail).TrimEnd('\'').TrimStart('\'');
+                    break;
+                case "SYS_PARAM":
+                case "SYSPARAM":
+                    val = SqlHelper.GetDictParamValue(paramsDict, columnDetail).TrimEnd('\'').TrimStart('\'');
                     break;
                 case "CFUNCTION":
                     bool isConst;
@@ -52,7 +56,7 @@ namespace DataProcessor
 
     public class CsvOutputHdrHandler : CsvOutputHandler
     {
-        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, string delimit)
+        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, Dictionary<string, string> paramsDict, string delimit)
         {
             String hdr = "";
             //var tbl = detailRowDS.Tables[0];
@@ -60,9 +64,9 @@ namespace DataProcessor
 
             for (int i = 0; i < headerColumns.Count; i++)
             {
-                if (headerColumns[i].PrintYN != "y")
+                if (headerColumns[i].PrintYN == "n")
                     continue;
-                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, cmdHandler);
+                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, paramsDict, cmdHandler);
                 if (i > 0)
                 {
                     hdr += delimit;
@@ -89,7 +93,7 @@ namespace DataProcessor
 
             for (int i = 0; i < detailColumns.Count; i++)
             {
-                if (detailColumns[i].PrintYN != "y")
+                if (detailColumns[i].PrintYN == "n")
                     continue;
 
                 if (isFirst == false)
