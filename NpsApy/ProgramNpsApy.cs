@@ -22,7 +22,7 @@ namespace NpsApy
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
             {
                 Console.WriteLine("enter command as following:");
-                Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
+                Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report|updstat] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
                 Console.WriteLine("for ex. NOTE the DASH");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=Read");
                 Console.WriteLine("ProgramNpsApy -bizType=Lite -op=write -courier=ABC,PQR");
@@ -61,9 +61,11 @@ namespace NpsApy
 
                 return;
             }
-            if (operation == "upload")
+            if (operation == "updstat")
             {
                 //change detail record status to print error or printed or reset sent to print To yet-to-print
+                UpdateStatus updateStatus = new UpdateStatus(pgSchema, pgConnection, modType, 0);
+                updateStatus.Update(fileType);
             }
             if (operation == "report")
             {
@@ -74,7 +76,7 @@ namespace NpsApy
                 // detail REPORT will dump < COURIER >, date YMD, file name, start row number where status = yet-to-print
                 // courier REPORT will dump < COURIER >, range - from-to and next
                 SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
-                runResult = rep.Print();
+                runResult = rep.Print(modType, runFor, fileType);
             }
             else
             {
@@ -166,9 +168,10 @@ namespace NpsApy
             {
                 throw new Exception("Invalid value for ModuleName. Must be ALL | LITE | REG");
             }
-            if (!(operation == "all" || operation == "read" || operation == "write" || operation == "report" || operation == "unlock"))
+            if (!(operation == "all" || operation == "read" || operation == "write" || operation == "report" 
+                || operation == "unlock" || operation == "updstat"))
             {
-                throw new Exception("Invalid value for op. Must be ALL | READ | WRITE | REPORT | UNLOCK");
+                throw new Exception("Invalid value for op. Must be ALL | READ | WRITE | REPORT | UNLOCK | UPDSTAT");
             }
             //
             //having second thoughts for "runfor"...may be not needed

@@ -67,6 +67,7 @@ CREATE TABLE ventura.filedetails
 	ack_number varchar(20),
 	apy_flag char(1),
 	files_saved jsonb,
+	det_err_csv varchar(20),
 	CONSTRAINT filedetails_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;

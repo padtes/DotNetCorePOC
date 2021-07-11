@@ -33,7 +33,8 @@
         public const string FILE_LC_STEP_ERR1 = "ERROR_1";
 
         //file detail record life cycle 
-        public const string DET_LC_STEP_RESPONSE = "IMM_RESP";
+        public const string DET_LC_STEP_RESPONSE = "1IMM_RESP";
+        public const string DET_LC_STEP_STATUS = "2STATUS";
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";

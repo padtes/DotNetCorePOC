@@ -224,23 +224,26 @@ namespace DbOps
             {
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    listFiles.Add(new FileInfoStruct() { 
+                    listFiles.Add(new FileInfoStruct()
+                    {
                         id = Convert.ToInt32(dr["id"])
-                        , fname =Convert.ToString(dr["fname"])
-                        , fpath= Convert.ToString(dr["fpath"])
+                        ,
+                        fname =Convert.ToString(dr["fname"])
+                        ,
+                        fpath= Convert.ToString(dr["fpath"])
                     });
                 }
             }
         }
 
-        public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizType, int jobId
-            ,string colSelection, string waitingAction, string workdirYmd, string wherePart, string orderBy, out string sql)
+        public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string colSelection, string waitingAction, string workdirYmd, string wherePart, string orderBy, out string sql)
         {
             sql = $"select {colSelection} from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
-                $" and fileinfo.biztype = '{bizType}'" +
+                $" and fileinfo.biztype = '{bizTypeToRead}'" +
                 $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
                 $" and not exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
@@ -261,7 +264,7 @@ namespace DbOps
 
             return ds;
         }
-        public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName,  int jobId, int rowNum, int detailId, string waitingAction)
+        public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, int rowNum, int detailId, string waitingAction)
         {
             string sql = $"insert into {pgSchema}.filedetail_actions(action_void, filedet_id, action_done" +
                 $") values ('0',{detailId}, '{waitingAction}')";
@@ -400,7 +403,7 @@ namespace DbOps
 
             return fm;
         }
-        private static string GetStringDbNullable(object dbVal)
+        public static string GetStringDbNullable(object dbVal)
         {
             if (dbVal == DBNull.Value)
                 return "";
@@ -413,5 +416,35 @@ namespace DbOps
             return Convert.ToInt32(dbVal);
         }
 
+        public static DataSet GetInternalStatusReport(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, string waitingAction, string doneAction, out string sql)
+        {
+            sql = $"select row_number() over () rownum, filedetails.id, filedetails.prod_id, filedetails.courier_id" +
+                $",filedetails.json_data->'pd'->0->>'p010_first_name' fname" +
+                $",filedetails.json_data->'pd'->0->>'p011_last_name_surname' lname" +
+                $",filedetails.det_err_csv" +
+                $" from {pgSchema}.filedetails" +
+                $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
+                $" where fileinfo.isdeleted='0'" +
+                $" and fileinfo.module_name = '{moduleName}'" +
+                $" and fileinfo.biztype = '{bizTypeToRead}'" +
+                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                $" and exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{doneAction}')" +
+                $" and not exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{waitingAction}')";
+
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+            return ds;
+        }
+        public static bool UpdateDetStatus(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum
+            , int detId, string err)
+        {
+            string sql = $"update {pgSchema}.filedetails set det_err_csv='{err}' where id = {detId}";
+
+            return ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
+        }
     }
 }
