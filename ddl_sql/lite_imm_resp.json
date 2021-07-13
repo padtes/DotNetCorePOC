@@ -35,7 +35,7 @@
 		{"col":"2", "tag":"PRAN","src_type":"json","db_value":"'pd'->0->>'p008_pran'", "print_yn":"y"},
 		{"col":"3", "tag":"Pickup Date DB","src_type":"json","db_value":"'xx'->>'x_hdr_date'", "print_yn":"n"},
 		{"col":"4", "tag":"Pickup Date","src_type":"cfunction","db_value":"DateFormat(dr[3],dd-MMM-yyyy)", "print_yn":"y"},
-		{"col":"5", "tag":"detail id","src_type":"COLUMN","db_value":"filedetails.id", "alias":"detail_id", "print_yn":"n"}
+		{"col":"5", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id", "print_yn":"n"}
 	]
 }
 

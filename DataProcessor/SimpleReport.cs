@@ -56,7 +56,7 @@ namespace DataProcessor
                 char delimit = ',';
                 string seprr = qt.ToString() + delimit + qt;
                 //header
-                string hdr = $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}PRAN{seprr}first name{seprr}last name{seprr}Status{qt}";
+                string hdr = GetHeader();
                 sw.WriteLine(hdr);
                 for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
                 {
@@ -65,6 +65,8 @@ namespace DataProcessor
                     string pran = Convert.ToString(dr["prod_id"]);
                     string fname = DbUtil.GetStringDbNullable(dr["fname"]);
                     string lname = DbUtil.GetStringDbNullable(dr["lname"]);
+                    string printDt = DbUtil.GetStringDbNullable(dr["print_dt"]);
+                    string pickupDt = DbUtil.GetStringDbNullable(dr["pickup_dt"]);
                     string errCSV = DbUtil.GetStringDbNullable(dr["det_err_csv"]);
                     errCSV = errCSV.Replace(",", "+");
 
@@ -72,6 +74,8 @@ namespace DataProcessor
                         + seprr + '\'' + pran 
                         + seprr + CsvEscape(fname)
                         + seprr + CsvEscape(lname)
+                        + seprr + CsvEscape(printDt)
+                        + seprr + CsvEscape(pickupDt)
                         + seprr + errCSV + qt; 
                     sw.WriteLine(det);
                 }
@@ -86,7 +90,7 @@ namespace DataProcessor
             char qt = '\"';
             char delimit = ',';
             string seprr = qt.ToString() + delimit + qt;
-            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}PRAN{seprr}first name{seprr}last name{seprr}Status{qt}";
+            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}PRAN{seprr}first name{seprr}last name{seprr}Print Dt{seprr}Pickup Dt{seprr}Status{qt}";
         }
         public static string CsvEscape(string inStr)
         {

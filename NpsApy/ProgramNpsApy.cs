@@ -48,7 +48,9 @@ namespace NpsApy
 
             ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV, out fileType);
 
-            Logger.Write("ProgramNpsApy", "main", 0, "Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
+            Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
+            Logger.Write("ProgramNpsApy", "main", 0, "==================== Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
+            Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
 
             bool runResult;
             if (operation == "unlock")
@@ -89,12 +91,12 @@ namespace NpsApy
 
             if (runResult == false)
             {
-                Logger.Write("ProgramNpsApy", "main", 0, "Run Failed " + paramsMsg, Logger.ERROR);
+                Logger.Write("ProgramNpsApy", "main", 0, "** ** ** ** Run Failed ** ** ** ** " + paramsMsg, Logger.ERROR);
                 Console.WriteLine("Run Failed " + paramsMsg);
             }
             else
             {
-                Logger.Write("ProgramNpsApy", "main", 0, "Run Success " + paramsMsg, Logger.INFO);
+                Logger.Write("ProgramNpsApy", "main", 0, "!! !! Run Success !! " + paramsMsg, Logger.INFO);
                 Console.WriteLine("Run Success " + paramsMsg);
             }
 

@@ -68,6 +68,8 @@ CREATE TABLE ventura.filedetails
 	apy_flag char(1),
 	files_saved jsonb,
 	det_err_csv varchar(20),
+	print_dt TIMESTAMP,
+	pickup_dt TIMESTAMP,
 	CONSTRAINT filedetails_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
@@ -157,6 +159,15 @@ CREATE TABLE ventura.countries (
 	name varchar(100) not null,
 
 	CONSTRAINT countries_pkey PRIMARY KEY (id)
+)
+TABLESPACE pg_default;
+
+create table ventura.reject_reasons(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+	lstid varchar(10) not null,
+	short_desc varchaR(75),
+	long_desc varchaR(150),
+    CONSTRAINT reject_reasons_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
 
@@ -457,4 +468,23 @@ insert into ventura.countries(name, code, isactive) values
 ,('Yemen','YE','1')
 ,('Zair','ZR','1')
 ,('Zimbabwe','ZW','1')
+
+--
+insert into ventura.reject_reasons (lstid,short_desc,long_desc) values 
+('SIGH','Reject-Problem in Signature (Pri Print Hold)','Signature mismatch/ Signature not clear raise this status. Applicable to only PRAN (Pri Print Hold)')
+,('SIG','Reject-Problem in Signature (Post Print Hold)','Signature mismatch/ Signature not clear raise this status. Applicable to only PRAN (Post Print Hold)')
+,('REH','Second time hold by printer','Put on hold by printer after release instruction given')
+,('PHOH','Reject-Problem in Photo (Pri Print Hold)','Photo mismatch/ Photo view not clear raise this status. Applicable to only PRAN (Pri Print Hold)')
+,('PHO','Reject-Problem in Photo (Post Print Hold)','Photo mismatch/ Photo view not clear raise this status. Applicable to only PRAN (Post Print Hold)')
+,('NSH','Hold by NSDL','Hold due to request by NSDL')
+,('MUL','Reject-Due to multiple reasons','Hold of PRAN/PIN due to multiple reasons, this status is raised. NOTE: This status is raised only by LCM and not by printer')
+,('FATH','Reject-Problem in Fathers''s Name (Pri Print Hold) ','Father''s Name Insufficient/ Father''s Name incorrect will raise this status. Applicable to only PRAN (Pri Print Hold)')
+,('FAT','Reject-Problem in Fathers''s Name (Post Print Hold)','Father''s Name Insufficient/ Father''s Name incorrect will raise this status. Applicable to only PRAN (Post Print Hold)')
+,('DOIH','Reject-Problem Date of Birth/Date of Incorporation (Pri Print Hold) ','Incorrect date of birth/ date of incorporation will raise this status. Applicable to only PRAN (Pri Print Hold)')
+,('DOI','Reject-Problem Date of Birth/Date of Incorporation (Post Print Hold)','Incorrect date of birth/ date of incorporation will raise this status. Applicable to only PRAN (Post Print Hold)')
+,('APPH','Reject-Problem in Applicant''s Name (Pri Print Hold)','Name Insufficient/ Name incorrect will raise this status. Applicable to both PRAN/PIN (Pri Print Hold)')
+,('APP','Reject-Problem in Applicant''s Name (Post Print Hold) ','Name Insufficient/ Name incorrect will raise this status. Applicable to both PRAN/PIN (Post Print Hold)')
+,('ADDH','Reject-Problem in Address (Pri Print Hold)','Address insufficient/ Wrong Pincode/ Address line repeated raise this status. Applicable to both PRAN/PIN (Pri Print Hold)')
+,('ADD','Reject-Problem in Address (Post Print Hold) ','Address insufficient/ Wrong Pincode/ Address line repeated raise this status. Applicable to both PRAN/PIN (Post Print Hold)')
+,('HIN','Hold By Printer-Incorrect Hindi Name','Hold due to Incorrect Hindi Name')
 

@@ -436,6 +436,7 @@ namespace DbOps
             sql = $"select row_number() over () rownum, filedetails.id, filedetails.prod_id, filedetails.courier_id" +
                 $",filedetails.json_data->'pd'->0->>'p010_first_name' fname" +
                 $",filedetails.json_data->'pd'->0->>'p011_last_name_surname' lname" +
+                $",filedetails.print_dt, filedetails.pickup_dt" +
                 $",filedetails.det_err_csv" +
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
@@ -454,9 +455,12 @@ namespace DbOps
             return ds;
         }
         public static bool UpdateDetStatus(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum
-            , int detId, string err, string actionDone)
+            , int detId, string prnDtYMD, string pickDtYMD, string errCsv, string actionDone)
         {
-            string sql = $"update {pgSchema}.filedetails set det_err_csv='{err}' where id = {detId}";
+            string prnDtStr = (prnDtYMD == "" ? "null" : $"'{prnDtYMD}'");
+            string pickDtStr = (pickDtYMD == "" ? "null" : $"'{pickDtYMD}'");
+            
+            string sql = $"update {pgSchema}.filedetails set print_dt = {prnDtStr}, pickup_dt={pickDtStr}, det_err_csv='{errCsv}' where id = {detId}";
 
             bool dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
 

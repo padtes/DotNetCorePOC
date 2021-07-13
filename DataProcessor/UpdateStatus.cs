@@ -43,14 +43,14 @@ namespace DataProcessor
             DbUtil.GetRejectCodes(pgConnection, pgSchema, logProgramName, moduleName, JobId, rejectCodes);
 
             int errCnt = 0;
-            List<KeyValuePair<int, string>> updArr = new List<KeyValuePair<int, string>>();
-            bool dbOk = ValidateFile(inputFilePathName, maxCount, rejectCodes, updArr, out int lineNo, out errCnt);
+            List<UpdStatusStruct> updRecList = new List<UpdStatusStruct>();
+            bool dbOk = ValidateFile(inputFilePathName, maxCount, rejectCodes, updRecList, out int lineNo, out errCnt);
 
             if (dbOk)
             {
-                for (int iLineNo = 0; iLineNo < updArr.Count; iLineNo++)
+                for (int iLineNo = 0; iLineNo < updRecList.Count; iLineNo++)
                 {
-                    dbOk = UpdateDetStatus(iLineNo + 1, updArr[iLineNo].Key, updArr[iLineNo].Value);
+                    dbOk = UpdateDetStatus(iLineNo + 1, updRecList[iLineNo]);
                     if (dbOk == false)
                         errCnt++;
                 }
@@ -70,17 +70,16 @@ namespace DataProcessor
             return dbOk;
         } //update
 
-        private bool ValidateFile(string inputFilePathName, int maxCount, List<string> rejectCodes, List<KeyValuePair<int, string>> updArr, out int lineNo, out int errCnt)
+        private bool ValidateFile(string inputFilePathName, int maxCount, List<string> rejectCodes, List<UpdStatusStruct> updRecList, out int lineNo, out int errCnt)
         {
             lineNo = 0;
             errCnt = 0;
 
             bool dbOk = true;
-            string errValCsv;
             char theDelim = ',';
             int BufferSize = 4096;
 
-            string line;
+            string line, prnDt, pickDt;
             int detId;
 
             using (var fileStream = File.OpenRead(inputFilePathName))
@@ -89,13 +88,26 @@ namespace DataProcessor
                 while ((line = sr.ReadLine()) != null)
                 {
                     lineNo++;
-                    if (lineNo == 1)
-                        continue; //skip header
-
                     string[] cells = line.Split(theDelim);
-                    if (IsLineValid(rejectCodes, lineNo, cells, maxCount, out detId, out errValCsv))
+
+                    if (lineNo == 1)
                     {
-                        updArr.Add(new KeyValuePair<int, string>(detId, errValCsv));
+                        if (cells.Length != maxCount)
+                        {
+                            Logger.Write(logProgramName, "ValidateFile", 0, $"Header mismatch expecting {maxCount} columns, got {cells.Length}", Logger.ERROR);
+                            dbOk = false;
+                        }
+                        continue; //skip header
+                    }
+
+                    if (IsLineValid(rejectCodes, lineNo, cells, maxCount, out detId, out prnDt, out pickDt, out string errValCsv))
+                    {
+                        updRecList.Add(new UpdStatusStruct {
+                           DetId = detId,
+                           PrnDtYMD = prnDt,
+                           PickDtYMD = prnDt,
+                           ErrCsv = errValCsv
+                        });
                     }
                     else
                     {
@@ -109,11 +121,13 @@ namespace DataProcessor
             return dbOk;
         }
 
-        private bool UpdateDetStatus(int lineNo, int detId, string errVal)
+        private bool UpdateDetStatus(int lineNo, UpdStatusStruct statusStruct)
         {
             try
             {
-                return DbUtil.UpdateDetStatus(pgConnection, pgSchema, logProgramName, moduleName, JobId, lineNo, detId, errVal, actionDone: ConstantBag.DET_LC_STEP_STAT_UPD);
+                return DbUtil.UpdateDetStatus(pgConnection, pgSchema, logProgramName, moduleName, JobId, 
+                    lineNo, statusStruct.DetId, statusStruct.PrnDtYMD, statusStruct.PickDtYMD, statusStruct.ErrCsv
+                    , actionDone: ConstantBag.DET_LC_STEP_STAT_UPD);
             }
             catch (Exception ex)
             {
@@ -122,21 +136,38 @@ namespace DataProcessor
             }
         }
 
-        private bool IsLineValid(List<string> rejectCodes, int lineNo, string[] cells, int maxCount, out int detId, out string errValCsv)
+        private bool IsLineValid(List<string> rejectCodes, int lineNo, string[] cells, int maxCount
+            , out int detId, out string prnDtStr, out string pickDtStr, out string errValCsv)
         {
+            prnDtStr = "";
+            pickDtStr = "";
+            int pickDtIndx = maxCount - 2;
+            int prnDtIndx = maxCount - 3;
             detId = 0;
             errValCsv = "";
+            bool isValid = true;
+
             try
             {
                 if (int.TryParse(cells[1], out detId) == false)
                 {
-                    Logger.Write(logProgramName, "ValidateDetStatus", 0, $"{lineNo} has Non numeric detail Id {cells[1]}", Logger.ERROR);
+                    Logger.Write(logProgramName, "IsLineValid", 0, $"{lineNo} has Non numeric detail Id {cells[1]}", Logger.ERROR);
                     return false;
                 }
                 if (cells.Length != maxCount)
                 {
-                    Logger.Write(logProgramName, "ValidateDetStatus", 0, $"{lineNo} cell count {cells.Length} not same as header {maxCount}", Logger.ERROR);
+                    Logger.Write(logProgramName, "IsLineValid", 0, $"{lineNo} cell count {cells.Length} not same as header {maxCount}", Logger.ERROR);
                     return false;
+                }
+
+                DateTime dtPrn, dtPick;
+                IsDateValid(lineNo, ref isValid, cells[prnDtIndx], "Print dt", out dtPrn,  out prnDtStr);
+                IsDateValid(lineNo, ref isValid, cells[pickDtIndx], "Pickup", out dtPick, out pickDtStr);
+
+                if (isValid && dtPick < dtPrn)
+                {
+                    Logger.Write(logProgramName, "IsLineValid", 0, $"{lineNo} Pickup Dt {dtPick} before Print Date {dtPrn} is wrong", Logger.ERROR);
+                    isValid = false;
                 }
 
                 string err = cells[maxCount - 1].Trim();
@@ -151,19 +182,44 @@ namespace DataProcessor
                     }
                     if (wrongRejCd != "")
                     {
-                        Logger.Write(logProgramName, "ValidateDetStatus", 0, $"line {lineNo} has wrong reject codes {wrongRejCd}", Logger.ERROR);
-                        return false;
+                        Logger.Write(logProgramName, "IsLineValid", 0, $"line {lineNo} has wrong reject codes {wrongRejCd}", Logger.ERROR);
+                        isValid = false;
                     }
                 }
                 errValCsv = err.Replace("+", ",");
             }
             catch (Exception ex)
             {
-                Logger.WriteEx(logProgramName, "ValidateDetStatus", 0, ex);
+                Logger.WriteEx(logProgramName, "IsLineValid", 0, ex);
                 return false;
             }
-            return true;
+            return isValid;
         }
 
+        private static void IsDateValid(int lineNo, ref bool isValid, string dtStr, string dtNm, out DateTime dt, out string dtStrYMD)
+        {
+            dt = DateTime.MinValue;
+            dtStrYMD = "";
+            if (string.IsNullOrEmpty(dtStr) == false)
+            {
+                if (DateTime.TryParse(dtStr, out dt) == false)
+                {
+                    Logger.Write(logProgramName, "IsDateValid", 0, $"line {lineNo} has wrong {dtNm} date {dtStr}", Logger.ERROR);
+                    isValid = false;
+                }
+                else
+                {
+                    dtStrYMD = dt.ToString("yyyy/MM/dd HH:mm:ss");
+                }
+            }
+        }
+    }
+
+    internal class UpdStatusStruct
+    {
+        internal int DetId { get; set; }
+        internal string PrnDtYMD { get; set; }
+        internal string PickDtYMD { get; set; }
+        internal string ErrCsv { get; set; }
     }
 }
