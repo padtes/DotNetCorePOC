@@ -416,6 +416,20 @@ namespace DbOps
             return Convert.ToInt32(dbVal);
         }
 
+        public static void GetRejectCodes(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, List<string> rejectCodes)
+        {
+            string sql = $"select lstid from {pgSchema}.reject_reasons";
+            DataSet ds = GetDataSet(pgConnection, logProgramName, moduleName, jobId, sql);
+            if(ds != null && ds.Tables.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    string rejCd = Convert.ToString(dr[0]);
+                    rejectCodes.Add(rejCd);
+                }
+            }
+        }
+
         public static DataSet GetInternalStatusReport(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction, out string sql)
         {
@@ -440,11 +454,19 @@ namespace DbOps
             return ds;
         }
         public static bool UpdateDetStatus(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum
-            , int detId, string err)
+            , int detId, string err, string actionDone)
         {
             string sql = $"update {pgSchema}.filedetails set det_err_csv='{err}' where id = {detId}";
 
-            return ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
+            bool dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
+
+            if (dbOk)
+            {
+                sql = $"insert into {pgSchema}.filedetail_actions(filedet_id, action_void, action_done)" +
+                    $" values({detId},'0','{actionDone}')";
+                dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
+            }
+            return dbOk; 
         }
     }
 }

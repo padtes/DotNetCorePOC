@@ -66,6 +66,7 @@ namespace NpsApy
                 //change detail record status to print error or printed or reset sent to print To yet-to-print
                 UpdateStatus updateStatus = new UpdateStatus(pgSchema, pgConnection, modType, 0);
                 updateStatus.Update(fileType);
+                return;
             }
             if (operation == "report")
             {
@@ -77,6 +78,7 @@ namespace NpsApy
                 // courier REPORT will dump < COURIER >, range - from-to and next
                 SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
                 runResult = rep.Print(modType, runFor, fileType);
+                return;
             }
             else
             {
