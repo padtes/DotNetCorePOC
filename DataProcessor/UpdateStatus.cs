@@ -127,7 +127,7 @@ namespace DataProcessor
             {
                 return DbUtil.UpdateDetStatus(pgConnection, pgSchema, logProgramName, moduleName, JobId, 
                     lineNo, statusStruct.DetId, statusStruct.PrnDtYMD, statusStruct.PickDtYMD, statusStruct.ErrCsv
-                    , actionDone: ConstantBag.DET_LC_STEP_STAT_UPD);
+                    , actionDone: ConstantBag.DET_LC_STEP_STAT_UPD2);
             }
             catch (Exception ex)
             {

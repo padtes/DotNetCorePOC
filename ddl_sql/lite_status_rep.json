@@ -34,6 +34,7 @@
 		{"col":"9", "print_yn":"y", "tag":"PAO Barcode","src_type":"json","db_value":"'pd'->0->>'p044_nl_ao_nl_cc_bar_code'"},
 		{"col":"10", "print_yn":"y", "tag":"Weight of envelop in gram","src_type":"const","db_value":"14"},
 		{"col":"11", "print_yn":"n", "tag":"printing date DB","src_type":"column","db_value":"filedetails.print_dt", "alias":"print_dt", "print_yn":"n"},
-		{"col":"12", "print_yn":"n", "tag":"Courier Pickup date DB","src_type":"column","db_value":"filedetails.pickup_dt", "alias":"pickup_dt", "print_yn":"n"}
+		{"col":"12", "print_yn":"n", "tag":"Courier Pickup date DB","src_type":"column","db_value":"filedetails.pickup_dt", "alias":"pickup_dt", "print_yn":"n"},
+		{"col":"13", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id", "print_yn":"n"}
 	]
 }

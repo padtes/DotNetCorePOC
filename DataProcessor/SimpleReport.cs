@@ -31,8 +31,8 @@ namespace DataProcessor
             {
                 string workdirYmd = runFor;
                 string bizTypeToRead = ConstantBag.LITE_IN;
-                string waitingAction = ConstantBag.DET_LC_STEP_STAT_UPD;
-                string doneAction = ConstantBag.DET_LC_STEP_RESPONSE;
+                string waitingAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
+                string doneAction = ConstantBag.DET_LC_STEP_RESPONSE1;
 
                 DataSet ds = DbUtil.GetInternalStatusReport(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
                     , workdirYmd, waitingAction, doneAction, out string sql);

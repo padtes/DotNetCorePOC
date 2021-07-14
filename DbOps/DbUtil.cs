@@ -237,7 +237,7 @@ namespace DbOps
         }
 
         public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
-            , string colSelection, string waitingAction, string workdirYmd, string wherePart, string orderBy, out string sql)
+            , string colSelection, string waitingAction, string doneAction, string workdirYmd, string wherePart, string orderBy, out string sql)
         {
             sql = $"select {colSelection} from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
@@ -248,6 +248,13 @@ namespace DbOps
                 $" and not exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
                 $"   action_void = '0' and action_done='{waitingAction}')";
+
+            if (string.IsNullOrEmpty(doneAction) == false)
+            {
+                sql +=$" and exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{doneAction}')";
+            }
 
             if (string.IsNullOrEmpty(wherePart) == false)
             {
@@ -420,7 +427,7 @@ namespace DbOps
         {
             string sql = $"select lstid from {pgSchema}.reject_reasons";
             DataSet ds = GetDataSet(pgConnection, logProgramName, moduleName, jobId, sql);
-            if(ds != null && ds.Tables.Count > 0)
+            if (ds != null && ds.Tables.Count > 0)
             {
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
@@ -459,7 +466,7 @@ namespace DbOps
         {
             string prnDtStr = (prnDtYMD == "" ? "null" : $"'{prnDtYMD}'");
             string pickDtStr = (pickDtYMD == "" ? "null" : $"'{pickDtYMD}'");
-            
+
             string sql = $"update {pgSchema}.filedetails set print_dt = {prnDtStr}, pickup_dt={pickDtStr}, det_err_csv='{errCsv}' where id = {detId}";
 
             bool dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
@@ -470,7 +477,7 @@ namespace DbOps
                     $" values({detId},'0','{actionDone}')";
                 dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
             }
-            return dbOk; 
+            return dbOk;
         }
     }
 }

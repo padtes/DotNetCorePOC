@@ -1,6 +1,8 @@
-﻿using Logging;
+﻿using DbOps.Structs;
+using Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace DataProcessor
@@ -30,6 +32,9 @@ namespace DataProcessor
         public abstract string GetBizType();
         protected abstract void LoadModuleParam(string runFor, string courierCsv);
         public abstract void WriteOutput(string runFor, string courierCsv, string fileType);
+
+        public abstract DataSet GetReportDS(string pgConnection, string pgSchema, string moduleName, string bizTypeToRead, string bizTypeToWrite, int jobId
+            , RootJsonParamCSV csvConfig, string[] progParams, string workdirYmd, string wherePart);
 
         public virtual void ProcessOutput(string runFor, string courierCsv, string fileType)
         {

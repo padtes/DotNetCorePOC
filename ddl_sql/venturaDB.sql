@@ -114,6 +114,8 @@ insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fN
 values('1','lite_inp','lite','lite_input.json');
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
 values('1','lite_resp','lite','lite_imm_resp.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{Serial No}}.txt');
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_stat','lite','lite_status_rep.json','PRN{{sys_param(printer_code)}}STS{{now_ddmmyy}}{{Serial No}}.txt');
 
 CREATE TABLE ventura.counters(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -197,6 +199,8 @@ select * from ventura.counters;
 -- ALTER SEQUENCE ventura.fileinfo_id_seq RESTART WITH 1;
 -- delete from ventura.filedetails;
 -- ALTER SEQUENCE ventura.filedetails_id_seq RESTART WITH 1;
+-- delete from ventura.filedetail_actions;
+-- ALTER SEQUENCE ventura.filedetail_actions_id_seq RESTART WITH 1;
 
 --update ventura.counters set next_num=start_num where parent_id > 0;
 

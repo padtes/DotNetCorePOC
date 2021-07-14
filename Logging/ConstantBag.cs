@@ -18,8 +18,8 @@
 
         //Lite bussiness
         public const string LITE_IN = "lite_inp";
-        public const string LITE_OUT_STATUS = "lite_stat";
         public const string LITE_OUT_RESPONSE = "lite_resp";
+        public const string LITE_OUT_STATUS = "lite_stat";
 
         //file directions
         public const string DIRECTION_IN = "i";
@@ -33,9 +33,9 @@
         public const string FILE_LC_STEP_ERR1 = "ERROR_1";
 
         //file detail record life cycle 
-        public const string DET_LC_STEP_RESPONSE = "1IMM_RESP";  //immediate response sent
-        public const string DET_LC_STEP_STAT_UPD = "2STATUS_UPD"; //status updated
-        public const string DET_LC_STEP_STAT_REP = "3STATUS_REP"; //status report sent
+        public const string DET_LC_STEP_RESPONSE1 = "1IMM_RESP";  //immediate response sent
+        public const string DET_LC_STEP_STAT_UPD2 = "2STATUS_UPD"; //status updated
+        public const string DET_LC_STEP_STAT_REP3 = "3STATUS_REP"; //status report sent
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";

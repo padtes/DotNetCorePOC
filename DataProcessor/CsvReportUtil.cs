@@ -22,6 +22,11 @@ namespace DataProcessor
 
         private const string logProgramName = "CsvReportUtil";
 
+        public RootJsonParamCSV GetCsvConfig()
+        {
+            return csvConfig;
+        }
+
         public CsvReportUtil(string connection, string schema, string moduleNm, string bizTypeNm, int jobIdparam, string jsonDef, string outDirNm)
         {
             pgConnection = connection;
@@ -48,27 +53,12 @@ namespace DataProcessor
             return csvConfig;
         }
 
-        public bool CreateFile(string bizTypeToRead, string workdirYmd, string fileName, string[] progParams, Dictionary<string, string> paramsDict, string wherePart, string waitingAction)
+        public bool CreateFile(string workdirYmd, string fileName, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, string waitingAction)
         {
             //get Data
             //string sql = SqlHelper.GetSelect(pgSchema, csvConfig.Detail, csvConfig.System, progParams);
             //DataSet ds = DbUtil.GetDataSet(pgConnection, bizType, logProgramName, jobId, sql);
             
-            StringBuilder colSelectionSb = new StringBuilder();
-            SqlHelper.GetSelectColumns(csvConfig.Detail, csvConfig.System, progParams, paramsDict, colSelectionSb);
-            string sql;
-
-            DataSet ds = DbUtil.GetFileDetailList(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, jobId
-            , colSelectionSb.ToString(), waitingAction, workdirYmd, wherePart, csvConfig.System.DataOrderby, out sql);
-
-            if (ds == null || ds.Tables.Count < 1)
-            {
-                Logger.Write(logProgramName, "CreateFile", 0, "No Table returned check sql", Logger.WARNING);
-                Logger.Write(logProgramName, "CreateFile", 0, "sql:" + sql, Logger.WARNING);
-
-                return false;
-            }
-
             string fullOutFile = outDir + fileName;
             if (File.Exists(fullOutFile))
             {
@@ -80,8 +70,6 @@ namespace DataProcessor
             }
 
             StreamWriter sw = new StreamWriter(fullOutFile, true);
-
-            string delimt = csvConfig.System.Delimt;
 
             //print header
             CsvOutputHdrHandler hdrHandler = new CsvOutputHdrHandler();
