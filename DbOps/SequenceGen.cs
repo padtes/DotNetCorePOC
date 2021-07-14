@@ -16,7 +16,7 @@ namespace DbOps
             , int fixedLen = -1, bool addIfNeeded = false, bool unlock = false)
         {
             bool recFound = true;
-            bool dbOk = false;
+            bool dbOk = true;
             int lockKey = -9;
             int counterId = -1;
 
