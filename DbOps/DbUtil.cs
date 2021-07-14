@@ -473,8 +473,10 @@ namespace DbOps
 
             if (dbOk)
             {
-                sql = $"insert into {pgSchema}.filedetail_actions(filedet_id, action_void, action_done)" +
-                    $" values({detId},'0','{actionDone}')";
+                string addDtUTC = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+
+                sql = $"insert into {pgSchema}.filedetail_actions(filedet_id, action_void, action_done, addeddate)" +
+                    $" values({detId},'0','{actionDone}','{addDtUTC}')";
                 dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
             }
             return dbOk;
