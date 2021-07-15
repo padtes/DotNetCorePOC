@@ -94,7 +94,13 @@ namespace DataProcessor
             for (int i = 0; i < detailColumns.Count; i++)
             {
                 if (detailColumns[i].PrintYN == "n")
+                {
+                    if (detailColumns[i].SrcType.ToUpper() != "CFUNCTION")
+                    {
+                        cellInd++;
+                    }
                     continue;
+                }
 
                 if (isFirst == false)
                     det += delimt;

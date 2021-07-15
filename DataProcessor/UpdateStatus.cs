@@ -24,7 +24,7 @@ namespace DataProcessor
             JobId = jobId;
         }
 
-        public bool Update(string inputFilePathName)
+        public bool Update(bool superUpd, string inputFilePathName)
         {
             if (File.Exists(inputFilePathName) == false)
             {
@@ -44,7 +44,7 @@ namespace DataProcessor
 
             int errCnt = 0;
             List<UpdStatusStruct> updRecList = new List<UpdStatusStruct>();
-            bool dbOk = ValidateFile(inputFilePathName, maxCount, rejectCodes, updRecList, out int lineNo, out errCnt);
+            bool dbOk = ValidateFile(superUpd, inputFilePathName, maxCount, rejectCodes, updRecList, out int lineNo, out errCnt);
 
             if (dbOk)
             {
@@ -70,7 +70,8 @@ namespace DataProcessor
             return dbOk;
         } //update
 
-        private bool ValidateFile(string inputFilePathName, int maxCount, List<string> rejectCodes, List<UpdStatusStruct> updRecList, out int lineNo, out int errCnt)
+        private bool ValidateFile(bool superUpd, string inputFilePathName, int maxCount, List<string> rejectCodes
+            , List<UpdStatusStruct> updRecList, out int lineNo, out int errCnt)
         {
             lineNo = 0;
             errCnt = 0;
@@ -102,12 +103,9 @@ namespace DataProcessor
 
                     if (IsLineValid(rejectCodes, lineNo, cells, maxCount, out detId, out prnDt, out pickDt, out string errValCsv))
                     {
-                        updRecList.Add(new UpdStatusStruct {
-                           DetId = detId,
-                           PrnDtYMD = prnDt,
-                           PickDtYMD = prnDt,
-                           ErrCsv = errValCsv
-                        });
+                        bool postOk = IsLinePosting(superUpd, updRecList, lineNo, line, prnDt, detId, errValCsv, ref dbOk);
+                        if (postOk == false)
+                            errCnt++;
                     }
                     else
                     {
@@ -121,11 +119,74 @@ namespace DataProcessor
             return dbOk;
         }
 
+        private bool IsLinePosting(bool superUpd, List<UpdStatusStruct> updRecList, int lineNo, string line, string prnDt, int detId, string errValCsv, ref bool dbOk)
+        {
+            bool postOk = true;
+            bool isFinalStatSent = CheckFinalStatSent(superUpd, lineNo, line, detId);
+            if (isFinalStatSent && superUpd == false)
+            {
+                dbOk = false;
+                postOk = false;
+            }
+            else
+            {
+                bool isImmRespSent = CheckImmRespSent(superUpd, lineNo, line, detId);
+                if (isImmRespSent)
+                {
+                    updRecList.Add(new UpdStatusStruct
+                    {
+                        DetId = detId,
+                        PrnDtYMD = prnDt,
+                        PickDtYMD = prnDt,
+                        ErrCsv = errValCsv
+                    });
+                }
+                else
+                {
+                    dbOk = false;
+                    postOk = false;
+                }
+            }
+            return postOk;
+        }
+
+        private bool CheckImmRespSent(bool superUpd, int lineNo, string line, int detId)
+        {
+            bool isImmRespSent = DbUtil.IsActionDone(pgConnection, pgSchema, logProgramName, moduleName, JobId, lineNo
+            , detId, ConstantBag.DET_LC_STEP_RESPONSE1);
+
+            if (isImmRespSent == false)
+            {
+                Logger.Write(logProgramName, "IsLineValid3", 0, $"{lineNo} does not have Immediate resposnce sent. STATUS UPDATE CANNOT BE DONE. Line: {line}", Logger.ERROR);
+            }
+
+            return isImmRespSent;
+        }
+
+        private bool CheckFinalStatSent(bool superUpd, int lineNo, string line, int detId)
+        {
+            bool isFinalStatSent = DbUtil.IsActionDone(pgConnection, pgSchema, logProgramName, moduleName, JobId, lineNo
+            , detId, ConstantBag.DET_LC_STEP_STAT_REP3);
+            if (isFinalStatSent)
+            {
+                if (superUpd == false)
+                {
+                    Logger.Write(logProgramName, "IsLineValid2", 0, $"{lineNo} has Final Status Sent. CANNOT UPDATE. Line: {line}", Logger.ERROR);
+                }
+                else
+                {
+                    Logger.Write(logProgramName, "IsLineValid2", 0, $"{lineNo} has Final Status Sent. UPDATE OVERRIDE. Line: {line}", Logger.WARNING);
+                }
+            }
+
+            return isFinalStatSent;
+        }
+
         private bool UpdateDetStatus(int lineNo, UpdStatusStruct statusStruct)
         {
             try
             {
-                return DbUtil.UpdateDetStatus(pgConnection, pgSchema, logProgramName, moduleName, JobId, 
+                return DbUtil.UpdateDetStatus(pgConnection, pgSchema, logProgramName, moduleName, JobId,
                     lineNo, statusStruct.DetId, statusStruct.PrnDtYMD, statusStruct.PickDtYMD, statusStruct.ErrCsv
                     , actionDone: ConstantBag.DET_LC_STEP_STAT_UPD2);
             }
@@ -161,7 +222,7 @@ namespace DataProcessor
                 }
 
                 DateTime dtPrn, dtPick;
-                IsDateValid(lineNo, ref isValid, cells[prnDtIndx], "Print dt", out dtPrn,  out prnDtStr);
+                IsDateValid(lineNo, ref isValid, cells[prnDtIndx], "Print dt", out dtPrn, out prnDtStr);
                 IsDateValid(lineNo, ref isValid, cells[pickDtIndx], "Pickup", out dtPick, out pickDtStr);
 
                 if (isValid && dtPick < dtPrn)

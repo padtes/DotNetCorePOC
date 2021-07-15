@@ -1,4 +1,5 @@
-﻿using DbOps.Structs;
+﻿using CommonUtil;
+using DbOps.Structs;
 using Logging;
 using Npgsql;
 using System;
@@ -271,10 +272,12 @@ namespace DbOps
 
             return ds;
         }
-        public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, int rowNum, int detailId, string waitingAction)
+        public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, int rowNum, int detailId, string actionDone)
         {
-            string sql = $"insert into {pgSchema}.filedetail_actions(action_void, filedet_id, action_done" +
-                $") values ('0',{detailId}, '{waitingAction}')";
+            string addDtUTC = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+
+            string sql = $"insert into {pgSchema}.filedetail_actions(action_void, filedet_id, action_done, addeddate)" +
+                $" values ('0',{detailId}, '{actionDone}','{addDtUTC}')";
             return ExecuteNonSql(pgConnection, logProgramName, moduleName, jobId, rowNum, sql);
         }
 
@@ -440,23 +443,34 @@ namespace DbOps
         public static DataSet GetInternalStatusReport(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction, out string sql)
         {
-            sql = $"select row_number() over () rownum, filedetails.id, filedetails.prod_id, filedetails.courier_id" +
-                $",filedetails.json_data->'pd'->0->>'p010_first_name' fname" +
-                $",filedetails.json_data->'pd'->0->>'p011_last_name_surname' lname" +
-                $",filedetails.print_dt, filedetails.pickup_dt" +
-                $",filedetails.det_err_csv" +
+            sql = $"select row_number() over () rownum, filedetails.id, filedetails.courier_id" + //filedetails.prod_id, 
+                ",filedetails.json_data->'pd'->0->>'p010_first_name' fname" +
+                ",filedetails.json_data->'pd'->0->>'p011_last_name_surname' lname" +
+                ",filedetails.json_data->'xx'->>'x_document_id' docId" +
+                ",fileinfo.fpath fpath" +
+                ",filedetails.print_dt, filedetails.pickup_dt" +
+                ",filedetails.det_err_csv" +
+                $",(select 'imm resp sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_RESPONSE1}' limit 1) respact"+
+                $",(select 'status updated' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_UPD2}' limit 1) updact"+
+                $",(select 'status sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_REP3}' limit 1) statact"+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
                 $" and fileinfo.biztype = '{bizTypeToRead}'" +
-                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
-                $" and exists" +
+                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'";
+            if (string.IsNullOrEmpty(doneAction)==false)
+            {
+                sql += " and exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
-                $"   action_void = '0' and action_done='{doneAction}')" +
-                $" and not exists" +
+                $"   action_void = '0' and action_done='{doneAction}')";
+            }
+            if (string.IsNullOrEmpty(waitingAction)==false)
+            {
+                sql += " and not exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
                 $"   action_void = '0' and action_done='{waitingAction}')";
+            }
 
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
             return ds;
@@ -473,13 +487,39 @@ namespace DbOps
 
             if (dbOk)
             {
-                string addDtUTC = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
-
-                sql = $"insert into {pgSchema}.filedetail_actions(filedet_id, action_void, action_done, addeddate)" +
-                    $" values({detId},'0','{actionDone}','{addDtUTC}')";
-                dbOk = ExecuteNonSql(pgConnection, logProgName, moduleName, jobId, rowNum, sql);
+                dbOk = AddAction(pgConnection, pgSchema, logProgName, moduleName, jobId, rowNum, detId, actionDone);
             }
             return dbOk;
+        }
+
+        public static bool IsActionDone(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, int rowNum
+            , int detId, string detAction)
+        {
+            bool actDone = false;
+            string sql = $"select * from {pgSchema}.filedetail_actions where filedet_id = {detId} and action_done ='{detAction}'";
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                    using (NpgsqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            actDone = true;
+                            break;
+                        }
+                    }
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(moduleName, logProgName, "GetMappedVal", jobId, rowNum, sql, ex);
+                throw;
+            }
+            return actDone;
         }
     }
 }

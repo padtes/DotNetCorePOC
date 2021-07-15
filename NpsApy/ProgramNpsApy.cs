@@ -63,11 +63,11 @@ namespace NpsApy
 
                 return;
             }
-            if (operation == "updstat")
+            if (operation == "updstat" || operation == "super_update")
             {
                 //change detail record status to print error or printed or reset sent to print To yet-to-print
                 UpdateStatus updateStatus = new UpdateStatus(pgSchema, pgConnection, modType, 0);
-                updateStatus.Update(fileType);
+                updateStatus.Update(superUpd: (operation == "super_update"), inputFilePathName: fileType);
                 return;
             }
             if (operation == "report")

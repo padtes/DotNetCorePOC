@@ -122,7 +122,17 @@ namespace DataProcessor
                 return;
             }
 
-            csvRep.CreateFile(workdirYmd, fileName, args, paramsDict, ds, ConstantBag.DET_LC_STEP_RESPONSE1);
+            string doneAction = "";
+            if (bizTypeToWrite == ConstantBag.LITE_OUT_RESPONSE)
+            {
+                doneAction = ConstantBag.DET_LC_STEP_RESPONSE1;
+            }
+            else if (bizTypeToWrite == ConstantBag.LITE_OUT_STATUS)
+            {
+                doneAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+            }
+
+            csvRep.CreateFile(workdirYmd, fileName, args, paramsDict, ds, doneAction);
         }
 
         private void WriteStatusReport(string runFor, string courierCsv)
@@ -187,20 +197,7 @@ namespace DataProcessor
             , RootJsonParamCSV csvConfig, string[] progParams, string workdirYmd, string wherePart)
         {
             string waitingAction, doneAction;
-            if (bizTypeToWrite == ConstantBag.LITE_OUT_RESPONSE)
-            {
-                waitingAction = ConstantBag.DET_LC_STEP_RESPONSE1;
-                doneAction = "";
-            }
-            else if (bizTypeToWrite == ConstantBag.LITE_OUT_STATUS)
-            {
-                waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
-                doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
-            }
-            else
-            {
-                throw new Exception("GetReportDS: Not handled bizTypeToWrite " + bizTypeToWrite);
-            }
+            SetupActions(bizTypeToWrite, out waitingAction, out doneAction);
             StringBuilder colSelectionSb = new StringBuilder();
             SqlHelper.GetSelectColumns(csvConfig.Detail, csvConfig.System, progParams, paramsDict, colSelectionSb);
 
@@ -216,6 +213,24 @@ namespace DataProcessor
             }
 
             return ds;
+        }
+
+        private static void SetupActions(string bizTypeToWrite, out string waitingAction, out string doneAction)
+        {
+            if (bizTypeToWrite == ConstantBag.LITE_OUT_RESPONSE)
+            {
+                waitingAction = ConstantBag.DET_LC_STEP_RESPONSE1;
+                doneAction = "";
+            }
+            else if (bizTypeToWrite == ConstantBag.LITE_OUT_STATUS)
+            {
+                waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+                doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
+            }
+            else
+            {
+                throw new Exception("GetReportDS: Not handled bizTypeToWrite " + bizTypeToWrite);
+            }
         }
     }
 
