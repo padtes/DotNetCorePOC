@@ -227,10 +227,8 @@ namespace DbOps
                 {
                     listFiles.Add(new FileInfoStruct()
                     {
-                        id = Convert.ToInt32(dr["id"])
-                        ,
-                        fname =Convert.ToString(dr["fname"])
-                        ,
+                        id = Convert.ToInt32(dr["id"]),
+                        fname =Convert.ToString(dr["fname"]),
                         fpath= Convert.ToString(dr["fpath"])
                     });
                 }
@@ -521,5 +519,83 @@ namespace DbOps
             }
             return actDone;
         }
+
+        public static void GetCouriers(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, string waitingAction, string doneAction
+            , List<string> courierList, bool isApy, string courierCsv, out string sql)
+        {
+            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
+            string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (string.IsNullOrEmpty(courierCsv)==false)
+            {
+                wherePart = " and courier_id in ('" +string.Join("','", whCouriers) + "')";
+            }
+
+            sql = "select distinct courier_id from filedetail"+
+                $" from {pgSchema}.filedetails" +
+                $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
+                $" where fileinfo.isdeleted='0'" +
+                $" and fileinfo.module_name = '{moduleName}'" +
+                $" and fileinfo.biztype = '{bizTypeToRead}'" +
+                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                wherePart;
+
+            if (string.IsNullOrEmpty(doneAction)==false)
+            {
+                sql += " and exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{doneAction}')";
+            }
+            if (string.IsNullOrEmpty(waitingAction)==false)
+            {
+                sql += " and not exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{waitingAction}')";
+            }
+
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+
+            if (ds != null && ds.Tables.Count > 0)
+            {
+                foreach(DataRow dr in ds.Tables[0].Rows)
+                {
+                    courierList.Add(Convert.ToString(dr[0]));
+                }
+            }
+        }
+        public static DataSet GetLetterCourier(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, string waitingAction, string doneAction
+            , string courierId, bool isApy, string colSelection, out string sql)
+        {
+            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
+
+            sql = $"select {colSelection} from filedetail"+
+                $" from {pgSchema}.filedetails" +
+                $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
+                $" where fileinfo.isdeleted='0'" +
+                $" and fileinfo.module_name = '{moduleName}'" +
+                $" and fileinfo.biztype = '{bizTypeToRead}'" +
+                $" and courier_id='{courierId}'" +
+                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                wherePart;
+
+            if (string.IsNullOrEmpty(doneAction)==false)
+            {
+                sql += " and exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{doneAction}')";
+            }
+            if (string.IsNullOrEmpty(waitingAction)==false)
+            {
+                sql += " and not exists" +
+                $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
+                $"   action_void = '0' and action_done='{waitingAction}')";
+            }
+
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+
+            return ds;
+        }
+
     }
 }

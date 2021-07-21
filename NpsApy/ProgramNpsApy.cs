@@ -67,10 +67,9 @@ namespace NpsApy
             {
                 //change detail record status to print error or printed or reset sent to print To yet-to-print
                 UpdateStatus updateStatus = new UpdateStatus(pgSchema, pgConnection, modType, 0);
-                updateStatus.Update(superUpd: (operation == "super_update"), inputFilePathName: fileType);
-                return;
+                runResult = updateStatus.Update(superUpd: (operation == "super_update"), inputFilePathName: fileType);
             }
-            if (operation == "report")
+            else if (operation == "report")
             {
                 // summary REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
 
@@ -80,7 +79,6 @@ namespace NpsApy
                 // courier REPORT will dump < COURIER >, range - from-to and next
                 SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
                 runResult = rep.Print(modType, runFor, fileType);
-                return;
             }
             else
             {

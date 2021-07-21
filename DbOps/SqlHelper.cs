@@ -27,6 +27,16 @@ namespace DbOps
             return sql.ToString();
         }
 
+        public static void GetSelectColumns1(List<Placeholder> wordColumns, SystemWord sysParam, string[] progParams, Dictionary<string, string> paramsDict, StringBuilder sql)
+        {
+            List<ColumnDetail> columns = new List<ColumnDetail>();
+            foreach (Placeholder ph in wordColumns)
+            {
+                columns.Add(ph);
+            }
+
+            GetSelectColumns(columns, sysParam, progParams, paramsDict, sql);
+        }
         public static void GetSelectColumns(List<ColumnDetail> columns, SystemParamReport sysParam, string[] progParams, Dictionary<string, string> paramsDict, StringBuilder sql)
         {
             bool first = true;
@@ -122,16 +132,27 @@ namespace DbOps
             {
                 strWh = strWh.Replace("{{" + i + "}}", progParams[i].Replace("'", "''"));
             }
-            foreach (var wCol in sysParam.WhereColList)
+            if (sysParam.WhereColList != null)
             {
-                string colSyntax = GetSqlColSyntax(sysParam, progParams, paramsDict, wCol);
-                strWh = strWh.Replace(wCol.Tag, colSyntax);
+                foreach (var wCol in sysParam.WhereColList)
+                {
+                    string colSyntax = GetSqlColSyntax(sysParam, progParams, paramsDict, wCol);
+                    strWh = strWh.Replace(wCol.Tag, colSyntax);
+                }
             }
-
             return strWh;
         }
 
         public static void RemoveCommentedColumns(List<ColumnDetail> columns)
+        {
+            for (int i = columns.Count - 1; i >= 0; i--)
+            {
+                if (columns[i].SrcType.StartsWith("#"))
+                    columns.RemoveAt(i);
+            }
+        }
+
+        public static void RemoveCommentedPlaceholds(List<Placeholder> columns)
         {
             for (int i = columns.Count - 1; i >= 0; i--)
             {

@@ -5,6 +5,8 @@
         //default user for Added By / Updated By
         public const string BATCH_USER = "batch";
         public const string SYSTEM_PARAM = "system";
+        public const string SEQ_GENERIC = "generic";
+
         //public const string LITE_OUT_PARAM = "lite_out";
 
         //Modules
@@ -20,6 +22,8 @@
         public const string LITE_IN = "lite_inp";
         public const string LITE_OUT_RESPONSE = "lite_resp";
         public const string LITE_OUT_STATUS = "lite_stat";
+        public const string LITE_OUT_WORD_APY = "lite_word_apy";
+        public const string LITE_OUT_WORD_NPS = "lite_word_nps";
 
         //file directions
         public const string DIRECTION_IN = "i";

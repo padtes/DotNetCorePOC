@@ -34,6 +34,10 @@ namespace DataProcessor
             {
                 WriteStatusReport(runFor, courierCsv);
             }
+            else if (fileType == "letter") //letters //to do define const
+            {
+                WriteWordFiles(runFor, courierCsv);
+            }
             else
             {
                 ProcessNpsLiteOutput(runFor, courierCsv);
@@ -110,7 +114,7 @@ namespace DataProcessor
             fileName = fileName.Replace("{{Serial No}}", serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
- 
+
             RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
             string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
 
@@ -155,6 +159,81 @@ namespace DataProcessor
 
             bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
             ProcessNpsApyLiteOutput(bizTypeToRead, bizType, fTypeMaster, runFor, bizDir, true);
+        }
+
+        private void WriteWordFiles(string runFor, string courierCsv)
+        {
+            string bizTypeToRead = ConstantBag.LITE_IN;
+            string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, false, courierCsv);
+
+            bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, true, courierCsv);
+        }
+
+        private void ProcessNpsApyWord(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
+        {
+            string bizType = isApy ? ConstantBag.LITE_OUT_WORD_APY : ConstantBag.LITE_OUT_WORD_NPS;
+
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            if (fTypeMaster == null)
+                return;
+
+            //collect what all couriers to process
+            List<string> courierList = new List<string>();
+            string waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+            string doneAction = ConstantBag.DET_LC_STEP_RESPONSE1;
+
+            DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
+                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, out string sql);
+
+            Logger.Write(GetProgName(), "ProcessNpsApyWord", 0, "sql:" + sql, Logger.INFO);
+            if (courierList.Count < 1)
+            {
+                Logger.Write(GetProgName(), "ProcessNpsApyWord", 0, $"No records found for letters {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+                return;
+            }
+
+            Logger.Write(GetProgName(), "ProcessNpsApyWord", 0, $"{courierList} found for letters {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+
+            string outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR]
+            + "\\" + workdirYmd// "yyyymmdd" 
+            + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+            + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
+            ;
+
+            string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+
+            WordReportUtil wordUtil = new WordReportUtil(pgConnection, pgSchema, moduleName, bizType, JobId, jsonCsvDef, outputDir);
+            if (wordUtil.TemplateFilesExist(GetProgName()) == false)
+            {
+                return;
+            }
+
+            foreach (string courier in courierList)
+            {
+                ProcessNpsApyWordCourier(wordUtil, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courier);
+            }
+        }
+
+        private void ProcessNpsApyWordCourier(WordReportUtil wordUtil, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courier)
+        {
+            RootJsonParamWord wordConfig = wordUtil.GetWordConfig();
+
+            string waitingAction, doneAction;
+            SetupActions(bizTypeToWrite, out waitingAction, out doneAction);
+
+            string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  ?? program params if any
+
+            StringBuilder colSelectionSb = new StringBuilder();
+            SqlHelper.GetSelectColumns1(wordConfig.Placeholders, wordConfig.SystemWord, args, paramsDict, colSelectionSb);
+
+            ////get records for the courier
+            DataSet ds = DbUtil.GetLetterCourier(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
+                , workdirYmd, waitingAction, doneAction
+                , courier, isApy, colSelectionSb.ToString(), out string sql);
+
+            wordUtil.CreateFile(workdirYmd, fTypeMaster.fnamePattern, args, paramsDict, ds, wordConfig.SystemWord, waitingAction);
         }
 
         private void ProcessNpsLiteOutput(string runFor, string courierCsv)
@@ -226,6 +305,11 @@ namespace DataProcessor
             {
                 waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
                 doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
+            }
+            else if (bizTypeToWrite == ConstantBag.LITE_OUT_WORD_APY || bizTypeToWrite == ConstantBag.LITE_OUT_WORD_NPS)
+            {
+                waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+                doneAction = "";
             }
             else
             {

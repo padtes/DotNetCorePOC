@@ -11,6 +11,8 @@
 		"data_table_json_col":"child_json",
 		"data_where":"id < 7",
 		"data_order":"id"
+		"where_cols": [
+		]
 	}
 	,"placeholders":[
 		{"tag": "{{PRAN}}", "src_type":"column", "db_value":"pran_id","alias" : "" },

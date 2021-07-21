@@ -1,0 +1,41 @@
+{
+	"comments_on_usage": {
+		"0": "this is to document the JSON",
+		"1": "mandatory: system section has generic parameters about file",
+		"2": "placeholders "
+	}
+	,"system_word":{
+		"file_type" : "nps_lite_letter"
+		,"write_type": "docx"
+		,"max_pages_per_file":"3"
+		,"data_table_name":"filedetails"
+		,"data_table_json_col":"json_data"
+		,"data_where":""
+		,"data_order":"json_data->'xx'->'x_document_id'"
+		,"where_cols": []
+		,"word_all_files_dir": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\Word_base_files"
+		,"word_header_file": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\header_sect.txt"
+		,"word_footer_file": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\footer_sect.txt"
+		,"word_middle1_page": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\middle_1st.txt"
+		,"word_repeat_page": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\middle_repeat.txt"
+		,"word_work_dir": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\Word_work_dir"
+	}
+	,"placeholders":[
+		{"col":"0", "print_yn":"y", "tag": "{{PRAN}}", "src_type":"json", "db_value":"'pd'->0->>'p008_pran'","alias" : "pran" },
+		{"col":"1", "print_yn":"y", "tag": "{{id}}", "src_type":"column", "db_value":"id","alias" : "" },	
+		{"col":"2", "print_yn":"y", "tag": "{{first_name}}", "src_type":"json" ,"db_value":"'PD'->0->'P010_first_name'","alias" : "" },
+		{"col":"3", "print_yn":"y", "tag": "{{last_name}}", "src_type":"json" ,"db_value":"'PD'->0->'P011_last_name_surname'","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{nom_1_first_name}}", "src_type":"json" ,"db_value":"'ND'->0->'N006_nominee_first_name'" ,"alias" : ""},
+		{"col":"0", "print_yn":"y", "tag": "{{nom_1_last_name}}", "src_type":"json" ,"db_value":"'ND'->0->'N007_nominee_last_name'","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{nom_2_first_name}}", "src_type":"json" ,"db_value":"'ND'->1->'N006_nominee_first_name'","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{nom_2_last_name}}", "src_type":"json" ,"db_value":"'ND'->2->'N007_nominee_last_name'","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{sql_birth_date}}", "src_type":"column" ,"db_value":"child_json->'PD'->0->'P016_date_of_birth'","alias" : "birth_dt" },	
+		{"col":"0", "print_yn":"y", "tag": "{{serial_num}}", "src_type":"sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{subscriber_addr_line_1}}", "src_type":"sqlfunction" ,"db_value":"get_subscriber_addr(pran_id)","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{Date_Of_File_Creation(MMDDYYYY)}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{NL_AO/NL_CC_Reg_No}}", "src_type":"column" ,"db_value":"'my fixed xyz/999'","alias" : "" },
+		
+		{"col":"0", "print_yn":"y", "tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"get_date(yyyymmdd, now)","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"get_date(dd-mmm-yyyy, birth_dt)","alias" : "" }
+	]
+}

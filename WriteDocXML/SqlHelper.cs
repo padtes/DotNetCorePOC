@@ -40,10 +40,18 @@ namespace WriteDocXML
                 .Append(sysParam.DataTableName);
 
             string whereStr = GetWehere(sysParam, progParams);
-            sql.Append(" where ")
-                .Append(whereStr)
-                .Append(" order by ")
+            if (string.IsNullOrEmpty(whereStr) == false)
+            {
+                sql.Append(" where ")
+                .Append(whereStr);
+            }
+
+            if (string.IsNullOrEmpty(sysParam.DataOrderby) == false)
+            {
+                sql.Append(" order by ")
                 .Append(sysParam.DataOrderby);
+            }
+
             sql.Append(';');
 
             return sql.ToString();
@@ -55,10 +63,10 @@ namespace WriteDocXML
             switch (phCol.SrcType.ToUpper())
             {
                 case "CODE":
-                    retStr  = GetSqlSnippet(progParams, phCol, sysParam);
+                    retStr = GetSqlSnippet(progParams, phCol, sysParam);
                     break;
                 case "JSON":
-                    retStr = sysParam.DataTableJsonCol + "->"+ phCol.DbValue;
+                    retStr = sysParam.DataTableJsonCol + "->" + phCol.DbValue;
                     break;
                 case "PARAM":
                     retStr = GetParamValue(progParams, phCol);
@@ -99,10 +107,13 @@ namespace WriteDocXML
             {
                 strWh = strWh.Replace("{{" + i + "}}", progParams[i].Replace("'", "''"));
             }
-            foreach (var wCol in sysParam.WhereColList)
+            if (sysParam.WhereColList != null)
             {
-                string colSyntax = GetSqlColSyntax(sysParam, progParams, wCol);
-                strWh = strWh.Replace(wCol.Tag, colSyntax);
+                foreach (var wCol in sysParam.WhereColList)
+                {
+                    string colSyntax = GetSqlColSyntax(sysParam, progParams, wCol);
+                    strWh = strWh.Replace(wCol.Tag, colSyntax);
+                }
             }
 
             return strWh;

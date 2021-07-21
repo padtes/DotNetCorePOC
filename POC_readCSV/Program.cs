@@ -36,7 +36,7 @@ namespace POC_readCSV
             int jobId = 0;
 
             bool testingRead = false;
-            bool testWord = false;
+            bool testWord = true;
             string bizType = "POC";
 
             if (testingRead)
