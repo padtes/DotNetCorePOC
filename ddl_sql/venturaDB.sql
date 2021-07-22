@@ -113,9 +113,15 @@ TABLESPACE pg_default;
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName)
 values('1','lite_inp','lite','lite_input.json');
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_resp','lite','lite_imm_resp.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{Serial No}}.txt');
+values('1','lite_resp','lite','lite_imm_resp.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{serial_no}}.txt');
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_stat','lite','lite_status_rep.json','PRN{{sys_param(printer_code)}}STS{{now_ddmmyy}}{{Serial No}}.txt');
+values('1','lite_stat','lite','lite_status_rep.json','PRN{{sys_param(printer_code)}}STS{{now_ddmmyy}}{{serial_no}}.txt');
+
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_word_apy','lite','apy_letter.json','apyLetter{{courier_cd}}_{{serial_no}}.docx');
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_word_nps','lite','NPS_Lite_letter.json','npsLiteLetter{{courier_cd}}_{{serial_no}}.docx');
+
 
 CREATE TABLE ventura.counters(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -137,6 +143,8 @@ CREATE TABLE ventura.counters(
 	CONSTRAINT counters_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
+
+insert into ventura.counters(isactive,counter_name,parent_id,descript) values   ('1','couriers',0, 'master rec for couriers')
 
 insert into ventura.counters(isactive,counter_name,parent_id) values ('1','generic',0)
 --"couriers" master rec for couriers

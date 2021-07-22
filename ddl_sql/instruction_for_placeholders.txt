@@ -1,0 +1,11 @@
+Files: NpsApyLite_columnList.txt 
+ and Excel file NpsLite_Letter.xlsx (3 tabs)
+
+-- all the columns including derived columns are here as .txt and 3rd tab of the  Excel
+
+in the first and second tab, add 2 columns mapping a tag to data column
+ - no need to put as {{ }} here for tag
+ - some dummy sample I have added in tab-1
+
+-- if a field is missing or if in doubt, please put a note 
+   OR add what derived field is needed.

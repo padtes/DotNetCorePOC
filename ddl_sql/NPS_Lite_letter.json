@@ -13,12 +13,11 @@
 		,"data_where":""
 		,"data_order":"json_data->'xx'->'x_document_id'"
 		,"where_cols": []
-		,"word_all_files_dir": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\Word_base_files"
-		,"word_header_file": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\header_sect.txt"
-		,"word_footer_file": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\footer_sect.txt"
-		,"word_middle1_page": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\middle_1st.txt"
-		,"word_repeat_page": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\middle_repeat.txt"
-		,"word_work_dir": "C:\Users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\Word_files_apy\Word_work_dir"
+		,"word_all_files_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\Word_base_files"
+		,"word_header_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg1.txt"
+		,"word_footer_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg3.txt"
+		,"word_middle_page": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg2.txt"
+		,"word_work_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\Word_work_dir"
 	}
 	,"placeholders":[
 		{"col":"0", "print_yn":"y", "tag": "{{PRAN}}", "src_type":"json", "db_value":"'pd'->0->>'p008_pran'","alias" : "pran" },
@@ -35,6 +34,8 @@
 		{"col":"0", "print_yn":"y", "tag": "{{Date_Of_File_Creation(MMDDYYYY)}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
 		{"col":"0", "print_yn":"y", "tag": "{{NL_AO/NL_CC_Reg_No}}", "src_type":"column" ,"db_value":"'my fixed xyz/999'","alias" : "" },
 		
+		{"col":"0", "print_yn":"n", "tag": "{{det_id}}", "src_type":"column" ,"db_value":"filedetails.id", "alias":"detail_id" },
+
 		{"col":"0", "print_yn":"y", "tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"get_date(yyyymmdd, now)","alias" : "" },
 		{"col":"0", "print_yn":"y", "tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"get_date(dd-mmm-yyyy, birth_dt)","alias" : "" }
 	]
