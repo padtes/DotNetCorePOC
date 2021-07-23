@@ -22,7 +22,7 @@
 	,"placeholders":[
 		{"col":"0", "print_yn":"n", "tag": "{{det_id}}", "src_type":"column" ,"db_value":"filedetails.id", "alias":"detail_id" },
 		{"col":"0", "print_yn":"n", "tag": "{{serial_num}}", "src_type":"#sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
-		{"col":"0", "print_yn":"y", "tag": "{{Date_Of_File_Creation(MMDDYYYY)}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
+		{"col":"0", "print_yn":"y", "tag": "{{Date_Of_File_Creation_MMDDYYYY}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
 		{"col":"0", "print_yn":"n", "tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"DateFormat(yyyymmdd, now)","alias" : "" },
 		{"col":"0", "print_yn":"n", "tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"DateFormat(dd-mmm-yyyy, birth_dt)","alias" : "" },
 
@@ -36,7 +36,7 @@
 		{"col":"9", "print_yn":"y", "tag": "{{SubscriberAddressline2}}", "src_type":"json" ,"db_value":"'pd'->0->>'p018_subscriber_address_line_2'", "alias" :"subscriberaddressline2"},
 		{"col":"10", "print_yn":"y", "tag": "{{SubscriberAddressline3}}", "src_type":"json" ,"db_value":"'pd'->0->>'p019_subscriber_address_line_3'", "alias" :"subscriberaddressline3"},
 		{"col":"11", "print_yn":"y", "tag": "{{SubscriberAddressline4}}", "src_type":"json" ,"db_value":"'pd'->0->>'p020_subscriber_address_line_4'", "alias" :"subscriberaddressline4"},
-		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"json" ,"db_value":"'pd'->0->>'x_p021_subscriber_address_state'", "alias" :"subscriberaddressstate"},
+		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"json" ,"db_value":"'xx'->>'x_p021_subscriber_address_state'", "alias" :"subscriberaddressstate"},
 		{"col":"13", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"json" ,"db_value":"'pd'->0->>'p022_subscriber_address_country'", "alias" :"subscriberaddresscountry"},
 		{"col":"14", "print_yn":"y", "tag": "{{MobileNumber}}", "src_type":"json" ,"db_value":"'cd'->0->>'c031_mobile_number'", "alias" :"mobilenumber"},
 
