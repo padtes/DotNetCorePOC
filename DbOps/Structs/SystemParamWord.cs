@@ -37,11 +37,8 @@ namespace DbOps.Structs
         [JsonProperty("word_footer_file")]
         public string WordFooterFile { get; set; }
 
-        [JsonProperty("word_middle1_page")]
-        public string WordMiddle1Page { get; set; }
-
-        [JsonProperty("word_repeat_page")]
-        public string WordRepeatPage { get; set; }
+        [JsonProperty("word_middle_page")]
+        public string WordMiddlePage { get; set; }
 
         [JsonProperty("word_work_dir")]
         public string WordWorkDir { get; set; }

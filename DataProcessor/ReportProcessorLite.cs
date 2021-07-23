@@ -36,7 +36,11 @@ namespace DataProcessor
             }
             else if (fileType == "letter") //letters //to do define const
             {
-                WriteWordFiles(runFor, courierCsv);
+                WriteWordFiles(runFor, courierCsv, false);
+            }
+            else if (fileType == "let_reprint") //letters //to do define const
+            {
+                WriteWordFiles(runFor, courierCsv, true);
             }
             else
             {
@@ -109,9 +113,9 @@ namespace DataProcessor
                 .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy")); //TO DO : parse the file name pattern
 
             //TO DO get serial number - add rec if not found
-            string tmpFileName = fileName.Replace("{{Serial No}}", "");
+            string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string serNo = SequenceGen.GetNextSequence(GetConnection(), GetSchema(), "generic", tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
-            fileName = fileName.Replace("{{Serial No}}", serNo);
+            fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
 
@@ -161,17 +165,17 @@ namespace DataProcessor
             ProcessNpsApyLiteOutput(bizTypeToRead, bizType, fTypeMaster, runFor, bizDir, true);
         }
 
-        private void WriteWordFiles(string runFor, string courierCsv)
+        private void WriteWordFiles(string runFor, string courierCsv, bool reprint)
         {
             string bizTypeToRead = ConstantBag.LITE_IN;
             string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
-            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, false, courierCsv);
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, false, courierCsv, reprint);
 
             bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
-            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, true, courierCsv);
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, true, courierCsv, reprint);
         }
 
-        private void ProcessNpsApyWord(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
+        private void ProcessNpsApyWord(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv, bool reprint)
         {
             string bizType = isApy ? ConstantBag.LITE_OUT_WORD_APY : ConstantBag.LITE_OUT_WORD_NPS;
 
@@ -181,8 +185,13 @@ namespace DataProcessor
 
             //collect what all couriers to process
             List<string> courierList = new List<string>();
-            string waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+            string waitingAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
             string doneAction = ConstantBag.DET_LC_STEP_RESPONSE1;
+            if (reprint)
+            {
+                doneAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
+                waitingAction = "";
+            }
 
             DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
                 , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, out string sql);
@@ -210,13 +219,13 @@ namespace DataProcessor
                 return;
             }
 
-            foreach (string courier in courierList)
+            foreach (string courierCd in courierList)
             {
-                ProcessNpsApyWordCourier(wordUtil, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courier);
+                ProcessNpsApyWordCourier(wordUtil, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd);
             }
         }
 
-        private void ProcessNpsApyWordCourier(WordReportUtil wordUtil, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courier)
+        private void ProcessNpsApyWordCourier(WordReportUtil wordUtil, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierCd)
         {
             RootJsonParamWord wordConfig = wordUtil.GetWordConfig();
 
@@ -231,9 +240,11 @@ namespace DataProcessor
             ////get records for the courier
             DataSet ds = DbUtil.GetLetterCourier(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
                 , workdirYmd, waitingAction, doneAction
-                , courier, isApy, colSelectionSb.ToString(), out string sql);
+                , courierCd, isApy, colSelectionSb.ToString(), wordConfig.SystemWord.DataOrderby, out string sql);
 
-            wordUtil.CreateFile(workdirYmd, fTypeMaster.fnamePattern, args, paramsDict, ds, wordConfig.SystemWord, waitingAction);
+            Logger.Write(GetProgName(), "ProcessNpsApyWordCourier", 0, $"{sql}", Logger.INFO);
+
+            wordUtil.CreateFile(workdirYmd, courierCd, fTypeMaster.fnamePattern, args, paramsDict, ds, wordConfig.SystemWord);
         }
 
         private void ProcessNpsLiteOutput(string runFor, string courierCsv)

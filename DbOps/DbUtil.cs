@@ -524,14 +524,14 @@ namespace DbOps
             , string workdirYmd, string waitingAction, string doneAction
             , List<string> courierList, bool isApy, string courierCsv, out string sql)
         {
-            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
+            string wherePart = " and lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
             string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
             if (string.IsNullOrEmpty(courierCsv)==false)
             {
-                wherePart = " and courier_id in ('" +string.Join("','", whCouriers) + "')";
+                wherePart += " and courier_id in ('" +string.Join("','", whCouriers) + "')";
             }
 
-            sql = "select distinct courier_id from filedetail"+
+            sql = "select distinct courier_id"+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
@@ -565,11 +565,11 @@ namespace DbOps
         }
         public static DataSet GetLetterCourier(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction
-            , string courierId, bool isApy, string colSelection, out string sql)
+            , string courierId, bool isApy, string colSelection, string orderBy, out string sql)
         {
-            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
+            string wherePart = " and lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
 
-            sql = $"select {colSelection} from filedetail"+
+            sql = $"select {colSelection} "+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
@@ -591,6 +591,8 @@ namespace DbOps
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
                 $"   action_void = '0' and action_done='{waitingAction}')";
             }
+
+            sql += $" order by {orderBy}";
 
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
 

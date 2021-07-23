@@ -9,3 +9,8 @@ in the first and second tab, add 2 columns mapping a tag to data column
 
 -- if a field is missing or if in doubt, please put a note 
    OR add what derived field is needed.
+
+First tab I have extracted all the tags from the files Kishen gave me
+I have actually used the column-B : preferred tag name and tried mapping most of the columns
+
+PLEASE REVIEW and fill in the blanks / mark as duplicate (occur in more than one place) Or Correct as you wish.

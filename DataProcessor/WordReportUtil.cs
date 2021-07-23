@@ -1,6 +1,7 @@
 ﻿using CommonUtil;
 using DbOps;
 using DbOps.Structs;
+using Ionic.Zip;
 using Logging;
 using Newtonsoft.Json;
 using System;
@@ -24,8 +25,7 @@ namespace DataProcessor
 
         private string headerXml = "";
         private string footerXml = "";
-        private string mid1Xml = "";
-        private string midRepeatXml = "";
+        private string midXml = "";
 
         private const string logProgramName = "WordReportUtil";
 
@@ -60,11 +60,11 @@ namespace DataProcessor
             return wordConfig;
         }
 
-        public bool CreateFile(string workdirYmd, string fileName, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, SystemWord systemWord, string waitingAction)
+        public bool CreateFile(string workdirYmd, string courierCd, string fileName, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, SystemWord systemWord)
         {
             Stopwatch stopwatch = new Stopwatch();
             //read 4 template files
-            ReadBasicTemplates(systemWord, ref headerXml, ref footerXml, ref mid1Xml, ref midRepeatXml);
+            ReadBasicTemplates(systemWord, ref headerXml, ref footerXml, ref midXml);
 
             int mergeCount = wordConfig.SystemWord.MaxPagesPerFile;
 
@@ -94,7 +94,8 @@ namespace DataProcessor
                     remainCount--;
 
                     FillTokenMap(tokenMap, dr, progParams, cmdHandler);
-                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount, curCount == 1 ? mid1Xml : midRepeatXml); //, usedIds);
+                    //if header or footer has tags, it will need to be addressed here when curCount == 1
+                    AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount, midXml); //, usedIds);
                     hasUnPrinted = true;
 
                     if (curCount == mergeCount)
@@ -120,22 +121,23 @@ namespace DataProcessor
                 return false;
             }
 
-            ZipToCreateDocFile(outDir, ts, fileCount);
+            ZipToCreateDocFile(outDir, fileName, ts, fileCount, courierCd);
 
-            /*
-                         for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
-                        {
-                            //save the action for each iRow
-                            var dr = ds.Tables[0].Rows[iRow];
-                            int detailId = Convert.ToInt32(dr["detail_id"]);
-                            bool dbOk= DbUtil.AddAction(pgConnection, pgSchema, logProgramName, moduleName, jobId
-                                ,iRow , detailId, waitingAction);
-                            if(dbOk == false)
-                            {
-                                throw new Exception("DB ERROR: RERUN OR manually void/delete actions " + waitingAction + " work dir:" + workdirYmd);
-                            }
-                        }
-             */
+            for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
+            {
+                //save the action for each iRow
+                var dr = ds.Tables[0].Rows[iRow];
+                int detailId = Convert.ToInt32(dr["detail_id"]);
+                try
+                {
+                    bool dbOk = DbUtil.AddAction(pgConnection, pgSchema, logProgramName, moduleName, jobId
+                    , iRow, detailId, actionDone: ConstantBag.DET_LC_STEP_WORD_LTR4);
+                }
+                catch
+                {
+                    Logger.WriteInfo(logProgramName, "CreateFile", 0, $"error det id {detailId}. Verify action added " + ConstantBag.DET_LC_STEP_WORD_LTR4);
+                }
+            }
 
             stopwatch.Stop();
             Logger.WriteInfo(logProgramName, "CreateFile", 0, "All files [" + fileCount + "] Created. Time taken in sec:" + stopwatch.Elapsed.TotalSeconds);
@@ -143,30 +145,60 @@ namespace DataProcessor
             return true;
         }
 
-        private void ZipToCreateDocFile(string outDir, string ts, int fileCount)
+        private void ZipToCreateDocFile(string outDir, string fNamePattern, string ts, int fileCount, string courierCd)
         {
             //create/clean up work-subdir
-            string workSubDir=  CreateOrCleanWorkSubdir(ts);
-
+            string workSubDir = CreateOrCleanWorkSubdir(ts);
             //copy other template files in subdir
             string sourcePath = wordConfig.SystemWord.WordAllFilesDir;
-            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.TopDirectoryOnly))  //AllDirectories - if nested
-            {
-                File.Copy(newPath, newPath.Replace(sourcePath, workSubDir), true);
-            }
+
+            FIleIOExt.CopyDirDeep(sourcePath, workSubDir);
 
             for (int iFc = 1; iFc <= fileCount; iFc++)
             {
                 //    copy wordConfig.SystemWord.WordWorkDir + "/document_" + ts + "_" + fileCount + ".xml" to work-subdir
                 string src = GetFileNameOfMidXml(iFc, ts);
-                File.Copy(src, workSubDir + "\\document.xml");
+                File.Copy(src, Path.Combine(new string[] { workSubDir, "word", "document.xml" }), overwrite: true);
 
-                //    zip all files as fileName.Replace("{{Serial No}}", i.ToString()).zip
-                //    rename zipped file as .docx
+                string pureFn = fNamePattern.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, iFc.ToString())
+                    .Replace(ConstantBag.FILE_NAME_TAG_COUR_CD, courierCd);
+
+                if (pureFn.ToLower().EndsWith(".docx") == false)
+                {
+                    pureFn += ".docx";
+                }
+                string[] tmpFiles = Directory.GetFiles(workSubDir, "*.*");
+                string[] tmpDirs = Directory.GetDirectories(workSubDir);
+                using (ZipFile zip = new ZipFile())
+                {
+                    //    zip all files as word...zip - docx
+                    foreach (string dirNm in tmpDirs)
+                    {
+                        DirectoryInfo din = new DirectoryInfo(dirNm);
+                        zip.AddDirectory(dirNm,din.Name);
+                    }
+                    foreach (string fileNm in tmpFiles)
+                    {
+                        zip.AddFile(fileNm,"");
+                    }
+
+                    zip.Save(workSubDir + "\\" + pureFn);
+                }
+
                 //    move .docx to outdir
+                int tmp = 1;
+                string tmpStr = outDir + "\\" + pureFn;
+                if (File.Exists(tmpStr))
+                {
+                    while (File.Exists(tmpStr))
+                    {
+                        tmpStr = outDir + "\\copy" + tmp + "_" + pureFn;
+                        tmp++;
+                    }
+                    File.Move(outDir + "\\" + pureFn, tmpStr);
+                }
 
-                //    delete from work-subdir wordConfig.SystemWord.WordWorkDir + "/document_" + ts + "_" + fileCount + ".xml"
-                File.Delete(workSubDir + "\\document.xml");
+                File.Move(workSubDir + "\\" + pureFn, outDir + "\\" + pureFn);
 
                 //    delete wordConfig.SystemWord.WordWorkDir + "/document_" + ts + "_" + fileCount + ".xml"
                 File.Delete(src);
@@ -174,28 +206,38 @@ namespace DataProcessor
 
             // delete work subdir
             CreateOrCleanWorkSubdir(ts); //delete files in it
-            Directory.Delete(workSubDir); //can delete empty sub-dir
+            Directory.Delete(workSubDir, true); //can delete empty sub-dir
         }
 
         private string CreateOrCleanWorkSubdir(string ts)
         {
-            if (Directory.Exists(wordConfig.SystemWord.WordWorkDir + "\\" + ts))
+            string t1 = Path.Combine(wordConfig.SystemWord.WordWorkDir, ts);
+
+            if (Directory.Exists(t1))
             {
-                DirectoryInfo di = new DirectoryInfo(wordConfig.SystemWord.WordWorkDir + "\\" + ts);
+                DirectoryInfo di = new DirectoryInfo(t1);
                 foreach (FileInfo file in di.GetFiles())
                 {
                     file.Delete();
                 }
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
             }
             else
             {
-                Directory.CreateDirectory(wordConfig.SystemWord.WordWorkDir + "\\" + ts);
+                Directory.CreateDirectory(t1);
             }
-            return wordConfig.SystemWord.WordWorkDir + "\\" + ts;
+            return t1;
         }
 
         private string GetFileNameOfMidXml(int fileCount, string ts)
         {
+            if (Directory.Exists(wordConfig.SystemWord.WordWorkDir) == false)
+            {
+                Directory.CreateDirectory(wordConfig.SystemWord.WordWorkDir);
+            }
             return wordConfig.SystemWord.WordWorkDir + "\\document_" + ts + "_" + fileCount + ".xml";
         }
         private void WriteDocumentXmlFile(StringBuilder sbMidSect, ref int fileCount, string ts)
@@ -210,10 +252,11 @@ namespace DataProcessor
             }
             StreamWriter sw = new StreamWriter(fullOutWorkFile, false);
 
-            sbMidSect.Append(footerXml);
+            sbMidSect.Append(footerXml.Trim(new char[] { '\n', '\r' }));
 
-            string sFull = headerXml + sbMidSect.ToString();
-            sw.Write(sFull);
+            string sFull = headerXml.Trim(new char[] { '\n', '\r' }) + sbMidSect.ToString();
+
+            sw.Write(sFull.Replace("\n", "").Replace("\r", ""));
 
             sw.Flush();
             Logger.WriteInfo(logProgramName, "WriteDocumentXmlFile", jobId, "created " + fullOutWorkFile);
@@ -244,14 +287,20 @@ namespace DataProcessor
             //    string newIdType = StrUtil.GetNewKeyVal(idType, usedIds);
             //    sTemplate = sTemplate.Replace(idType, newIdType);
             //}
+            if (curCount > 1)
+            {
+                sTemplate = sTemplate.Replace(ConstantBag.TAG_WORD_NEW_PAGE, "<w:pageBreakBefore/>"); //page break after the 1st
+            }
+            else
+                sTemplate = sTemplate.Replace(ConstantBag.TAG_WORD_NEW_PAGE, string.Empty); //No page break on the 1st
+
             sbMidSect.Append(sTemplate);
 
-            if (curCount < mergeCount && remainCount > 0)  //except last page - last file's last page
-            {
-                sbMidSect.Append("<w:br w:type = \"page\" />"); //page break
-
-                //sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
-            }
+            //if (curCount < mergeCount && remainCount > 0)  //except last page - last file's last page
+            //{
+            //    //sbMidSect.Append("<w:br w:type = \"page\" />"); //page break
+            //    sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
+            //}
         }
         private void FillTokenMap(List<KeyValuePair<string, string>> tokenMap, DataRow dr, string[] progParams, CommandHandler cmdHandler)
         {
@@ -268,30 +317,26 @@ namespace DataProcessor
                 }
                 else
                 {
-                    cellInd++;
                     if (dr[cellInd] != DBNull.Value)
                     {
                         dbVal = Convert.ToString(dr[cellInd]);
                     }
+                    cellInd++;
                 }
 
                 tokenMap.Add(new KeyValuePair<string, string>(phCol.Tag, dbVal));
             }
         }
 
-        private static void ReadBasicTemplates(SystemWord systemWord, ref string headerXml, ref string footerXml, ref string mid1Xml, ref string midRepeatXml)
+        private static void ReadBasicTemplates(SystemWord systemWord, ref string headerXml, ref string footerXml, ref string midXml)
         {
             using (StreamReader sr = new StreamReader(systemWord.WordHeaderFile))
             {
                 headerXml = sr.ReadToEnd();
             }
-            using (StreamReader sr = new StreamReader(systemWord.WordMiddle1Page))
+            using (StreamReader sr = new StreamReader(systemWord.WordMiddlePage))
             {
-                mid1Xml = sr.ReadToEnd();
-            }
-            using (StreamReader sr = new StreamReader(systemWord.WordMiddle1Page))
-            {
-                midRepeatXml = sr.ReadToEnd();
+                midXml = sr.ReadToEnd();
             }
             using (StreamReader sr = new StreamReader(systemWord.WordFooterFile))
             {
@@ -299,26 +344,26 @@ namespace DataProcessor
             }
         }
 
-        private bool GenerateWorkFileName(string fileName, ref string fileName1, ref string fullOutFile, string tmpFileName)
-        {
-            bool gotIt = false;
-            int cnt = 0;
-            while (cnt <= 15)
-            {
-                string serNo = SequenceGen.GetNextSequence(pgConnection, pgSchema, ConstantBag.SEQ_GENERIC
-                    , tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
-                fileName1 = fileName.Replace("{{Serial No}}", serNo);
-                fullOutFile = wordConfig.SystemWord.WordWorkDir + fileName1;
+        //private bool GenerateWorkFileName(string fileName, ref string fileName1, ref string fullOutFile, string tmpFileName)
+        //{
+        //    bool gotIt = false;
+        //    int cnt = 0;
+        //    while (cnt <= 15)
+        //    {
+        //        string serNo = SequenceGen.GetNextSequence(pgConnection, pgSchema, ConstantBag.SEQ_GENERIC
+        //            , tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
+        //        fileName1 = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
+        //        fullOutFile = wordConfig.SystemWord.WordWorkDir + fileName1;
 
-                if (File.Exists(fullOutFile) == false)
-                {
-                    gotIt = true;
-                    break;
-                }
-                cnt++;
-            }
-            return gotIt;
-        }
+        //        if (File.Exists(fullOutFile) == false)
+        //        {
+        //            gotIt = true;
+        //            break;
+        //        }
+        //        cnt++;
+        //    }
+        //    return gotIt;
+        //}
 
         internal bool TemplateFilesExist(string progName)
         {
@@ -328,15 +373,10 @@ namespace DataProcessor
                 isOk = false;
                 Logger.Write(progName, "TemplateFilesExist", 0, $"header file not found {wordConfig.SystemWord.WordHeaderFile}", Logger.ERROR);
             }
-            if (File.Exists(wordConfig.SystemWord.WordMiddle1Page) == false)
+            if (File.Exists(wordConfig.SystemWord.WordMiddlePage) == false)
             {
                 isOk = false;
-                Logger.Write(progName, "TemplateFilesExist", 0, $"Middle Sect Page-1 file not found {wordConfig.SystemWord.WordMiddle1Page}", Logger.ERROR);
-            }
-            if (File.Exists(wordConfig.SystemWord.WordRepeatPage) == false)
-            {
-                isOk = false;
-                Logger.Write(progName, "TemplateFilesExist", 0, $"Middle Sect Repeat Page file not found {wordConfig.SystemWord.WordRepeatPage}", Logger.ERROR);
+                Logger.Write(progName, "TemplateFilesExist", 0, $"Middle Sect Page file not found {wordConfig.SystemWord.WordMiddlePage}", Logger.ERROR);
             }
             if (File.Exists(wordConfig.SystemWord.WordFooterFile) == false)
             {

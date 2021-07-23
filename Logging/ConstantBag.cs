@@ -40,13 +40,18 @@
         public const string DET_LC_STEP_RESPONSE1 = "1IMM_RESP";  //immediate response sent
         public const string DET_LC_STEP_STAT_UPD2 = "2STATUS_UPD"; //status updated
         public const string DET_LC_STEP_STAT_REP3 = "3STATUS_REP"; //status report sent
+        public const string DET_LC_STEP_WORD_LTR4 = "4WORD_REP"; //Word Letters printed
+        public const string DET_LC_STEP_PTC_REP5 = "5PTC_REP"; //Printer to Courier done
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
         //public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
+        public const string FILE_NAME_TAG_COUR_CD = "{{courier_cd}}";
+        public const string FILE_NAME_TAG_SER_NO = "{{serial_no}}";
         public const string TAG_START = "{{";
         public const string TAG_END = "}}";
         public const string TAG_REG_PAT = @"\{{(.*?)\}}";
+        public const string TAG_WORD_NEW_PAGE = "{{X_SYS_NEWDOC}}";
 
         //All Module parameter
         public const string PARAM_SYS_DIR = "systemdir";
