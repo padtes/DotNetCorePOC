@@ -83,7 +83,10 @@ namespace DbOps
                 case "SYSPARAM":
                     retStr = GetDictParamValue(paramsDict, phCol);
                     break;
-                default:  //"COLUMN" / "SQLFUNCTION" / "const"
+                case "CONST":
+                    retStr = "'" + DbUtil.MyEscape(phCol.DbValue) + "'";
+                    break;
+                default:  //"COLUMN" / "SQLFUNCTION"
                     retStr = phCol.DbValue;
                     break;
             }

@@ -34,19 +34,17 @@ namespace DataProcessor
             {
                 WriteStatusReport(runFor, courierCsv);
             }
-            else if (fileType == "letter") //letters //to do define const
+            else if (fileType == "ptc") //status report //to do define const
             {
-                WriteWordFiles(runFor, courierCsv, false);
+                WritePTCReport(runFor, courierCsv);
             }
-            else if (fileType == "let_reprint") //letters //to do define const
+            else if (fileType == "letter" || fileType == "let_reprint") //letters //to do define const
             {
-                WriteWordFiles(runFor, courierCsv, true);
+                WriteWordFiles(runFor, courierCsv, fileType == "let_reprint");
             }
             else
             {
-                ProcessNpsLiteOutput(runFor, courierCsv);
-
-                ProcessApyOutput(runFor, courierCsv);
+                throw new NotImplementedException(fileType + " Not coded");
             }
         }
 
@@ -165,6 +163,89 @@ namespace DataProcessor
             ProcessNpsApyLiteOutput(bizTypeToRead, bizType, fTypeMaster, runFor, bizDir, true);
         }
 
+        private void WritePTCReport(string runFor, string courierCsv)
+        {
+            /*
+            OUTPUT file structure 
+            --NPS LITE
+                workDir / ddmmyyyy / nps_lite_apy / nps / 
+                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / <PTC file>
+             */
+            string bizTypeToRead = ConstantBag.LITE_IN;
+            string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
+            ProcessNpsApyPTC(bizTypeToRead, runFor, bizDir, false, courierCsv);
+
+            bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
+            ProcessNpsApyPTC(bizTypeToRead, runFor, bizDir, true, courierCsv);
+        }
+        private void ProcessNpsApyPTC(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
+        {
+            string bizType = isApy ? ConstantBag.LITE_OUT_PTC_APY : ConstantBag.LITE_OUT_PTC_NPS;
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            if (fTypeMaster == null)
+                return;
+
+            //collect what all couriers to process
+            List<string> courierList = new List<string>();
+            SetupActions(bizType, out string waitingAction, out string doneAction);
+
+            DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
+                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, out string sql);
+
+            Logger.Write(GetProgName(), "ProcessNpsApyPTC", 0, "sql:" + sql, Logger.INFO);
+            if (courierList.Count < 1)
+            {
+                Logger.Write(GetProgName(), "ProcessNpsApyPTC", 0, $"No records found for PTC {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+                return;
+            }
+
+            Logger.WriteInfo(GetProgName(), "ProcessNpsApyPTC", 0, $"{String.Join(",", courierList.ToArray())} found for PTC {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}");
+
+            string outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR]
+            + "\\" + workdirYmd// "yyyymmdd" 
+            + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+            + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
+            ;
+
+            string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            CsvReportUtil csvRep = new CsvReportUtil(GetConnection(), GetSchema(), moduleName, bizTypeToRead, JobId, jsonCsvDef, outputDir);
+
+            foreach (string courierCd in courierList)
+            {
+                ProcessNpsApyPtcCourier(csvRep, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd);
+            }
+        }
+
+        private void ProcessNpsApyPtcCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierId)
+        {
+            string fileName = fTypeMaster.fnamePattern
+                .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
+                .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy"))
+                .Replace("{{courier}}", courierId); //TO DO : parse the file name pattern
+
+            //TO DO get serial number - add rec if not found
+            string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
+            string serNo = SequenceGen.GetNextSequence(GetConnection(), GetSchema(), "generic", tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
+            fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
+
+            string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
+
+            RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
+            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'"
+                + $" and courier_id='{courierId}'";
+
+            DataSet ds = GetReportDS(pgConnection, pgSchema, moduleName, bizTypeToRead, bizTypeToWrite, JobId
+            , csvConfig, args, workdirYmd, wherePart);
+
+            if (ds == null)
+            {
+                return;
+            }
+
+            string doneAction = ConstantBag.DET_LC_STEP_PTC_REP6;
+            csvRep.CreateFile(workdirYmd, fileName, args, paramsDict, ds, doneAction);
+        }
+
         private void WriteWordFiles(string runFor, string courierCsv, bool reprint)
         {
             string bizTypeToRead = ConstantBag.LITE_IN;
@@ -203,7 +284,7 @@ namespace DataProcessor
                 return;
             }
 
-            Logger.Write(GetProgName(), "ProcessNpsApyWord", 0, $"{courierList} found for letters {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+            Logger.WriteInfo(GetProgName(), "ProcessNpsApyWord", 0, $"{string.Join(',', courierList.ToArray())} found for letters {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}");
 
             string outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR]
             + "\\" + workdirYmd// "yyyymmdd" 
@@ -258,7 +339,7 @@ namespace DataProcessor
             //collect what all couriers to process
             //for each courier
             //create outputs
-            throw new NotImplementedException();
+
         }
 
         private void ProcessApyOutput(string runFor, string courierCsv)
@@ -321,6 +402,11 @@ namespace DataProcessor
             {
                 waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
                 doneAction = "";
+            }
+            else if (bizTypeToWrite == ConstantBag.LITE_OUT_PTC_APY || bizTypeToWrite == ConstantBag.LITE_OUT_PTC_NPS)
+            {
+                waitingAction = ConstantBag.DET_LC_STEP_PTC_REP6;
+                doneAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
             }
             else
             {
