@@ -74,16 +74,8 @@ namespace NpsApy
                 //to do summary REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
                 //to do courier REPORT will dump < COURIER >, range - from-to and next
 
-                if (fileType != "card")
-                {
-                    SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
-                    runResult = rep.Print(modType, runFor, fileType);
-                }
-                else
-                {
-                    CardReportNpsLiteApy rep = new CardReportNpsLiteApy(pgSchema, pgConnection);
-                    runResult = rep.PrintAll(modType, 0, runFor, courierCSV);
-                }
+                SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
+                runResult = rep.Print(modType, runFor, fileType);
             }
             else
             {
@@ -111,14 +103,14 @@ namespace NpsApy
 
             if (modType == "lite" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation, fileType);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
             }
 
             if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
-                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation);
+                FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation, fileType);
 
                 run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
             }

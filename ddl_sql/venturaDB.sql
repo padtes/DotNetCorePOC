@@ -123,9 +123,9 @@ insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fN
 values('1','lite_ptc_nps','lite','NPSLiteAPY_PTC.json','PRAN{{sys_param(printer_code)}}PTC{{now_ddmmyy}}{{serial_no}}.txt');
 
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_word_apy','lite','apy_letter.json','apyLetter{{courier_cd}}_{{serial_no}}.docx');
+values('1','lite_word_apy','lite','apy_letter.json','apy_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.docx');
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_word_nps','lite','NPS_Lite_letter.json','npsLiteLetter{{courier_cd}}_{{serial_no}}.docx');
+values('1','lite_word_nps','lite','NPS_Lite_letter.json','npsLite_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.docx');
 
 
 CREATE TABLE ventura.counters(

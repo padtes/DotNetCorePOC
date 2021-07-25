@@ -12,7 +12,8 @@ namespace DataProcessor
     public class FileProcessorLite : FileProcessor
     {
         private const string logProgName = "FileProcLite";
-        public FileProcessorLite(string connectionStr, string schemaName, string opName) : base(connectionStr, schemaName, opName)
+        public FileProcessorLite(string connectionStr, string schemaName, string opName, string fileType) 
+            : base(connectionStr, schemaName, opName, fileType)
         {
 
         }
@@ -272,9 +273,13 @@ namespace DataProcessor
             return "";
         }
 
-        public override ReportProcessor GetReportProcessor(string operation)
+        public override ReportProcessor GetReportProcessor()
         {
-            return new ReportProcessorLite(GetConnection(), GetSchema(), GetModuleName(), operation);
+            if (fileType == "letter" || fileType == "let_reprint")
+            {
+                return new ReportProcLiteLetter(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
+            } 
+            return new ReportProcessorLite(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
         }
     }
 

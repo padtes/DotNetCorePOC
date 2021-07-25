@@ -236,11 +236,19 @@ namespace DataProcessor
             }
 
 //print header
+            if (isApy) 
+            {
+                //PACKAGE_ID	NAME_01	NAME_02	DATE_OF_BIRTH	PRAN	APY_SERVICE_PROVIDER	NAME_OF_SPOUSE_01	NAME_OF_SPOUSE_02	NAME_OF_NOMINEE_01	NAME_OF_NOMINEE_02	PENSION_START_DATE	PENSION_AMOUNT	DOCUMENT_ID	AWB_NO	SYS_TEMPLATE
+            }
+            else
+            {
+                //PACKAGE_ID	NAME_01	NAME_02	PARENT_NAME_01	PARENT_NAME_02	DATE_OF_BIRTH	PRAN	SIGNATURE	PHOTO	FILE_SEND_DATE	DOCUMENT_ID	AWB_NO	SYS_TEMPLATE
+            }
             for (int i = 0; i < dsCr.Tables[0].Rows.Count; i++)
             {
                 //print detail
             }
-            Logger.WriteInfo(logProgramName, "PrintCardsByCourier", jobId, $"printed cards dir dt {workdirYmd} courier {courierCd} number:{dsCr.Tables[0].Rows.Count}")
+            Logger.WriteInfo(logProgramName, "PrintCardsByCourier", jobId, $"printed cards dir dt {workdirYmd} courier {courierCd} number:{dsCr.Tables[0].Rows.Count}");
             return true;
         }
     }

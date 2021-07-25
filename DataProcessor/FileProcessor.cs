@@ -15,6 +15,7 @@ namespace DataProcessor
         protected string pgConnection;
         protected string pgSchema;
         protected string operation;
+        protected string fileType;
         public int jobId { get; set; }
 
         protected string systemConfigDir;
@@ -23,23 +24,24 @@ namespace DataProcessor
         protected Dictionary<string, string> paramsDict = new Dictionary<string, string>();
         protected List<string> staticParamList = new List<string>();
 
-        public FileProcessor(string connectionStr, string schemaName, string operationName)
+        public FileProcessor(string connectionStr, string schemaName, string operationName, string fileTypeNm)
         {
             pgConnection = connectionStr;
             pgSchema = schemaName;
             operation = operationName;
+            fileType = fileTypeNm;
         }
 
         public string GetSchema() { return pgSchema; }
         public string GetConnection() { return pgConnection; }
 
-        public static FileProcessor GetProcessorInstance(string moduleName, string connectionStr, string schemaName, string operation)
+        public static FileProcessor GetProcessorInstance(string moduleName, string connectionStr, string schemaName, string operation, string fileType)
         {
             FileProcessor fp = null;
             if (moduleName == ConstantBag.MODULE_LITE)
-                fp = new FileProcessorLite(connectionStr, schemaName, operation);
+                fp = new FileProcessorLite(connectionStr, schemaName, operation, fileType);
             else
-                fp = new FileProcessorRegular(connectionStr, schemaName, operation);
+                fp = new FileProcessorRegular(connectionStr, schemaName, operation, fileType);
 
             return fp; 
         }
@@ -65,8 +67,8 @@ namespace DataProcessor
                 if (operation == "all" || operation == "write")
                 {
                     //process output
-                    var rep = GetReportProcessor(operation);
-                    rep.ProcessOutput(runFor, courierCsv, fileType);
+                    var rep = GetReportProcessor();
+                    rep.ProcessOutput(runFor, courierCsv);
                 }
             }
             catch (Exception ex)
@@ -85,7 +87,7 @@ namespace DataProcessor
         public abstract string GetModuleName();
         public abstract void ProcessInput(string runFor);
 
-        public abstract ReportProcessor GetReportProcessor(string operation);
+        public abstract ReportProcessor GetReportProcessor();
 
         public abstract string GetBizTypeImageDirName(InputRecordAbs inputRecord);
 

@@ -24,6 +24,8 @@
         public const string LITE_OUT_STATUS = "lite_stat";
         public const string LITE_OUT_WORD_APY = "lite_word_apy";
         public const string LITE_OUT_WORD_NPS = "lite_word_nps";
+        public const string LITE_OUT_CARD_APY = "lite_card_apy";
+        public const string LITE_OUT_CARD_NPS = "lite_card_nps";
         public const string LITE_OUT_PTC_APY = "lite_ptc_apy";
         public const string LITE_OUT_PTC_NPS = "lite_ptc_nps";
 
@@ -51,6 +53,7 @@
         //public const string FILE_NAME_TAG_COUR_SEQ = "{{courier_seq}}";
         public const string FILE_NAME_TAG_COUR_CD = "{{courier_cd}}";
         public const string FILE_NAME_TAG_SER_NO = "{{serial_no}}";
+        public const string FILE_NAME_TAG_YYMMDD = "{{yyyymmdd}}";
         public const string TAG_START = "{{";
         public const string TAG_END = "}}";
         public const string TAG_REG_PAT = @"\{{(.*?)\}}";

@@ -4,7 +4,7 @@ namespace DataProcessor
 {
     public class FileProcessorRegular : FileProcessor
     {
-        public FileProcessorRegular(string connectionStr, string schemaName, string opName) : base(connectionStr, schemaName, opName)
+        public FileProcessorRegular(string connectionStr, string schemaName, string opName, string fileType) : base(connectionStr, schemaName, opName, fileType)
         {
 
         }
@@ -29,7 +29,7 @@ namespace DataProcessor
             throw new System.NotImplementedException();
         }
 
-        public override ReportProcessor GetReportProcessor(string operation)
+        public override ReportProcessor GetReportProcessor()
         {
             throw new System.NotImplementedException();
         }

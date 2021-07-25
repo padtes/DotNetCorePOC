@@ -53,13 +53,21 @@ namespace DataProcessor
             return csvConfig;
         }
 
-        public bool CreateFile(string workdirYmd, string fileName, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, string waitingAction)
+        public bool CreateFile(string workdirYmd, string fileName, string subDir, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, string waitingAction)
         {
             //get Data
             //string sql = SqlHelper.GetSelect(pgSchema, csvConfig.Detail, csvConfig.System, progParams);
             //DataSet ds = DbUtil.GetDataSet(pgConnection, bizType, logProgramName, jobId, sql);
-            
-            string fullOutFile = outDir + fileName;
+
+            string fullOutFile = outDir;
+            if (string.IsNullOrEmpty(subDir) == false)
+            {
+                fullOutFile = Path.Combine(outDir, subDir);
+                if (Directory.Exists(fullOutFile) == false)
+                    Directory.CreateDirectory(fullOutFile);
+            }
+            fullOutFile = Path.Combine(fullOutFile, fileName);
+
             if (File.Exists(fullOutFile))
             {
                 Logger.Write(logProgramName, "CreateFile", 0, "File Exists, appending:" + fullOutFile, Logger.WARNING);

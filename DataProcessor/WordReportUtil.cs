@@ -121,7 +121,7 @@ namespace DataProcessor
                 return false;
             }
 
-            ZipToCreateDocFile(outDir, fileName, ts, fileCount, courierCd);
+            ZipToCreateDocFile(outDir, fileName, ts, fileCount, courierCd, workdirYmd);
 
             for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
             {
@@ -145,7 +145,7 @@ namespace DataProcessor
             return true;
         }
 
-        private void ZipToCreateDocFile(string outDir, string fNamePattern, string ts, int fileCount, string courierCd)
+        private void ZipToCreateDocFile(string outDir, string fNamePattern, string ts, int fileCount, string courierCd, string dateAsDir)
         {
             //create/clean up work-subdir
             string workSubDir = CreateOrCleanWorkSubdir(ts);
@@ -161,7 +161,8 @@ namespace DataProcessor
                 File.Copy(src, Path.Combine(new string[] { workSubDir, "word", "document.xml" }), overwrite: true);
 
                 string pureFn = fNamePattern.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, iFc.ToString())
-                    .Replace(ConstantBag.FILE_NAME_TAG_COUR_CD, courierCd);
+                    .Replace(ConstantBag.FILE_NAME_TAG_COUR_CD, courierCd)
+                    .Replace(ConstantBag.FILE_NAME_TAG_YYMMDD, dateAsDir);  //to do : find ser # and make part of FileName
 
                 if (pureFn.ToLower().EndsWith(".docx") == false)
                 {
@@ -175,30 +176,36 @@ namespace DataProcessor
                     foreach (string dirNm in tmpDirs)
                     {
                         DirectoryInfo din = new DirectoryInfo(dirNm);
-                        zip.AddDirectory(dirNm,din.Name);
+                        zip.AddDirectory(dirNm, din.Name);
                     }
                     foreach (string fileNm in tmpFiles)
                     {
-                        zip.AddFile(fileNm,"");
+                        zip.AddFile(fileNm, "");
                     }
 
                     zip.Save(workSubDir + "\\" + pureFn);
                 }
 
                 //    move .docx to outdir
+                string destDir = Path.Combine(new string[] { outDir, courierCd + "_" + dateAsDir, "Letters" }); //to do parameterize for Letters
+                //  outDir + "\\" + courierCd + "_" + dateAsDir + "\\Letters";   
+                if (Directory.Exists(destDir) == false)
+                {
+                    Directory.CreateDirectory(destDir);
+                }
                 int tmp = 1;
-                string tmpStr = outDir + "\\" + pureFn;
+                string tmpStr = destDir + pureFn;
                 if (File.Exists(tmpStr))
                 {
                     while (File.Exists(tmpStr))
                     {
-                        tmpStr = outDir + "\\copy" + tmp + "_" + pureFn;
+                        tmpStr = destDir + "\\copy" + tmp + "_" + pureFn;
                         tmp++;
                     }
-                    File.Move(outDir + "\\" + pureFn, tmpStr);
+                    File.Move(destDir + "\\" + pureFn, tmpStr);
                 }
 
-                File.Move(workSubDir + "\\" + pureFn, outDir + "\\" + pureFn);
+                File.Move(workSubDir + "\\" + pureFn, destDir + "\\" + pureFn);
 
                 //    delete wordConfig.SystemWord.WordWorkDir + "/document_" + ts + "_" + fileCount + ".xml"
                 File.Delete(src);

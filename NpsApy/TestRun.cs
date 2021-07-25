@@ -111,7 +111,8 @@ namespace NpsApy
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
             PopulateParamsDict(paramsDict);
             string dateAsDir = "20210620";
-            FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema, operation);
+            string fileType = "";
+            FileProcessorLite fileProcessor = new FileProcessorLite(pgConnection, pgSchema, operation, fileType);
             FileInfoStruct fileInfoStr = new FileInfoStruct()
             {
                 id = 1  //the header Id for saving children
