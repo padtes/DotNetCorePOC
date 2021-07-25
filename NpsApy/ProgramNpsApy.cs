@@ -71,14 +71,19 @@ namespace NpsApy
             }
             else if (operation == "report")
             {
-                // summary REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
+                //to do summary REPORT will dump simple report of counts by <date>, <LITE | APY | REGULAR>, < COURIER >, count of yet to print cards or in records in error
+                //to do courier REPORT will dump < COURIER >, range - from-to and next
 
-                // to do add status to detail record: to print - printed - validation error | print error
-
-                // detail REPORT will dump < COURIER >, date YMD, file name, start row number where status = yet-to-print
-                // courier REPORT will dump < COURIER >, range - from-to and next
-                SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
-                runResult = rep.Print(modType, runFor, fileType);
+                if (fileType != "card")
+                {
+                    SimpleReport rep = new SimpleReport(pgSchema, pgConnection);
+                    runResult = rep.Print(modType, runFor, fileType);
+                }
+                else
+                {
+                    CardReportNpsLiteApy rep = new CardReportNpsLiteApy(pgSchema, pgConnection);
+                    runResult = rep.PrintAll(modType, 0, runFor, courierCSV);
+                }
             }
             else
             {

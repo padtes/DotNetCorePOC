@@ -270,6 +270,12 @@ namespace DbOps
 
             return ds;
         }
+
+        public static DataSet GetCardReport(string pgConnection, string pgSchema, string logProgramName, string moduleName, string bizTypeToRead, int v, string workdirYmd, bool isApy, string courierCd, string waitingAction, string doneAction, out string sql)
+        {
+            throw new NotImplementedException();
+        }
+
         public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, int rowNum, int detailId, string actionDone)
         {
             string addDtUTC = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
@@ -451,6 +457,9 @@ namespace DbOps
                 $",(select 'imm resp sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_RESPONSE1}' limit 1) respact"+
                 $",(select 'status updated' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_UPD2}' limit 1) updact"+
                 $",(select 'status sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_REP3}' limit 1) statact"+
+                $",(select 'letter done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_WORD_LTR4}' limit 1) ltract"+
+                $",(select 'card done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_CARD_OUT5}' limit 1) cardact"+
+                $",(select 'PTC done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_PTC_REP6}' limit 1) ptcact"+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +

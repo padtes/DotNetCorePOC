@@ -12,8 +12,8 @@ namespace DataProcessor
     public class SimpleReport
     {
         private const string logProgramName = "Simple Report";
-        private string pgSchema;
-        private string pgConnection;
+        protected string pgSchema;
+        protected string pgConnection;
         protected Dictionary<string, string> paramsDict = new Dictionary<string, string>();
 
         public SimpleReport(string schemaName, string connectionStr)
@@ -22,11 +22,15 @@ namespace DataProcessor
             pgConnection = connectionStr;
         }
 
-        public bool Print(string moduleName, string runFor, string fileType)
+        protected void Setup(string moduleName)
         {
             paramsDict = ProcessorUtil.LoadSystemParam(pgConnection, pgSchema, logProgramName, moduleName, 0 //JobId
             , out string systemConfigDir, out string inputRootDir, out string workDir);
 
+        }
+        public bool Print(string moduleName, string runFor, string fileType)
+        {
+            Setup(moduleName);
             string workdirYmd = runFor;
             string bizTypeToRead = ConstantBag.LITE_IN;
             string waitingAction = "";   //all data
@@ -77,6 +81,11 @@ namespace DataProcessor
                 if (actDone == "")
                     actDone = "waiting imm resp";
 
+                string secondaryAct = DbUtil.GetStringDbNullable(dr["ltract"]);
+                secondaryAct += " " + DbUtil.GetStringDbNullable(dr["cardact"]);
+                secondaryAct += " " + DbUtil.GetStringDbNullable(dr["ptcact"]);
+                secondaryAct = secondaryAct.Trim();
+
                 string firstName = DbUtil.GetStringDbNullable(dr["fname"]);
                 string lastName = DbUtil.GetStringDbNullable(dr["lname"]);
                 string printDt = DbUtil.GetStringDbNullable(dr["print_dt"]);
@@ -90,6 +99,7 @@ namespace DataProcessor
                     + seprr + actDone
                     + seprr + CsvEscapeGreedy(firstName)
                     + seprr + CsvEscapeGreedy(lastName)
+                    + seprr + CsvEscapeGreedy(secondaryAct)
                     // leave the last 3 in that order - used by Update
                     + seprr + CsvEscapeGreedy(printDt)
                     + seprr + CsvEscapeGreedy(pickupDt)
@@ -135,7 +145,8 @@ namespace DataProcessor
             char qt = '\"';
             char delimit = ',';
             string seprr = qt.ToString() + delimit + qt;
-            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}File Date{seprr}Document ID{seprr}Last Action{seprr}first name{seprr}last name{seprr}Print Dt{seprr}Pickup Dt{seprr}Status{qt}";
+            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}File Date{seprr}Document ID{seprr}Last Action{seprr}" +
+                $"first name{seprr}last name{seprr}other{seprr}Print Dt{seprr}Pickup Dt{seprr}Status{qt}";
         }
         public static string CsvEscapeGreedy(string inStr)
         {
@@ -150,4 +161,88 @@ namespace DataProcessor
         }
 
     }
+
+    public class CardReportNpsLiteApy : SimpleReport
+    {
+        private const string logProgramName = "Card Report";
+
+        public CardReportNpsLiteApy(string schemaName, string connectionStr) : base(schemaName, connectionStr)
+        {
+
+        }
+
+        public bool PrintAll(string moduleName, int jobId, string runFor, string courierCSV)
+        {
+            Logger.WriteInfo(logProgramName, "print", 0, "Card print started");
+            Setup(moduleName);
+            bool npsPrint = PrintCardsByApy(false, moduleName, jobId, runFor, courierCSV);
+
+            Logger.WriteInfo(logProgramName, "print", 0, "NPS Card print done, Apy started");
+            bool apyPrint = PrintCardsByApy(true, moduleName, jobId, runFor, courierCSV);
+
+            return npsPrint && apyPrint;
+        }
+
+        protected bool PrintCardsByApy(bool isApy, string moduleName, int jobId, string runFor, string courierCSV)
+        {
+            string bizTypeToRead = ConstantBag.LITE_IN;
+
+            string workdirYmd = runFor;
+
+            string waitingAction = ConstantBag.DET_LC_STEP_CARD_OUT5;   //card not printed
+            string doneAction = ConstantBag.DET_LC_STEP_RESPONSE1; //imm response sent
+            string fileName = "card_";
+
+            fileName += (isApy ? "apy": "nps");
+
+            List<string> courierList = new List<string>();
+
+            DbUtil.GetCouriers(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //JobId
+            , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCSV, out string sql);
+
+            Logger.WriteInfo(logProgramName, "PrintCardByApy", 0, "sql:" + sql);
+            if (courierList.Count < 1)
+            {
+                Logger.Write(logProgramName, "PrintCardByApy", 0, $"No records found for cards {workdirYmd} cour: {courierCSV} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+                return true;
+            }
+
+            bool er = false;
+            foreach (string courierCd in courierList)
+            { 
+                er = er | PrintCardsByCourier(fileName, courierCd, moduleName, jobId, workdirYmd, isApy, waitingAction, doneAction);
+            }
+
+            return !er;
+        }
+
+        private bool PrintCardsByCourier(string fileName, string courierCd, string moduleName, int jobId
+            , string workdirYmd, bool isApy, string waitingAction, string doneAction)
+        {
+            string bizTypeToRead = ConstantBag.LITE_IN;
+
+            fileName += "_" + courierCd;
+            //courier code
+
+            DataSet dsCr = DbUtil.GetCardReport(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
+            , workdirYmd, isApy, courierCd, waitingAction, doneAction, out string sql);
+
+            if (dsCr == null || dsCr.Tables.Count < 1)
+            {
+                Logger.Write(logProgramName, "Print_card", 0, "-No Data returned check sql", Logger.WARNING);
+                Logger.Write(logProgramName, "Print_card", 0, "sql:" + sql, Logger.WARNING);
+
+                return false;
+            }
+
+//print header
+            for (int i = 0; i < dsCr.Tables[0].Rows.Count; i++)
+            {
+                //print detail
+            }
+            Logger.WriteInfo(logProgramName, "PrintCardsByCourier", jobId, $"printed cards dir dt {workdirYmd} courier {courierCd} number:{dsCr.Tables[0].Rows.Count}")
+            return true;
+        }
+    }
+
 }
