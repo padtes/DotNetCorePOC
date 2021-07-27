@@ -231,10 +231,86 @@ namespace DataProcessor
             OUTPUT file structure 
             --NPS LITE
                 workDir / ddmmyyyy / nps_lite_apy / nps / 
-                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / <PTC file>
+                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / <card file>
              */
+            string bizTypeToRead = ConstantBag.LITE_IN;
+            string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
+            ProcessNpsApyCard(bizTypeToRead, runFor, bizDir, false, courierCsv);
 
+            bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
+            ProcessNpsApyCard(bizTypeToRead, runFor, bizDir, true, courierCsv);
         }
+
+        private void ProcessNpsApyCard(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
+        {
+            string bizType = isApy ? ConstantBag.LITE_OUT_CARD_APY : ConstantBag.LITE_OUT_CARD_NPS;
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            if (fTypeMaster == null)
+                return;
+
+            //collect what all couriers to process
+            List<string> courierList = new List<string>();
+            SetupActions(bizType, out string waitingAction, out string doneAction);
+
+            DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
+                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, out string sql);
+
+            Logger.Write(GetProgName(), "ProcessNpsApyCard", 0, "sql:" + sql, Logger.INFO);
+            if (courierList.Count < 1)
+            {
+                Logger.Write(GetProgName(), "ProcessNpsApyCard", 0, $"No records found for Card {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+                return;
+            }
+
+            Logger.WriteInfo(GetProgName(), "ProcessNpsApyCard", 0, $"{String.Join(",", courierList.ToArray())} found for Card {workdirYmd} cour: {courierCsv} {(isApy ? "Apy" : "NPS")}");
+
+            string outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR]
+            + "\\" + workdirYmd// "yyyymmdd" 
+            + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+            + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
+            ;
+
+            string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            CsvReportUtil csvRep = new CsvReportUtil(GetConnection(), GetSchema(), moduleName, bizTypeToRead, JobId, jsonCsvDef, outputDir);
+
+            foreach (string courierCd in courierList)
+            {
+                ProcessNpsApyCardCourier(csvRep, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd);
+            }
+        }
+
+        private void ProcessNpsApyCardCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierId)
+        {
+            string fileName = fTypeMaster.fnamePattern
+                .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
+                .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy"))
+                .Replace("{{courier}}", courierId); //TO DO : parse the file name pattern
+
+            //TO DO get serial number - add rec if not found
+            string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
+            string serNo = SequenceGen.GetNextSequence(GetConnection(), GetSchema(), "generic", tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
+            fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
+
+            string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
+
+            RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
+            string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'"
+                + $" and courier_id='{courierId}'";
+
+            DataSet ds = GetReportDS(pgConnection, pgSchema, moduleName, bizTypeToRead, bizTypeToWrite, JobId
+            , csvConfig, args, workdirYmd, wherePart);
+
+            if (ds == null)
+            {
+                return;
+            }
+
+            string doneAction = ConstantBag.DET_LC_STEP_CARD_OUT5;
+            string subDir = Path.Combine($"{courierId}_{workDir}", "Card_Print");
+
+            csvRep.CreateFile(workdirYmd, fileName, subDir, args, paramsDict, ds, doneAction);
+        }
+
         #endregion
         /**/
         private void ProcessNpsLiteOutput(string runFor, string courierCsv)
@@ -311,6 +387,11 @@ namespace DataProcessor
             {
                 waitingAction = ConstantBag.DET_LC_STEP_PTC_REP6;
                 doneAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
+            }
+            else if (bizTypeToWrite == ConstantBag.LITE_OUT_CARD_APY || bizTypeToWrite == ConstantBag.LITE_OUT_CARD_NPS)
+            {
+                waitingAction = ConstantBag.DET_LC_STEP_CARD_OUT5;
+                doneAction = ConstantBag.DET_LC_STEP_RESPONSE1;
             }
             else
             {

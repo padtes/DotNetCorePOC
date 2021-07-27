@@ -113,8 +113,18 @@
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
 	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
 	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p009_acknowledgement_number | string.append '51' | string.append model.xx.x_p006_courier_code2}}" }
+	   ,{"dest_col":"x_package_id", "script_file":"package_id.txt","script":""}
 	   ,{"dest_col":"x_hdr_date","script_file":"date_of_file_creation.txt","script": ""}
-	   ,{"dest_col":"x_deliverymode", "script_file":"","script":"{{ if model.pd[0].p054_apy_flag == 'Y'; 'S'; else; 'C'; end; }}"}
+	   ,{"dest_col":"x_deliverymode", "script_file":"","script":"{{ if model.pd[0].p054_apy_flag == 'Y'; 'S'; else; if model.pd[0].p003_printing_mode == 'TPSP'; 'S'; else; 'C'; end;end; }}"}
+	   ,{"dest_col":"x_sub_full_name1", "script_file":"","script":"{{- model.pd[0].p010_first_name | string.append ' ' | string.append model.pd[0].p012_middle_name | string.append ' '  | string.append model.pd[0].p011_last_name_surname -}}"}
+	   ,{"dest_col":"x_sub_full_name2", "script_file":"","script":"{{- model.pd[0].p010_first_name | string.append ' ' | string.append model.pd[0].p012_middle_name | string.append ' '  | string.append model.pd[0].p011_last_name_surname -}}"}
+	   ,{"dest_col":"x_par_full_name1", "script_file":"parent_name.txt","script":""}
+	   ,{"dest_col":"x_par_full_name2", "script_file":"parent_name2.txt","script":""}
+	   ,{"dest_col":"x_fathermotherlegend", "script_file":"","script":"{{-if model.pd[0].p049_mothers_name_flag =='F'; 'Father_Legend.wmf'; else; 'Mother_Legend.wmf'; end; -}}"}
+	   ,{"dest_col":"x_spouse_full_name1", "script_file":"","script":"{{- model.pd[0].p055_spouse_name -}}"}
+	   ,{"dest_col":"x_spouse_full_name2", "script_file":"","script":"{{- if model.pd[0].p055_spouse_name | string.size > 20; model.pd[0].p055_spouse_name; else; ''; end; -}}"}
+	   ,{"dest_col":"x_nd1_full_name", "script_file":"","script":"{{- model.nd[0].n006_nominee_first_name | string.append ' ' | string.append model.nd[0].n007_nominee_last_name | string.append ' '  | string.append model.pd[0].n008_nominee_middle_name -}}"}
+	   ,{"dest_col":"x_nd2_full_name", "script_file":"","script":"{{- model.nd[1].n006_nominee_first_name | string.append ' ' | string.append model.nd[1].n007_nominee_last_name | string.append ' '  | string.append model.nd[1].n008_nominee_middle_name -}}"}
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers", "seq_length":"6"}
@@ -142,7 +152,7 @@
 			"90":"p009_acknowledgement_number",
 			"100":"p010_first_name",
 			"110":"p011_last_name_surname",
-			"120":"p012_middle_name_",
+			"120":"p012_middle_name",
 			"130":"p013_fathers_first_name",
 			"140":"p014_fathers_last_name_surname",
 			"150":"p015_fathers_middle_name",

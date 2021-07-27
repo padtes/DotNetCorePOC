@@ -193,7 +193,7 @@ namespace DataProcessor
                 return false; //---------------- No more processing
             }
 
-            insSql = curRec.ReplaceFileSaveJsonSql(insSql);
+            insSql = curRec.ReplaceFileSaveJsonSql(insSql, startRowNo);
 
             try
             {
@@ -289,6 +289,7 @@ namespace DataProcessor
                     }
                     File.WriteAllBytes(fullFilePathNm, bytes);
                     fileToWrite.PhysicalPath = fullFilePathNm;
+                    fileToWrite.ActualFileName = derivedFN;
                 }
             }
             catch (Exception ex)

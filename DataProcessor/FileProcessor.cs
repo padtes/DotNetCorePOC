@@ -46,7 +46,7 @@ namespace DataProcessor
             return fp; 
         }
 
-        public virtual bool ProcessModule(string operation, string runFor, string courierCsv, string fileType)
+        public virtual bool ProcessModule(string operation, string runFor, string courierCsv, string fileType, string deleteDir)
         {
             Logger.WriteInfo(logProgName, "ProcessModule", 0
                 , $"START {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
@@ -59,7 +59,7 @@ namespace DataProcessor
                 {
                     LoadModuleParam(runFor, courierCsv);
                     // process input
-                    ProcessInput(runFor);
+                    ProcessInput(runFor, deleteDir);
                     //unlock all courier serial number records 
                     SequenceGen.UnlockAll(pgConnection, pgSchema);
                 }
@@ -85,7 +85,7 @@ namespace DataProcessor
 
         protected abstract void LoadModuleParam(string runFor, string courierCsv);
         public abstract string GetModuleName();
-        public abstract void ProcessInput(string runFor);
+        public abstract void ProcessInput(string runFor, string deleteDir);
 
         public abstract ReportProcessor GetReportProcessor();
 

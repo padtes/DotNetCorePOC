@@ -18,6 +18,7 @@ namespace NpsScriban
     {
         private static Dictionary<string, string> cacheNameScript = new Dictionary<string, string>();
         private static Dictionary<string, Template> cacheNameTemplate = new Dictionary<string, Template>();
+        private static List<string> errs = new List<string>();
 
         public static string Generate(string sysPath, ScriptCol scrCol, string modelStr, bool liquid = false, bool useMyCustomFunc = false)
         {
@@ -131,6 +132,19 @@ namespace NpsScriban
         }
 
         //public static string Version => typeof(Scriban.Template).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+
+        public static void ClearErr()
+        {
+            errs.Clear();
+        }
+        public static bool IsSameError(string exMsg)
+        {
+            if (errs.Contains(exMsg))
+                return true;
+
+            errs.Add(exMsg);
+            return false;
+        }
 
     }
     public class MyCustomFunctions : ScriptObject

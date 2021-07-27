@@ -1,0 +1,9 @@
+{{-
+if model.pd[0].p054_apy_flag == 'Y';
+APY_
+else;
+NPSLITE_
+end;
+model.fh.h003_batch_id | string.slice 2 6; '_'; model.fh.h003_batch_id | string.slice 8 3;
+'/';model.pd[0].p006_courier_id; '_'; model.xx.x_awb;
+-}}

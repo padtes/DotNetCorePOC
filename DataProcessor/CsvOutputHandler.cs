@@ -8,7 +8,7 @@ namespace DataProcessor
 {
     public class CsvOutputHandler
     {
-        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, Dictionary<string, string> paramsDict, CommandHandler cmdHandler)
+        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, Dictionary<string, string> paramsDict, CommandHandler cmdHandler, string textQualifier, string escQualifier)
         {
             string val = columnDetail.DbValue; //default / "CONST"
 
@@ -50,13 +50,24 @@ namespace DataProcessor
                     break;
             }
 
+            val = GetTxtQualified(val, textQualifier, escQualifier);
             return val;
         }
+
+        public static string GetTxtQualified(string inStr, string textQualifier, string escQualifier)
+        {
+            if (string.IsNullOrEmpty(textQualifier) == false)
+                return textQualifier + inStr.Replace(textQualifier, escQualifier) + textQualifier;
+            else
+                return inStr;
+        }
+
     }
 
     public class CsvOutputHdrHandler : CsvOutputHandler
     {
-        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, Dictionary<string, string> paramsDict, string delimit)
+        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, Dictionary<string, string> paramsDict
+            , string delimit, string textQualifier, string escQualifier)
         {
             String hdr = "";
             //var tbl = detailRowDS.Tables[0];
@@ -66,7 +77,8 @@ namespace DataProcessor
             {
                 if (headerColumns[i].PrintYN == "n")
                     continue;
-                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, paramsDict, cmdHandler);
+
+                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, paramsDict, cmdHandler, textQualifier, escQualifier);
                 if (i > 0)
                 {
                     hdr += delimit;
@@ -81,7 +93,7 @@ namespace DataProcessor
 
     public class CsvOutputDetHandler : CsvOutputHandler
     {
-        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimt)
+        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimt, string textQualifier, string escQualifier)
         {
             String det = "";
             int cellInd = 0;
@@ -120,7 +132,7 @@ namespace DataProcessor
                     cellInd++;
                 }
 
-                det += val;
+                det += GetTxtQualified(val, textQualifier, escQualifier);
                 isFirst = false;
             }
             return det;

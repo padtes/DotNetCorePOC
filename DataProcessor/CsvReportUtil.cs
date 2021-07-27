@@ -81,7 +81,8 @@ namespace DataProcessor
 
             //print header
             CsvOutputHdrHandler hdrHandler = new CsvOutputHdrHandler();
-            string hdr = hdrHandler.GetHeader(csvConfig.Header, ds, progParams, paramsDict, csvConfig.System.Delimt);
+            string hdr = hdrHandler.GetHeader(csvConfig.Header, ds, progParams, paramsDict
+                , csvConfig.System.Delimt, csvConfig.System.TextQualifier, csvConfig.System.EscQualifier);
             sw.WriteLine(hdr);
 
             //print details
@@ -89,7 +90,9 @@ namespace DataProcessor
 
             for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
             {
-                String det = detHandler.GetDetRow(iRow, csvConfig.Detail, ds, progParams, csvConfig.System.Delimt);
+                String det = detHandler.GetDetRow(iRow, csvConfig.Detail, ds, progParams
+                    , csvConfig.System.Delimt, csvConfig.System.TextQualifier, csvConfig.System.EscQualifier);
+
                 sw.WriteLine(det);
                 //save the action for each iRow
                 var dr = ds.Tables[0].Rows[iRow];

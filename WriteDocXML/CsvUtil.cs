@@ -57,11 +57,12 @@ namespace WriteDocXML
             string fullOutFile = _outDir + fileName;
             StreamWriter sw = new StreamWriter(fullOutFile, false);
 
-            string delimt = _csvConfig.System.Delimt;
+            //string delimt = _csvConfig.System.Delimt;
 
             //print header
             CsvOutputHdrHandler hdrHandler = new CsvOutputHdrHandler();
-            string hdr = hdrHandler.GetHeader(_csvConfig.Header, ds, progParams, _csvConfig.System.Delimt);
+            string hdr = hdrHandler.GetHeader(_csvConfig.Header, ds, progParams
+                , _csvConfig.System.Delimt, _csvConfig.System.TextQualifier, _csvConfig.System.EscQualifier);
             sw.WriteLine(hdr);
 
             //print details
@@ -69,7 +70,8 @@ namespace WriteDocXML
 
             for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
             {
-                String det = detHandler.GetDetRow(iRow, _csvConfig.Detail, ds, progParams, _csvConfig.System.Delimt);
+                String det = detHandler.GetDetRow(iRow, _csvConfig.Detail, ds, progParams
+                    , _csvConfig.System.Delimt, _csvConfig.System.TextQualifier, _csvConfig.System.EscQualifier);
                 sw.WriteLine(det);
             }
 
@@ -115,6 +117,12 @@ namespace WriteDocXML
     {
         [JsonProperty("delimt")]
         public string Delimt { get; set; }
+
+        [JsonProperty("text_qualifier")]
+        public string TextQualifier { get; set; }
+
+        [JsonProperty("escape_qualifier")]
+        public string EscQualifier { get; set; }
     }
 
     public class RootJsonParamCSV
@@ -134,7 +142,7 @@ namespace WriteDocXML
 
     public class CsvOutputHandler
     {
-        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, CommandHandler cmdHandler)
+        public string GetVal(ColumnDetail columnDetail, DataSet detailRowDS, int rowInd, string[] progParams, CommandHandler cmdHandler, string textQualifier, string escQualifier)
         {
             string val = columnDetail.DbValue; //default / "CONST"
 
@@ -172,13 +180,23 @@ namespace WriteDocXML
                     break;
             }
 
+            val = GetTxtQualified(val,textQualifier,escQualifier);
             return val;
         }
+
+        public static string GetTxtQualified(string inStr, string textQualifier, string escQualifier)
+        {
+            if (string.IsNullOrEmpty(textQualifier) == false)
+                return textQualifier + inStr.Replace(textQualifier, escQualifier) + textQualifier;
+            else
+                return inStr;
+        }
+
     }
 
     public class CsvOutputHdrHandler : CsvOutputHandler
     {
-        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, string delimit)
+        public string GetHeader(List<ColumnDetail> headerColumns, DataSet detailRowDS, string[] progParams, string delimit, string textQualifier, string escQualifier)
         {
             String hdr = "";
             //var tbl = detailRowDS.Tables[0];
@@ -186,7 +204,7 @@ namespace WriteDocXML
 
             for (int i = 0; i < headerColumns.Count; i++)
             {
-                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, cmdHandler);
+                string hdVal = GetVal(headerColumns[i], detailRowDS, 0, progParams, cmdHandler, textQualifier, escQualifier);
                 if (i > 0)
                 {
                     hdr += delimit;
@@ -201,7 +219,7 @@ namespace WriteDocXML
 
     public class CsvOutputDetHandler : CsvOutputHandler
     {
-        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimt)
+        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimit, string textQualifier, string escQualifier)
         {
             String det = "";
             int cellInd = 0;
@@ -214,7 +232,7 @@ namespace WriteDocXML
             for (int i = 0; i < detailColumns.Count; i++)
             {
                 if (isFirst == false)
-                    det += delimt;
+                    det += delimit;
 
                 val = string.Empty;
 
@@ -231,7 +249,7 @@ namespace WriteDocXML
                     cellInd++;
                 }
 
-                det += val;
+                det += GetTxtQualified(val, textQualifier, escQualifier);
                 isFirst = false;
             }
             return det;

@@ -1,0 +1,27 @@
+{{-
+xlen = 0
+if model.pd[0].p049_mothers_name_flag =='F';
+
+  xlen = model.pd[0].p013_fathers_first_name | string.append ' ' | string.append model.pd[0].p015_fathers_middle_name | string.append ' '  | string.append model.pd[0].p014_fathers_last_name_surname | string.size;
+
+else;
+
+  xlen =model.pd[0].p050_mothers_first_name | string.append ' ' | string.append model.pd[0].p051_mothers_middle_name | string.append ' '  | string.append model.pd[0].p052_mothers_last_name | string.size;
+
+end;
+
+if xlen > 39;
+
+if model.pd[0].p049_mothers_name_flag =='F';
+
+  model.pd[0].p013_fathers_first_name | string.append ' ' | string.append model.pd[0].p015_fathers_middle_name | string.append ' '  | string.append model.pd[0].p014_fathers_last_name_surname | string.size;
+
+else;
+
+  model.pd[0].p050_mothers_first_name | string.append ' ' | string.append model.pd[0].p051_mothers_middle_name | string.append ' '  | string.append model.pd[0].p052_mothers_last_name | string.size;
+
+end;
+else;
+ '';
+end;
+-}}

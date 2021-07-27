@@ -19,7 +19,7 @@ namespace DataProcessor
             throw new System.NotImplementedException();
         }
 
-        public override void ProcessInput(string runFor)
+        public override void ProcessInput(string runFor, string deleteDir)
         {
             throw new System.NotImplementedException();
         }

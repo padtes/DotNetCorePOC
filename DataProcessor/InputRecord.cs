@@ -1,5 +1,6 @@
 ﻿using DbOps;
 using DbOps.Structs;
+using Logging;
 using Newtonsoft.Json;
 using NpsScriban;
 using System;
@@ -89,6 +90,9 @@ namespace DataProcessor
             bool first = true;
             StringBuilder jStr = new StringBuilder();
             jStr.Append('{');
+
+            AppendFHtoDet(inputHdr, jStr);
+
             foreach (var jsonRow in JsonByRowType)
             {
                 if (first == false)
@@ -108,6 +112,25 @@ namespace DataProcessor
             sb1.Append(") values (").Append(sb2).Append(')');
 
             return sb1.ToString();
+        }
+
+        private static void AppendFHtoDet(InputHeader inputHdr, StringBuilder jStr)
+        {
+            bool first = true;
+            jStr.Append("\"fh\":{");
+            foreach (KeyValuePair<string, string> hdr in inputHdr.hdrFields)
+            {
+                if (first == false)
+                {
+                    jStr.Append(',');
+                }
+                jStr.Append('"').Append(hdr.Key)
+                    .Append("\":\"")
+                    .Append(JsonColsWithVals.EscapeJson(hdr.Value))
+                    .Append('"');
+                first = false;
+            }
+            jStr.Append("},");
         }
 
         private void GenerateMappedColumnPart(string sysPath, JsonInputFileDef jDef, InputHeader inputHdr, bool hasNoOtherRows, StringBuilder jStr)
@@ -134,27 +157,27 @@ namespace DataProcessor
             AddToJsonFromSequences(jStr, ref first);
 
             string almostWholeJson = jStr.ToString()
-                + "}" + AppendFileHeader(inputHdr) + "}";
-            AddToJsonFromScriban(jStr, first, sysPath, jDef, almostWholeJson);
+                + "}}";
+            AddToJsonFromScriban("inputRecord", jStr, first, sysPath, jDef, almostWholeJson);
 
             jStr.Append('}'); //end "xx"
         }
 
-        private string AppendFileHeader(InputHeader inputHdr)
-        {
-            char qt = '\"';
-            String stRet = $", {qt}fh{qt}:{{";
-            bool first = true;
-            foreach (KeyValuePair<string, string> item in inputHdr.hdrFields)
-            {
-                if (first == false)
-                    stRet += ",";
-                stRet += $"{qt}{item.Key}{qt}:{qt}{item.Value}{qt}";
-                first = false;
-            }
-            stRet += "}";
-            return stRet;
-        }
+        //private string AppendFileHeader(InputHeader inputHdr)
+        //{
+        //    char qt = '\"';
+        //    String stRet = $", {qt}fh{qt}:{{";
+        //    bool first = true;
+        //    foreach (KeyValuePair<string, string> item in inputHdr.hdrFields)
+        //    {
+        //        if (first == false)
+        //            stRet += ",";
+        //        stRet += $"{qt}{item.Key}{qt}:{qt}{item.Value}{qt}";
+        //        first = false;
+        //    }
+        //    stRet += "}";
+        //    return stRet;
+        //}
 
         private void AddToJsonFromSequences(StringBuilder jStr, ref bool hasNoOtherRows)
         {
@@ -170,12 +193,21 @@ namespace DataProcessor
             }
         }
 
-        private void AddToJsonFromScriban(StringBuilder jStr, bool hasNoOtherRows, string sysPath, JsonInputFileDef jDef, string almostWholeJson)
+        private void AddToJsonFromScriban(string logProgName, StringBuilder jStr, bool hasNoOtherRows, string sysPath, JsonInputFileDef jDef, string almostWholeJson)
         {
             bool first = hasNoOtherRows;
             foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
             {
-                string val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
+                string val = "";
+                try
+                {
+                    val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
+                }
+                catch (Exception ex)
+                {
+                    if (ScribanHandler.IsSameError(ex.Message) == false)
+                        Logger.WriteEx(logProgName, "AddToJsonFromScriban", 0, ex);
+                }
                 if (first == false)
                 {
                     jStr.Append(',');
@@ -226,7 +258,7 @@ namespace DataProcessor
             return false;
         }
 
-        public string ReplaceFileSaveJsonSql(string insSql)
+        public string ReplaceFileSaveJsonSql(string insSql, int startRowNo)
         {
             string jsonSer;
             //get json if files were saved
@@ -243,6 +275,21 @@ namespace DataProcessor
             }
             if (hasSaved)
             {
+                if(this.saveAsFiles.Count == 2)  //make sure phot is always 1st, sign second
+                {
+                    var tmp1 = this.saveAsFiles[0];
+                    var tmp2 = this.saveAsFiles[1];
+                    if (tmp1.Dir.ToLower() != "photo") //to do use constant or parameterize
+                    {
+                        saveAsFiles.Clear();
+                        saveAsFiles.Add(tmp2);
+                        saveAsFiles.Add(tmp1);
+                    }
+                }
+                else
+                {
+                    Logger.Write("Input Record", "ReplaceFileSaveJsonSql", 0, "Missing or Extra image files Hard to find Photo /Sign StartRow#" + startRowNo, Logger.ERROR);
+                }
                 jsonSer = JsonConvert.SerializeObject(this.saveAsFiles);
                 jsonSer = jsonSer.Replace("'", "''");
             }

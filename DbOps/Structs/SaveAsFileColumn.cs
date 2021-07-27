@@ -48,7 +48,12 @@ namespace DbOps.Structs
         private string fileContent;
         [JsonIgnore]
         public string FileContent { get => fileContent; set => fileContent = value; }
+
+        [JsonProperty("actual_file_path")]
         public string PhysicalPath { get; set; }
+        [JsonProperty("actual_file_name")]
+
+        public string ActualFileName { get; set; }
     }
 
     public class SaveAsFile

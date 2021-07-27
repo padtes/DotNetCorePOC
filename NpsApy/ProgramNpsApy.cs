@@ -31,10 +31,10 @@ namespace NpsApy
                 return;
             }
 
-            string pgSchema, pgConnection, logFileName;
+            string pgSchema, pgConnection, logFileName, deleteDir;
 
             // read appSettings.json config
-            ReadSystemConfig(out pgSchema, out pgConnection, out logFileName);
+            ReadSystemConfig(out pgSchema, out pgConnection, out logFileName, out deleteDir);
             Logger.SetLogFileName(logFileName);
 
             string paramsMsg = string.Join(' ', args);
@@ -81,7 +81,7 @@ namespace NpsApy
             {
                 if (Debugger.IsAttached)
                     DbUtil.Unlock(pgConnection, pgSchema);
-                runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV, fileType);
+                runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV, fileType, deleteDir);
             }
 
             if (runResult == false)
@@ -97,7 +97,7 @@ namespace NpsApy
 
         }
 
-        private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv, string fileType)
+        private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv, string fileType, string deleteDir)
         {
             bool run = false;
 
@@ -105,14 +105,14 @@ namespace NpsApy
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation, fileType);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, deleteDir);
             }
 
             if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation, fileType);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, deleteDir);
             }
             return run;
         }
@@ -179,7 +179,7 @@ namespace NpsApy
 
         }
 
-        private static void ReadSystemConfig(out string pgSchema, out string pgConnection, out string logFileName)
+        private static void ReadSystemConfig(out string pgSchema, out string pgConnection, out string logFileName, out string deleteDir)
         {
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
@@ -191,6 +191,7 @@ namespace NpsApy
 
             pgSchema = configuration["pgSchema"];
             pgConnection = configuration["pgConnection"];
+            deleteDir = configuration["dirForTrash"];
 
             if (string.IsNullOrEmpty(pgSchema))
             {

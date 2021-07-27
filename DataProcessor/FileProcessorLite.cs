@@ -12,7 +12,7 @@ namespace DataProcessor
     public class FileProcessorLite : FileProcessor
     {
         private const string logProgName = "FileProcLite";
-        public FileProcessorLite(string connectionStr, string schemaName, string opName, string fileType) 
+        public FileProcessorLite(string connectionStr, string schemaName, string opName, string fileType)
             : base(connectionStr, schemaName, opName, fileType)
         {
 
@@ -33,7 +33,7 @@ namespace DataProcessor
             ProcessorUtil.ValidateStaticParam(GetModuleName(), ConstantBag.MODULE_LITE, logProgName, paramsDict, staticParamList);
         }
 
-        public override void ProcessInput(string runFor)
+        public override void ProcessInput(string runFor, string deleteDir)
         {
             /*
             INPUT directory structure
@@ -92,11 +92,11 @@ namespace DataProcessor
                 //to do use fileTypeMaster - to see file name pattern to read files
                 CollectFilesNpsLiteApyDir(dateDirectories[i], reprocess, out curWorkDir);
 
-                SaveToDb(dateDirectories[i], fTypeMaster, reprocess);
+                SaveToDb(dateDirectories[i], fTypeMaster, reprocess, deleteDir);
             }
         }
 
-        private void SaveToDb(string dateAsDir, FileTypeMaster fTypeMaster, bool reprocess)
+        private void SaveToDb(string dateAsDir, FileTypeMaster fTypeMaster, bool reprocess, string deleteDir)
         {
             List<FileInfoStruct> listFiles = new List<FileInfoStruct>();
 
@@ -121,7 +121,7 @@ namespace DataProcessor
 
                 foreach (FileInfoStruct inFile in listFiles)
                 {
-                    ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir);
+                    ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir, deleteDir);
                 }
             }
             catch (Exception ex)
@@ -203,20 +203,20 @@ namespace DataProcessor
             string[] pathParts = dateAsPath.Split(new char[] { '/', '\\' });
             string dateAsDir = pathParts[pathParts.Length - 1];
 
-            string curWorkDirForDt = workDir + "/" + dateAsDir;
+            string curWorkDirForDt = Path.Combine(workDir, dateAsDir);// workDir + "/" + dateAsDir;
             if (Directory.Exists(curWorkDirForDt) == false)
                 Directory.CreateDirectory(curWorkDirForDt);
 
             string outParentDir = paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
-            string tmpOut = curWorkDirForDt + "/" + outParentDir;
+            string tmpOut = Path.Combine(curWorkDirForDt, outParentDir);
             if (Directory.Exists(tmpOut) == false)
                 Directory.CreateDirectory(tmpOut);
 
-            liteOutDir = tmpOut + "/" + paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
+            liteOutDir = Path.Combine(tmpOut, paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR]);
             if (Directory.Exists(liteOutDir) == false)
                 Directory.CreateDirectory(liteOutDir);
 
-            apyOutDir = tmpOut + "/" + paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
+            apyOutDir = Path.Combine(tmpOut, paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR]);
             if (Directory.Exists(apyOutDir) == false)
                 Directory.CreateDirectory(apyOutDir);
 
@@ -224,10 +224,9 @@ namespace DataProcessor
                                      //curWorkDir = tmpOut + "/" + paramsDict["output_duplicate"]; // to keep copy of input files
                                      //if (Directory.Exists(curWorkDir) == false)
                                      //    Directory.CreateDirectory(curWorkDir);
-
         }
 
-        internal void ProcessLiteApyFile(FileInfoStruct inpFileInfo, FileTypeMaster fTypeMaster, string dateAsDir)
+        internal void ProcessLiteApyFile(FileInfoStruct inpFileInfo, FileTypeMaster fTypeMaster, string dateAsDir, string deleteDir)
         {
             string tmpSql = "";
             //update header as WIP - dateTime of status update
@@ -235,8 +234,8 @@ namespace DataProcessor
             DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
 
             //paramsDict
-            string tmpFName = inpFileInfo.fpath + "\\" + inpFileInfo.fname;
-            string tmpJsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            string tmpFName = Path.Combine(inpFileInfo.fpath, inpFileInfo.fname);
+            string tmpJsonFName = Path.Combine(paramsDict[ConstantBag.PARAM_SYS_DIR], fTypeMaster.fileDefJsonFName);
 
             //Save from txt file to data table
             ////save photos and signatures
@@ -249,7 +248,17 @@ namespace DataProcessor
 
                 //delete file from input dir ???
                 //TO DO
-                File.Move(tmpFName, @"c:\zunk\deleted_files\" + inpFileInfo.fname);
+                FileInfo f1 = new FileInfo(dateAsDir);
+
+                string deleteDirDt = Path.Combine(deleteDir, f1.Name);
+                if (Directory.Exists(deleteDirDt) == false)
+                    Directory.CreateDirectory(deleteDirDt);
+
+                string delFile = Path.Combine(deleteDirDt, inpFileInfo.fname);
+                if (File.Exists(delFile))
+                    File.Delete(delFile);
+                
+                File.Move(tmpFName, delFile);
             }
             else
             {
@@ -278,7 +287,7 @@ namespace DataProcessor
             if (fileType == "letter" || fileType == "let_reprint")
             {
                 return new ReportProcLiteLetter(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
-            } 
+            }
             return new ReportProcessorLite(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
         }
     }

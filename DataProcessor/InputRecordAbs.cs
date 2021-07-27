@@ -112,11 +112,16 @@ namespace DataProcessor
                     sb2.Append(',');
                 }
 
-                sb2.Append('"').Append(jPair.Key).Append("\":\"").Append(jPair.Value).Append('"');
+                sb2.Append('"').Append(jPair.Key).Append("\":\"").Append(EscapeJson(jPair.Value)).Append('"');
                 first = false;
             }
 
             sb2.Append('}');
+        }
+
+        public static string EscapeJson(string val)
+        {
+            return val.Replace("\"", "\\\"");
         }
     }
     public class JsonArrOfColsWithVals

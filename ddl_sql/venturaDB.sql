@@ -127,6 +127,10 @@ values('1','lite_word_apy','lite','apy_letter.json','apy_{{yyyymmdd}}_{{courier_
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
 values('1','lite_word_nps','lite','NPS_Lite_letter.json','npsLite_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.docx');
 
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_card_apy','lite','apy_card.json','apy_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.csv');
+insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
+values('1','lite_card_nps','lite','NPS_Lite_card.json','npsLite_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.csv');
 
 CREATE TABLE ventura.counters(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),

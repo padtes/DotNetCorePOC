@@ -82,6 +82,12 @@ namespace DbOps.Structs
     {
         [JsonProperty("delimt")]
         public string Delimt { get; set; }
+
+        [JsonProperty("text_qualifier")]
+        public string TextQualifier { get; set; }
+
+        [JsonProperty("escape_qualifier")]
+        public string EscQualifier { get; set; }
     }
 
     public class RootJsonParamCSV
