@@ -10,8 +10,8 @@
 		"file_type" : "apy_card",
 		"write_type": "csv",
 		"delimt":",",
-		"text_qualifier":"""",
-		"escape_qualifier":"""""",
+		"text_qualifier":"\"",
+		"escape_qualifier":"\\\"",
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
 		"data_where":"",
@@ -44,16 +44,15 @@
 		,{"col":"0", "print_yn":"y", "tag":"PACKAGE_ID","src_type":"json","db_value":"'xx'->>'x_package_id'", "alias":"package_id"}
 		,{"col":"1", "print_yn":"y", "tag":"Name 01","src_type":"json","db_value":"'xx'->>'x_sub_full_name1'", "alias":"name1"}
 		,{"col":"2", "print_yn":"y", "tag":"Name 02","src_type":"json","db_value":"'xx'->>'x_sub_full_name2'", "alias":"name2"}
-		,{"col":"3", "print_yn":"y", "tag":"DATE_OF_BIRTH","src_type":"cfunction" ,"db_value":"DateFormat(dd/MM/yyyy, dr[db_date_of_birth])", "alias":"date_of_birth"}
+		,{"col":"3", "print_yn":"y", "tag":"DATE_OF_BIRTH","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_date_of_birth],dd/MM/yyyy,mmddyyyy)", "alias":"date_of_birth"}
 		,{"col":"4", "print_yn":"y", "tag":"PRAN", "src_type":"json" ,"db_value":"'pd'->0->>'p008_pran'", "alias" :"pran"}
 		,{"col":"5", "print_yn":"y", "tag":"APY_SERVICE_PROVIDER", "src_type":"json" ,"db_value":"'pd'->0->>'p056_apy_service_provider_name'", "alias" :"apy_service_provider_name"}
 		,{"col":"6", "print_yn":"y", "tag":"NAME_OF_SPOUSE_01","src_type":"json","db_value":"'xx'->>'x_spouse_full_name1'", "alias":"sp_name1"}
 		,{"col":"7", "print_yn":"y", "tag":"NAME_OF_SPOUSE_02","src_type":"json","db_value":"'xx'->>'x_spouse_full_name2'", "alias":"sp_name2"}
 		,{"col":"8", "print_yn":"y", "tag":"NAME_OF_NOMINEE_01","src_type":"json","db_value":"'xx'->>'x_nd1_full_name'", "alias":"nd1_fullname"}
 		,{"col":"9", "print_yn":"y", "tag":"NAME_OF_NOMINEE_02","src_type":"json","db_value":"'xx'->>'x_nd2_full_name'", "alias":"nd2_fullname"}
-		,{"col":"10", "print_yn":"y", "tag":"PENSION_START_DATE","src_type":"cfunction" ,"db_value":"DateFormat(dd/MM/yyyy, dr[db_pendsiondate])", "alias":"pensiondate"}
+		,{"col":"10", "print_yn":"y", "tag":"PENSION_START_DATE","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_pensiondate],dd/MM/yyyy,mmddyyyy)", "alias":"pensiondate"}
 		,{"col":"11", "print_yn":"y", "tag":"PENSION_AMOUNT","src_type":"json","db_value":"'pd'->0->>'p057_pension_amount'", "alias":"pension"}
-		,{"col":"10", "print_yn":"y", "tag":"date of file cr", "src_type":"cfunction","db_value":"DateFormat(now,dd-MMM-yyyy)", "alias" :"file_cr_date"}
 		,{"col":"12", "print_yn":"y", "tag":"document id", "src_type":"json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"document_id"}
 		,{"col":"13", "print_yn":"y", "tag":"AWB_NO", "src_type":"json" ,"db_value":"'xx'->>'x_awb'", "alias" :"x_awb"}
 		,{"col":"14", "print_yn":"y", "tag":"legend", "src_type":"const" ,"db_value":"APY_Legend.wmf", "alias" :"legend"}

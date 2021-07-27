@@ -283,8 +283,8 @@ namespace DataProcessor
         {
             string fileName = fTypeMaster.fnamePattern
                 .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
-                .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy"))
-                .Replace("{{courier}}", courierId); //TO DO : parse the file name pattern
+                .Replace(ConstantBag.FILE_NAME_TAG_YYMMDD, DateTime.Now.ToString("yyyyMMdd"))
+                .Replace(ConstantBag.FILE_NAME_TAG_COUR_CD, courierId); //TO DO : parse the file name pattern
 
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
@@ -306,7 +306,7 @@ namespace DataProcessor
             }
 
             string doneAction = ConstantBag.DET_LC_STEP_CARD_OUT5;
-            string subDir = Path.Combine($"{courierId}_{workDir}", "Card_Print");
+            string subDir = Path.Combine($"{courierId}_{workdirYmd}", "Card_Print");
 
             csvRep.CreateFile(workdirYmd, fileName, subDir, args, paramsDict, ds, doneAction);
         }

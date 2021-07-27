@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Text;
 
 namespace DataProcessor
@@ -78,6 +79,7 @@ namespace DataProcessor
     {
         //param 0 - data  - now
         //param 1 - format
+        //param 2 - input format such as ddMMyyyy
         public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
         {
             DateTime val = DateTime.Now;
@@ -138,14 +140,22 @@ namespace DataProcessor
                         throw e1;
                     }
 
-                    if (DateTime.TryParse(valAsStr, out val) == false)
-                        // throw new Exception("invalid date constant" + pArr[0]);
-                        return valAsStr; //------------------------------
+                    if (pArr.Length <= 2)
+                    {
+                        if (DateTime.TryParse(valAsStr, out val) == false)
+                            // throw new Exception("invalid date constant" + pArr[0]);
+                            return valAsStr; //------------------------------
+                    }
+                    else
+                    {
+                        if (DateTime.TryParseExact(valAsStr, pArr[2], CultureInfo.InvariantCulture, DateTimeStyles.None, out val) == false) //2 is input format
+                            return valAsStr; //------------------------------
+                    }
                 }
             }
 
             string myFormat = "dd-MM-yyyy"; //default
-            if (pArr.Length == 2)
+            if (pArr.Length >= 2)
                 myFormat = pArr[1];
 
             return val.ToString(myFormat);

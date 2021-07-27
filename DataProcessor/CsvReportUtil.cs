@@ -43,14 +43,22 @@ namespace DataProcessor
 
         private RootJsonParamCSV LoadJsonParamFile(string jsonParamFilePath)
         {
-            StreamReader sr = new StreamReader(jsonParamFilePath);
-            string fileAsStr = sr.ReadToEnd();
+            try
+            {
+                StreamReader sr = new StreamReader(jsonParamFilePath);
+                string fileAsStr = sr.ReadToEnd();
 
-            RootJsonParamCSV csvConfig = JsonConvert.DeserializeObject<RootJsonParamCSV>(fileAsStr);
+                RootJsonParamCSV csvConfig = JsonConvert.DeserializeObject<RootJsonParamCSV>(fileAsStr);
 
-            SqlHelper.RemoveCommentedColumns(csvConfig.Header);
-            SqlHelper.RemoveCommentedColumns(csvConfig.Detail);
-            return csvConfig;
+                SqlHelper.RemoveCommentedColumns(csvConfig.Header);
+                SqlHelper.RemoveCommentedColumns(csvConfig.Detail);
+                return csvConfig;
+            }
+            catch (Exception)
+            {
+                Logger.Write(logProgramName, "LoadJsonParamFile", 0, "Error parsing:" + jsonParamFilePath, Logger.ERROR);
+                throw;
+            }
         }
 
         public bool CreateFile(string workdirYmd, string fileName, string subDir, string[] progParams, Dictionary<string, string> paramsDict, DataSet ds, string waitingAction)
