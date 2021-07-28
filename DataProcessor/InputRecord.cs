@@ -188,7 +188,7 @@ namespace DataProcessor
                     jStr.Append(',');
                 }
                 jStr.Append('"').Append(seqCol.DestCol).Append("\":");
-                jStr.Append('"').Append(seqCol.SequenceStr).Append("\"");
+                jStr.Append('"').Append(JsonColsWithVals.EscapeJson(seqCol.SequenceStr)).Append("\"");
                 hasNoOtherRows = false;
             }
         }
@@ -213,7 +213,7 @@ namespace DataProcessor
                     jStr.Append(',');
                 }
                 jStr.Append('"').Append(scrptCol.DestCol).Append("\":");
-                jStr.Append('"').Append(val).Append("\"");
+                jStr.Append('"').Append(JsonColsWithVals.EscapeJson(val)).Append("\"");
                 first = false;
 
                 if (allDerivedColVal.ContainsKey(scrptCol.DestCol) == false)
@@ -230,7 +230,7 @@ namespace DataProcessor
         private static void AddToJsonFromMapped(StringBuilder jStr, MappedColWithVal col)
         {
             jStr.Append('"').Append(col.theDef.DestCol).Append("\":");
-            jStr.Append('"').Append(col.mappedResult).Append("\"");
+            jStr.Append('"').Append(JsonColsWithVals.EscapeJson(col.mappedResult)).Append("\"");
         }
 
         public bool GetInputVal(string rowType, int indOfRow, string sourceCol, out string srcVal)

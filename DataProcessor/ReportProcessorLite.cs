@@ -83,15 +83,6 @@ namespace DataProcessor
             string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
             CsvReportUtil csvRep = new CsvReportUtil(GetConnection(), GetSchema(), moduleName, bizTypeToRead, JobId, jsonCsvDef, outputDir);
 
-            string fileName = fTypeMaster.fnamePattern
-                .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
-                .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy")); //TO DO : parse the file name pattern
-
-            //TO DO get serial number - add rec if not found
-            string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
-            string serNo = SequenceGen.GetNextSequence(GetConnection(), GetSchema(), "generic", tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
-            fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
-
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
 
             RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
@@ -104,6 +95,20 @@ namespace DataProcessor
             {
                 return;
             }
+            if (!(ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0))
+            {
+                Logger.Write(GetProgName(), "ProcessNpsApyLiteOutput", 0, $"No records found for {bizTypeToWrite} dt: {workdirYmd}-{(isApy ? "Apy" : "NPS")}", Logger.WARNING);
+                return;
+            }
+
+            string fileName = fTypeMaster.fnamePattern
+            .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
+            .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy")); //TO DO : parse the file name pattern
+
+            //TO DO get serial number - add rec if not found
+            string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
+            string serNo = SequenceGen.GetNextSequence(GetConnection(), GetSchema(), "generic", tmpFileName, 2, addIfNeeded: true, unlock: true);  //to do define const for generic
+            fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string doneAction = "";
             if (bizTypeToWrite == ConstantBag.LITE_OUT_RESPONSE)
@@ -220,7 +225,7 @@ namespace DataProcessor
             }
 
             string doneAction = ConstantBag.DET_LC_STEP_PTC_REP6;
-            string subDir = $"PTC_{workDir}_{courierId}/";
+            string subDir = $"PTC_{workdirYmd}_{courierId}";
             csvRep.CreateFile(workdirYmd, fileName, subDir, args, paramsDict, ds, doneAction);
         }
 

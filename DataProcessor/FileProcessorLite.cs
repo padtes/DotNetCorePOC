@@ -57,10 +57,11 @@ namespace DataProcessor
             }
             else
             {
-                if (File.Exists(inputRootDir + "/" + runFor))
+                string oneDir = Path.Combine(inputRootDir, runFor);
+                if (Directory.Exists(oneDir))
                 {
                     //Process files from  base directory/runFor sub dir only
-                    dateDirectories.Add(runFor);
+                    dateDirectories.Add(oneDir);
                 }
             }
 

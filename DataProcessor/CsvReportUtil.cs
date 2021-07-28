@@ -71,9 +71,10 @@ namespace DataProcessor
             if (string.IsNullOrEmpty(subDir) == false)
             {
                 fullOutFile = Path.Combine(outDir, subDir);
-                if (Directory.Exists(fullOutFile) == false)
-                    Directory.CreateDirectory(fullOutFile);
             }
+            if (Directory.Exists(fullOutFile) == false)
+                Directory.CreateDirectory(fullOutFile);
+
             fullOutFile = Path.Combine(fullOutFile, fileName);
 
             if (File.Exists(fullOutFile))

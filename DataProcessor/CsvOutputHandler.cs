@@ -23,11 +23,18 @@ namespace DataProcessor
                     break;
                 case "CFUNCTION":
                     bool isConst;
-                    val = cmdHandler.Handle(columnDetail.DbValue, progParams, detailRowDS.Tables[0].Rows[rowInd], out isConst);
-                    if (isConst)
+                    if (detailRowDS != null && detailRowDS.Tables.Count > 0 && detailRowDS.Tables[0].Rows.Count > rowInd)
                     {
-                        columnDetail.SrcType = "const";
-                        columnDetail.DbValue = val;
+                        val = cmdHandler.Handle(columnDetail.DbValue, progParams, detailRowDS.Tables[0].Rows[rowInd], out isConst);
+                        if (isConst)
+                        {
+                            columnDetail.SrcType = "const";
+                            columnDetail.DbValue = val;
+                        }
+                    }
+                    else
+                    {
+                        val = "";
                     }
                     break;
                 case "COLUMN":
