@@ -1,0 +1,44 @@
+exe is at:
+C:\Users\spadte\source\repos\padtes\DotNetCorePOC\NpsApy\bin\Debug\netcoreapp3.1
+
+at that directory run -
+
+NpsApy.exe -modulename=lite -op=read -runfor=20210726 
+/* ignore error scriban - to derive 2nd nominee name - if there is no 2nd nominee it fails */
+
+NpsApy.exe -moduleName=LITE -op=write -file=resp -runfor=20210726 
+
+-- nothing will work if you do not create immediate response as above ---
+
+NpsApy.exe -moduleName=LITE -op=write -file=letter -runfor=20210726  
+
+/* ignore error for apy letter config is missing. template is missing. tags are missing */
+
+NpsApy.exe -moduleName=LITE -op=write -file=card -runfor=20210726  
+
+NpsApy.exe -moduleName=LITE -op=write -file=PTC -runfor=20210726 
+
+-- PTC will print only if there is letter for the Pran-Apy Subscriber.
+
+NpsApy.exe -moduleName=LITE -op=report -file=all -runfor=20210726  
+
+--check the file name from above report - 
+--open in Excel and put print/pickup date as text '2021/07/21 
+--just save -it is csv, leave it as csv
+ 
+NpsApy.exe -moduleName=LITE -op=updstat -file=C:\Zunk\Lite\work\20210726\nps_lite\all_2021Jul27_21_43.csv
+
+--stat will not print if there is no status updated as above
+NpsApy.exe -moduleName=LITE -op=write -file=stat -runfor=20210726
+===========================================================================
+
+
+=================================================Clean Test and rerun ==========================
+-- delete from ventura.fileinfo;
+-- ALTER SEQUENCE ventura.fileinfo_id_seq RESTART WITH 1;
+-- delete from ventura.filedetails;
+-- ALTER SEQUENCE ventura.filedetails_id_seq RESTART WITH 1;
+-- delete from ventura.filedetail_actions;
+-- ALTER SEQUENCE ventura.filedetail_actions_id_seq RESTART WITH 1;
+
+-- update ventura.counters set next_num=start_num, lock_key=null where parent_id > 0;

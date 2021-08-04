@@ -13,11 +13,11 @@
 		,"data_where":""
 		,"data_order":"json_data->'xx'->'x_document_id'"
 		,"where_cols": []
-		,"word_all_files_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\docx-structure"
-		,"word_header_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg1.txt"
-		,"word_footer_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg3.txt"
-		,"word_middle_page": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg2.txt"
-		,"word_work_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\Word_work_dir"
+		,"word_all_files_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_nps\\docx-structure"
+		,"word_header_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_nps\\seg1.txt"
+		,"word_footer_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_nps\\seg3.txt"
+		,"word_middle_page": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_nps\\seg2.txt"
+		,"word_work_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_nps\\Word_work_dir"
 	}
 	,"placeholders":[
 		{"col":"0", "print_yn":"n", "tag": "{{det_id}}", "src_type":"column" ,"db_value":"filedetails.id", "alias":"detail_id" },
