@@ -81,7 +81,7 @@ namespace DataProcessor
     public class StrFormatter : Command
     {
         //param 0 - data
-        //param 1 - format: no_fmt, toupper, tolower, totile
+        //param 1 - format: no_fmt, toupper, tolower, totitle
         //param 2 - no_trim, trimstart, trimend, trim, singlespace
         public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
         {
@@ -147,7 +147,9 @@ namespace DataProcessor
                     valAsStr = valAsStr.TrimEnd();
                     break;
                 case "singlespace":
+                    //string dbugStr = "*" + valAsStr + "*";
                     valAsStr = Regex.Replace(valAsStr, "[ ]{2,}", " ", RegexOptions.None);
+                    valAsStr = valAsStr.Trim();
                     break;
                 default:
                     break;
@@ -161,7 +163,7 @@ namespace DataProcessor
                 case "tolower":
                     valAsStr = ti.ToLower(valAsStr);
                     break;
-                case "totile":
+                case "totitle":
                     valAsStr = ti.ToTitleCase(valAsStr);
                     break;
                 default:
