@@ -128,7 +128,7 @@
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily"},
-		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb_global","sequence_master_type":"couriers", "seq_length":"6", "freq":"global"}
+		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb_global","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global"}
 	]
 	, "file_def" : {
 		 "fh":{

@@ -22,6 +22,11 @@ namespace DbOps.Structs
         public string SequenceMasterType { get; set; }
         [JsonProperty("seq_length")]
         public int SeqLength { get; set; }
+        [JsonProperty("freq")]
+        public string Frequency { get; set; }
+
+        public const string DAILY = "daily";
+        public const string GLOBAL = "global";
     }
     public class SequenceColWithVal : SequenceCol
     {

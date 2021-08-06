@@ -159,6 +159,16 @@ insert into ventura.counters(isactive,counter_name,parent_id) values ('1','gener
 --"couriers" master rec for couriers
 --"detail rec for couriers"
 
+insert into ventura.counters(isactive,counter_name, descript, pat, parent_id) values 
+	('1','couriers','daily master of all couriers', 'daily', '0')
+
+insert into ventura.counters(isactive,counter_name, descript, pat, parent_id, start_num, end_num, step) values 
+	('1','PRF','daily master PRF', 'daily', '25', '300001', '399999', 1)
+
+insert into ventura.counters(isactive,counter_name, descript, pat, parent_id, start_num, end_num, step) values 
+	('1','PST','daily master PST', 'daily', '25', '100001', '199999', 1)
+
+
 CREATE TABLE ventura.states (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,
@@ -230,7 +240,9 @@ CREATE OR REPLACE FUNCTION ventura.get_serial_number(
 	master_type character varying,
 	pdoc_val character varying,
 	init_if_need boolean,
-	lock_id integer)
+	lock_id integer,
+	freq_type character varying,
+	freq_val character varying)
     RETURNS integer
     LANGUAGE 'plpgsql'
     COST 100
@@ -241,16 +253,41 @@ declare
   lser_no integer;
   lmaster_id INTEGER;
   child_id INTEGER;
+
+  master_start INTEGER;
+  master_end INTEGER;
+  master_step INTEGER;
+
 begin
   lser_no := -1;
   lmaster_id := -1;
-  select id 
-  into lmaster_id
-  from ventura.counters
-  where counter_name = master_type and parent_id = 0;
-
-  if not found then
+  master_start := -1;
+  master_end := -1;
+  master_step := 1;
+  
+  if freq_type = '' then
+    select id 
+    into lmaster_id
+    from ventura.counters
+    where counter_name = master_type and parent_id = 0;
+  else
+    select id 
+    into lmaster_id
+    from ventura.counters
+    where counter_name = master_type and parent_id = 0 and pat = freq_type;
+	if found then
+	  select id, start_num, end_num, step 
+      into lmaster_id, master_start, master_end, master_step
+      from ventura.counters
+      where counter_name = pdoc_val and parent_id = lmaster_id and pat = freq_type;
+	else
+	  return -11;  -- cannot add master or intermediate master rec
+    end if;
+  end if;
+  
+  if not found then  --mater rec not found
     if init_if_need = '1' then
+	  if freq_type = '' then
 	    insert into ventura.counters (isactive, counter_name, descript, parent_id)
  	    values ('1', master_type, 'auto create', 0) RETURNING id into lmaster_id;
 
@@ -258,35 +295,58 @@ begin
  	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
  	    lser_no := 1;
+	  else
+	    return -20;
+	  end if;
     end if;
-  else
-    select next_num, id 
-    into lser_no, child_id
-    from ventura.counters
-    where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-	 and (lock_id = lock_key or lock_id <= 0)
-	order by start_num limit 1;
+  else  --mater rec found
+	if freq_type = '' then
+      select next_num, id 
+      into lser_no, child_id
+      from ventura.counters
+      where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+	   and (lock_id = lock_key or lock_id <= 0)
+	  order by start_num limit 1;
+	else
+      select next_num, id 
+      into lser_no, child_id
+      from ventura.counters
+      where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+	   and (lock_id = lock_key or lock_id <= 0)
+	   and pat = freq_val
+	  order by start_num limit 1;
+	end if;
 
-    if found then
+    if found then -- child rec found
       update ventura.counters 
 	  set next_num = lser_no + 1
       where id =child_id;
- 	else
+ 	else -- child rec not found
 	  if init_if_need = '1' and lock_id <= 0 then
-		insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
- 	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
+	    if freq_type = '' then
+		  insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
+ 	      values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
 		
- 	    lser_no := 1;
-	  end if;
-	end if;
- end if;
+ 	      lser_no := 1;
+		else
+			insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key, pat)
+			values ('1', pdoc_val, 'auto create', lmaster_id, master_start, master_step, master_end, master_start +1, lock_id, freq_val);
+
+			lser_no := master_start;
+		end if; --by freq_type		
+	  else
+		return -70; 
+	  end if; -- can add 
+	end if; -- child rec
+	
+ end if; --mater rec
 
   return lser_no;
  
 end;
 $BODY$;
 
-ALTER FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer)
+ALTER FUNCTION ventura.get_serial_number(character varying, character varying, boolean, integer, character varying, character varying)
     OWNER TO postgres;
 
 -- FUNCTION: ventura.lock_counter(character varying, character varying, integer)
@@ -297,7 +357,9 @@ CREATE OR REPLACE FUNCTION ventura.lock_counter(
 	master_type character varying,
 	pdoc_val character varying,
 	lock_id integer,
-	ok_to_add bit)
+	ok_to_add bit,
+	freq_type character varying,
+	freq_val character varying)
     RETURNS integer
     LANGUAGE 'plpgsql'
     COST 100
@@ -307,38 +369,92 @@ AS $BODY$
 declare 
   lmaster_id INTEGER;
   child_id INTEGER;
+  
+  master_start INTEGER;
+  master_end INTEGER;
+  master_step INTEGER;
+  cur_lock INTEGER;
 begin
   lmaster_id := -1;
   child_id := -1;
-  select id 
-  into lmaster_id
-  from ventura.counters
-  where counter_name = master_type and parent_id = 0;
-
-  if found then
+  master_start := -1;
+  master_end := -1;
+  master_step := 1;
+  cur_lock := -1;
+  
+  if freq_type = '' then
     select id 
-    into child_id
+    into lmaster_id
     from ventura.counters
-    where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-	 and COALESCE(lock_key,0) <= 0
-	order by start_num limit 1;
-
-    if found then
-      update ventura.counters 
-	  set lock_key = lock_id
-      where id =child_id;
+    where counter_name = master_type and parent_id = 0;
+  else
+    select id 
+    into lmaster_id
+    from ventura.counters
+    where counter_name = master_type and parent_id = 0 and pat = freq_type;
+	if found then
+	  select id, start_num, end_num, step 
+      into lmaster_id, master_start, master_end, master_step
+      from ventura.counters
+      where counter_name = pdoc_val and parent_id = lmaster_id and pat = freq_type;
 	else
-	  if ok_to_add = '1' then
-	  	insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
- 	    values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 1, lock_id);
+	  return -1;  -- cannot add master or intermediate master rec
+    end if;
+  end if;
 
-		select id 
-		into child_id
+  if found then  -- master rec found
+    if freq_type = '' then
+		select id, COALESCE(lock_key,0) 
+		into child_id, cur_lock
 		from ventura.counters
 		where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-		 and lock_key = lock_id;
-	  end if; 
-	end if;
+		-- and COALESCE(lock_key,0) <= 0
+		order by start_num limit 1;
+	else
+		select id, COALESCE(lock_key,0) 
+		into child_id, cur_lock
+		from ventura.counters
+		where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+		 and pat = freq_val
+		 -- and COALESCE(lock_key,0) <= 0
+		order by start_num limit 1;
+    end if;
+
+    if found then  -- child rec found
+       if cur_lock > 0 and cur_lock <> lock_id then
+          return -5;  --already locked
+	   else
+          update ventura.counters 
+	      set lock_key = lock_id
+          where id =child_id;
+       end if;
+	else
+	  if ok_to_add = '1' then
+	    	  
+	    if freq_type = '' then
+			insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
+			values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 1, lock_id);
+
+			select id 
+			into child_id
+			from ventura.counters
+			where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+			 and lock_key = lock_id;
+		else
+			insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key, pat)
+			values ('1', pdoc_val, 'auto create', lmaster_id, master_start, master_step, master_end, master_start, lock_id, freq_val);
+		
+			select id 
+			into child_id
+			from ventura.counters
+			where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+			 and lock_key = lock_id and pat = freq_val;
+
+	    end if;  --freq_type
+	  end if; -- ok to add rec
+	end if;  -- child rec found
+  else
+    return -10;
   end if;
 
   return child_id;
@@ -346,9 +462,8 @@ begin
 end;
 $BODY$;
 
-ALTER FUNCTION ventura.lock_counter(character varying, character varying, integer)
+ALTER FUNCTION ventura.lock_counter(character varying, character varying, integer, bit, character varying, character varying)
     OWNER TO postgres;
-
 
 insert into ventura.states(country_code,name,code) values('IN','ANDAMAN AND NICOBAR ISLANDS','01');
 insert into ventura.states(country_code,name,code) values('IN','ANDHRA PRADESH','02');

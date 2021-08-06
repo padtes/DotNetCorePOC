@@ -221,9 +221,9 @@ namespace DataProcessor
             }
         }
 
-        internal void PrepareColumns(string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo)
+        internal void PrepareColumns(string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo, string runFor)
         {
-            GetSequenceValues(pgConnection, pgSchema, jDef);
+            GetSequenceValues(pgConnection, pgSchema, jDef, runFor);
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
         }
 
@@ -275,7 +275,7 @@ namespace DataProcessor
             }
             if (hasSaved)
             {
-                if(this.saveAsFiles.Count == 2)  //make sure phot is always 1st, sign second
+                if (this.saveAsFiles.Count == 2)  //make sure phot is always 1st, sign second
                 {
                     var tmp1 = this.saveAsFiles[0];
                     var tmp2 = this.saveAsFiles[1];
@@ -373,16 +373,25 @@ namespace DataProcessor
             }
         }
 
-        private void GetSequenceValues(string pgConnection, string pgSchema, JsonInputFileDef jDef)
+        private void GetSequenceValues(string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor)
         {
             string srcVal;
+            string runForParam, freqType;
             foreach (SequenceCol col in jDef.sequenceColDefnn.SequenceColList)
             {
                 bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
                 if (hasVal == false)
                     continue;
 
-                string newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength);
+                runForParam = "";
+                freqType = "";
+                if (col.Frequency == SequenceCol.DAILY)
+                {
+                    runForParam = runFor;
+                    freqType = SequenceCol.DAILY;
+                }
+
+                string newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength, freqType: freqType, freqValue: runForParam);
 
                 this.sequenceCols.Add(new SequenceColWithVal()
                 {

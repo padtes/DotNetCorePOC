@@ -160,7 +160,8 @@ namespace DataProcessor
             string pgConnection = fileProcessor.GetConnection();
             string pgSchema = fileProcessor.GetSchema();
 
-            curRec.PrepareColumns(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo);
+            string yMdDirName = new DirectoryInfo(dateAsDir).Name;
+            curRec.PrepareColumns(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName);
 
             SystemParamInput inpSysParam = jDef.inpSysParam;
 
