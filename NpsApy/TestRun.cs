@@ -25,20 +25,20 @@ namespace NpsApy
             try
             {
                 string fileName = "PRNxyzRES100721";
-                string serNo = SequenceGen.GetNextSequence(pgConnection, pgSchema, "generic", fileName, 2, addIfNeeded: true);
+                string serNo = SequenceGen.GetNextSequence(false, pgConnection, pgSchema, "generic", fileName, 2, addIfNeeded: true);
                 Console.WriteLine("generic:" + serNo);
 
-                var newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                var newSeq = SequenceGen.GetNextSequence(true, pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("first:" + newSeq);
 
-                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                newSeq = SequenceGen.GetNextSequence(true, pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("secondt:" + newSeq);
 
                 courierCode = "PST";
-                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                newSeq = SequenceGen.GetNextSequence(true, pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("first:" + newSeq);
 
-                newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, "couriers", courierCode, fixedLen);
+                newSeq = SequenceGen.GetNextSequence(true, pgConnection, pgSchema, "couriers", courierCode, fixedLen);
                 Console.WriteLine("secondt:" + newSeq);
 
             }

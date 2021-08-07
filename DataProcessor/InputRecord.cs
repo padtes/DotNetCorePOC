@@ -221,9 +221,9 @@ namespace DataProcessor
             }
         }
 
-        internal void PrepareColumns(string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo, string runFor)
+        internal void PrepareColumns(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo, string runFor)
         {
-            GetSequenceValues(pgConnection, pgSchema, jDef, runFor);
+            GetSequenceValues(withLock, pgConnection, pgSchema, jDef, runFor);
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
         }
 
@@ -373,7 +373,7 @@ namespace DataProcessor
             }
         }
 
-        private void GetSequenceValues(string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor)
+        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor)
         {
             string srcVal;
             string runForParam, freqType;
@@ -391,7 +391,7 @@ namespace DataProcessor
                     freqType = SequenceCol.DAILY;
                 }
 
-                string newSeq = SequenceGen.GetNextSequence(pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength, freqType: freqType, freqValue: runForParam);
+                string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength, freqType: freqType, freqValue: runForParam);
 
                 this.sequenceCols.Add(new SequenceColWithVal()
                 {

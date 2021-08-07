@@ -305,14 +305,14 @@ begin
       into lser_no, child_id
       from ventura.counters
       where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-	   and (lock_id = lock_key or lock_id <= 0)
+	   and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
 	  order by start_num limit 1;
 	else
       select next_num, id 
       into lser_no, child_id
       from ventura.counters
       where counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
-	   and (lock_id = lock_key or lock_id <= 0)
+	   and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
 	   and pat = freq_val
 	  order by start_num limit 1;
 	end if;
@@ -322,7 +322,7 @@ begin
 	  set next_num = lser_no + 1
       where id =child_id;
  	else -- child rec not found
-	  if init_if_need = '1' and lock_id <= 0 then
+	  if init_if_need = '1' then
 	    if freq_type = '' then
 		  insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key)
  	      values ('1', pdoc_val, 'auto create', lmaster_id, 1, 1, 99999, 2, lock_id);
