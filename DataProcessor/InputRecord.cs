@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using NpsScriban;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace DataProcessor
@@ -68,7 +69,7 @@ namespace DataProcessor
         }
 
         public string GenerateInsert(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, InputHeader inputHdr)
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr)
         {
             string dataTableName = jDef.inpSysParam.DataTableName;
             string jsonColName = jDef.inpSysParam.DataTableJsonCol;
@@ -91,7 +92,7 @@ namespace DataProcessor
             StringBuilder jStr = new StringBuilder();
             jStr.Append('{');
 
-            AppendFHtoDet(inputHdr, jStr);
+            AppendFHtoDet(inputHdr, jStr, inputFile);
 
             foreach (var jsonRow in JsonByRowType)
             {
@@ -114,21 +115,17 @@ namespace DataProcessor
             return sb1.ToString();
         }
 
-        private static void AppendFHtoDet(InputHeader inputHdr, StringBuilder jStr)
+        private static void AppendFHtoDet(InputHeader inputHdr, StringBuilder jStr, string inputFile)
         {
-            bool first = true;
-            jStr.Append("\"fh\":{");
+            FileInfo fi = new FileInfo(inputFile);
+            jStr.Append("\"fh\":{\"xinpfile\":\"" + fi.Name + '"');
             foreach (KeyValuePair<string, string> hdr in inputHdr.hdrFields)
             {
-                if (first == false)
-                {
-                    jStr.Append(',');
-                }
-                jStr.Append('"').Append(hdr.Key)
+                jStr.Append(',').Append('"')
+                    .Append(hdr.Key)
                     .Append("\":\"")
                     .Append(JsonColsWithVals.EscapeJson(hdr.Value))
                     .Append('"');
-                first = false;
             }
             jStr.Append("},");
         }

@@ -181,7 +181,7 @@ namespace DataProcessor
             }
             string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
             string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
-                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputHdr);
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr);
 
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, startRowNo
                 , paramsDict, curRec

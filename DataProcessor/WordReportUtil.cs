@@ -194,7 +194,7 @@ namespace DataProcessor
                     Directory.CreateDirectory(destDir);
                 }
                 int tmp = 1;
-                string tmpStr = destDir + pureFn;
+                string tmpStr = destDir + "\\" + pureFn;
                 if (File.Exists(tmpStr))
                 {
                     while (File.Exists(tmpStr))
@@ -283,10 +283,11 @@ namespace DataProcessor
 
         private void AddMidSection(StringBuilder sbMidSect, List<KeyValuePair<string, string>> tokenMap, int curCount, int mergeCount, int remainCount, string templateXmlBody)
         {
-            String sTemplate = new String(templateXmlBody);
+            string sTemplate = new String(templateXmlBody);
             foreach (var tokenVal in tokenMap)
             {
-                sTemplate = sTemplate.Replace(tokenVal.Key, tokenVal.Value);
+                //sTemplate = sTemplate.Replace(tokenVal.Key, tokenVal.Value);
+                sTemplate = sTemplate.ReplaceAlt(tokenVal.Key, tokenVal.Value, StringComparison.OrdinalIgnoreCase);
             }
 
             //foreach (string idType in templateIds)  -- if we decide to manipulate IDs

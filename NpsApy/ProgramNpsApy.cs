@@ -79,8 +79,7 @@ namespace NpsApy
             }
             else
             {
-                if (Debugger.IsAttached)
-                    DbUtil.Unlock(pgConnection, pgSchema);
+                DbUtil.Unlock(pgConnection, pgSchema);
                 runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV, fileType, deleteDir);
             }
 
