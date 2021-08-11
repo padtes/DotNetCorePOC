@@ -5,14 +5,14 @@ if model.pd[0].p017_subscriber_address_line_1  != '';
   x =1;
 end;
 if x == 1 && model.pd[0].p018_subscriber_address_line_2 != '';
-',\\n';
+'<w:br/>';
 end
 if model.pd[0].p018_subscriber_address_line_2 != '';
   x =1;
 end;
 model.pd[0].p018_subscriber_address_line_2
 if x == 1 && model.pd[0].p019_subscriber_address_line_3 != '';
-',\\n';
+'<w:br/>';
 x =1;
 end;
 if model.pd[0].p019_subscriber_address_line_3 != '';
@@ -20,7 +20,11 @@ if model.pd[0].p019_subscriber_address_line_3 != '';
 end;
 model.pd[0].p019_subscriber_address_line_3
 if x == 1 && model.pd[0].p020_subscriber_address_line_4 != '';
-',\\n';
+'<w:br/>'
 end;
 model.pd[0].p020_subscriber_address_line_4
+'<w:br/>'
+model.xx.x_p021_subscriber_address_state
+'-'
+model.pd[0].p023_subscriber_address_pin
 -}}

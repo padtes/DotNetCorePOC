@@ -7,7 +7,7 @@
 	,"system_word":{
 		"file_type" : "nps_lite_letter"
 		,"write_type": "docx"
-		,"max_pages_per_file":"25"
+		,"max_pages_per_file":"35"
 		,"data_table_name":"filedetails"
 		,"data_table_json_col":"json_data"
 		,"data_where":""

@@ -175,7 +175,7 @@ namespace DataProcessor
 
             string courierSeq = "", courierSName = "";
             GetCourierVal(pgConnection, pgSchema, curRec, inpSysParam, ref courierSeq, ref courierSName);
-            if (courierSName == "")//just for code-reading. Actuall Get Next Sequence will bomb out
+            if (courierSName == "")
             {
                 throw new Exception("Courier Short name not found:" + inpSysParam.CourierCol);
             }
