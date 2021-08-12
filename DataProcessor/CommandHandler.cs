@@ -43,6 +43,9 @@ namespace DataProcessor
             if (commandName.Equals("StrFormat", StringComparison.OrdinalIgnoreCase))
                 return new StrFormatter();
 
+            if (commandName.Equals("NumFormat", StringComparison.OrdinalIgnoreCase))
+                return new NumFormatter();
+
             if (commandName.Equals("RowCount", StringComparison.OrdinalIgnoreCase))
                 return new RowCount();
 
@@ -57,6 +60,66 @@ namespace DataProcessor
     public abstract class Command
     {
         public abstract string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst);
+
+        protected void GetArgStEnd(string[] pArr, out int argStInd, out int argEndInd)
+        {
+            if (pArr == null || pArr.Length < 2)
+                throw new Exception("invalid parameters for dateformat value");
+            argStInd = pArr[0].IndexOf("[");
+            argEndInd = pArr[0].LastIndexOf("]");
+            if (argStInd < 1 || argStInd > argEndInd)
+            {
+                throw new Exception("malformed string param:" + pArr[0]);
+            }
+        }
+
+        protected string GetResultAsStr(string[] pArr, string[] progParams, DataRow dr, ref bool isConst, int argStInd, int argEndInd, string defaultOnNull)
+        {
+            string valAsStr;
+            string src = pArr[0].Substring(0, argStInd).Trim();
+            string valIndxStr = pArr[0].Substring(argStInd + 1, (argEndInd - argStInd - 1));
+            try
+            {
+                if (src.ToLower() == "args")
+                {
+                    int valIndx = int.Parse(valIndxStr);
+                    valAsStr = progParams[valIndx];
+                    isConst = true;
+                }
+                else
+                if (src.ToLower() == "dr")
+                {
+                    int valIndx;
+                    if (int.TryParse(valIndxStr, out valIndx))
+                    {
+                        if (dr[valIndx] == DBNull.Value)
+                            valAsStr = defaultOnNull;
+                        else
+                            valAsStr = Convert.ToString(dr[valIndx]);
+                    }
+                    else
+                    {
+                        if (dr[valIndxStr] == DBNull.Value)
+                            valAsStr = defaultOnNull;
+                        else
+                            valAsStr = Convert.ToString(dr[valIndxStr]);
+                    }
+                }
+                else
+                {
+                    throw new Exception("invalid parameter for dateformat value " + pArr[0] + " use dr or args");
+                }
+            }
+            catch (Exception ed)
+            {
+                Exception e1 = new Exception(ed.Message + " invalid value " + pArr[0], ed);
+                throw e1;
+            }
+
+            return valAsStr;
+        }
+
+
     }
 
     public class Join : Command
@@ -77,59 +140,64 @@ namespace DataProcessor
             return dt.Rows.Count.ToString();
         }
     }
+    public class NumFormatter : Command
+    {
+        //param 0 - data
+        //param 1 - format string 
+        //param 2 - default if null
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        {
+            isConst = false;
+            GetArgStEnd(pArr, out int argStInd, out int argEndInd);
 
+            string def = "";
+            if (pArr.Length > 2)
+            {
+                def = pArr[2].ToLower();
+            }
+            string valAsStr = GetResultAsStr(pArr, progParams, dr, ref isConst, argStInd, argEndInd, def);
+
+            try
+            {
+                double num = Convert.ToDouble(valAsStr);
+                valAsStr = num.ToString(pArr[1]);
+            }
+            catch
+            {
+            }
+            return valAsStr;
+        }
+
+    }
     public class StrFormatter : Command
     {
         //param 0 - data
         //param 1 - format: no_fmt, toupper, tolower, totitle
         //param 2 - no_trim, trimstart, trimend, trim, singlespace
+        //param 3 - isnullOrThis:this:default val
         public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
         {
             isConst = false;
-            if (pArr == null || pArr.Length < 2)
-                throw new Exception("invalid parameters for dateformat value");
+            GetArgStEnd(pArr, out int argStInd, out int argEndInd);
 
-            int argStInd = pArr[0].IndexOf("[");
-            int argEndInd = pArr[0].LastIndexOf("]");
-            if (argStInd < 1 || argStInd > argEndInd)
+            string def = "";
+            string ifThis = "";
+            bool hasTransform = false;
+            //string transformName - right now not used.
+            if (pArr.Length > 3)
             {
-                throw new Exception("malformed string param:" + pArr[0]);
+                def = pArr[3].ToLower();
+                string[] tmpS1 = def.Split(':');
+                if (tmpS1.Length >= 3)
+                {
+                    hasTransform = true;
+                    //transformName  = tmpS1[0];
+                    ifThis = tmpS1[1];
+                    def = tmpS1[2];
+                }
             }
 
-            string src = pArr[0].Substring(0, argStInd).Trim();
-            string valIndxStr = pArr[0].Substring(argStInd + 1, (argEndInd - argStInd - 1));
-            string valAsStr;
-            try
-            {
-                if (src.ToLower() == "args")
-                {
-                    int valIndx = int.Parse(valIndxStr);
-                    valAsStr = progParams[valIndx];
-                    isConst = true;
-                }
-                else
-                if (src.ToLower() == "dr")
-                {
-                    int valIndx;
-                    if (int.TryParse(valIndxStr, out valIndx))
-                    {
-                        valAsStr = Convert.ToString(dr[valIndx]);
-                    }
-                    else
-                    {
-                        valAsStr = Convert.ToString(dr[valIndxStr]);
-                    }
-                }
-                else
-                {
-                    throw new Exception("invalid parameter for dateformat value " + pArr[0] + " use dr or args");
-                }
-            }
-            catch (Exception ed)
-            {
-                Exception e1 = new Exception(ed.Message + " invalid date " + pArr[0], ed);
-                throw e1;
-            }
+            string valAsStr = GetResultAsStr(pArr, progParams, dr, ref isConst, argStInd, argEndInd, def);
             string trimWhat = "no_trim";
             if (pArr.Length > 2)
             {
@@ -169,6 +237,15 @@ namespace DataProcessor
                 default:
                     break;
             }
+
+            //transform
+            if (hasTransform)
+            {
+                //only one transform
+                if (valAsStr == ifThis)
+                    valAsStr = def;
+            }
+
             return valAsStr;
         }
     }
