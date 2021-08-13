@@ -11,7 +11,7 @@
 		,"data_table_name":"filedetails"
 		,"data_table_json_col":"json_data"
 		,"data_where":""
-		,"data_order":"json_data->'xx'->'x_document_id'"
+		,"data_order":"json_data->'xx'->'x_daily_serno'"
 		,"where_cols": []
 		,"word_all_files_dir": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\docx-structure"
 		,"word_header_file": "C:\\Users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql\\Word_files_apy\\seg1.txt"
@@ -22,94 +22,145 @@
 	,"placeholders":[
 		{"col":"0", "print_yn":"n", "tag": "{{det_id}}", "src_type":"column" ,"db_value":"filedetails.id", "alias":"detail_id" },
 		{"col":"0", "print_yn":"n", "tag": "{{serial_num}}", "src_type":"#sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
-		{"col":"0", "print_yn":"y", "tag": "{{Date_Of_File_Creation_MMDDYYYY}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'mmddyyyy')","alias" : "" },
-		{"col":"0", "print_yn":"n", "tag": "{{print_date}}", "src_type":"cfunction" ,"db_value":"DateFormat(now,yyyymmdd)","alias" : "" },
-		{"col":"0", "print_yn":"n", "tag": "{{birth_date}}", "src_type":"cfunction" ,"db_value":"DateFormat(dr[birth_dt],dd-mmm-yyyy,MMddyyyy)","alias" : "" },
+		{"col":"0", "print_yn":"n", "tag": "{{print_date}}", "src_type":"#cfunction" ,"db_value":"DateFormat(now,yyyymmdd)","alias" : "" },
+		{"col":"0", "print_yn":"n", "tag": "{{Date_Of_Birth db}}", "src_type":"json" ,"db_value":"'cd'->0->>'c013_date_of_birth'", "alias" :"birth_dtdb"},
+		{"col":"0", "print_yn":"n", "tag": "{{Activation_date_MMDDYYYY_Date}}", "src_type":"json" ,"db_value":"'cd'->0->>'c006_activation_date_mmddyyyy'", "alias" :"activation_datedb"},
+		{"col":"0", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_1db}}", "src_type":"json" ,"db_value":"'sd'->0->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_1db"},
+		{"col":"0", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_2db}}", "src_type":"json" ,"db_value":"'sd'->1->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_2db"},
+		{"col":"0", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_3db}}", "src_type":"json" ,"db_value":"'sd'->2->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_3db"},
+		{"col":"0", "print_yn":"n", "tag": "{{Telephone_NumberDB}}", "src_type":"json" ,"db_value":"'cd'->0->>'c030_telephone_number'", "alias" :"telephone_numberdb"},
+		{"col":"0", "print_yn":"n", "tag": "{{Emaildb}}", "src_type":"json" ,"db_value":"'cd'->0->>'c033_email'", "alias" :"emaildb"},
 
-		{"col":"1", "print_yn":"y", "tag": "{{*Subscriberbarcode*}}", "src_type":"json" ,"db_value":"'pd'->0->>'p045_subscriber_bar_code'", "alias" :"subscriber_barcode"},
+		{"col":"1", "print_yn":"y", "tag": "{{Subscriber_Bar_Code}}", "src_type":"json" ,"db_value":"'pd'->0->>'p045_subscriber_bar_code'", "alias" :"subscriber_barcode"},
 		{"col":"2", "print_yn":"y", "tag": "{{PRAN}}", "src_type":"json" ,"db_value":"'pd'->0->>'p008_pran'", "alias" :"pran"},
-		{"col":"3", "print_yn":"y", "tag": "{{Acknowledgement_Number_Printercode_couriercode}}", "src_type":"json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"document_id"},
-		{"col":"5", "print_yn":"y", "tag": "{{Firstname}}", "src_type":"json" ,"db_value":"'pd'->0->>'p010_first_name'", "alias" :"firstname"},
-		{"col":"6", "print_yn":"y", "tag": "{{Middlename}}", "src_type":"json" ,"db_value":"'pd'->0->>'p012_middle_name'", "alias" :"middlename"},
-		{"col":"7", "print_yn":"y", "tag": "{{LastName_Surname}}", "src_type":"json" ,"db_value":"'pd'->0->>'p011_last_name_surname'", "alias" :"lastname_surname"},
-		{"col":"8", "print_yn":"y", "tag": "{{SubscriberAddressline1}}", "src_type":"json" ,"db_value":"'pd'->0->>'p017_subscriber_address_line_1'", "alias" :"subscriberaddressline1"},
-		{"col":"9", "print_yn":"y", "tag": "{{SubscriberAddressline2}}", "src_type":"json" ,"db_value":"'pd'->0->>'p018_subscriber_address_line_2'", "alias" :"subscriberaddressline2"},
-		{"col":"10", "print_yn":"y", "tag": "{{SubscriberAddressline3}}", "src_type":"json" ,"db_value":"'pd'->0->>'p019_subscriber_address_line_3'", "alias" :"subscriberaddressline3"},
-		{"col":"11", "print_yn":"y", "tag": "{{SubscriberAddressline4}}", "src_type":"json" ,"db_value":"'pd'->0->>'p020_subscriber_address_line_4'", "alias" :"subscriberaddressline4"},
-		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"json" ,"db_value":"'xx'->>'x_p021_subscriber_address_state'", "alias" :"subscriberaddressstate"},
-		{"col":"13", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"json" ,"db_value":"'pd'->0->>'p022_subscriber_address_country'", "alias" :"subscriberaddresscountry"},
-		{"col":"14", "print_yn":"y", "tag": "{{MobileNumber}}", "src_type":"json" ,"db_value":"'cd'->0->>'c031_mobile_number'", "alias" :"mobilenumber"},
+		{"col":"3", "print_yn":"y", "tag": "{{FileName_DATE}}", "src_type":"json" ,"db_value":"'xx'->>'x_fileName_date'", "alias" :"filename_date"},
+		{"col":"3", "print_yn":"y", "tag": "{{FileName_SRNO}}", "src_type":"json" ,"db_value":"'xx'->>'x_fileName_ser_no'", "alias" :"fileName_ser_no"},
+		{"col":"3", "print_yn":"y", "tag": "{{Courier_ID}}", "src_type":"json" ,"db_value":"'pd'->0->>'p006_courier_id'", "alias" :"courier_id"},
+		{"col":"3", "print_yn":"y", "tag": "{{CARD_SRNO}}","src_type":"json" ,"db_value":"'xx'->>'x_daily_serno'", "alias" :"card_ser_no"},
 
-		{"col":"18", "print_yn":"y", "tag": "{{SubscriberAddress line3}}", "src_type":"json" ,"db_value":"'pd'->0->>'p019_subscriber_address_line_3'", "alias" :"subscriberaddressline3"},
-		{"col":"19", "print_yn":"y", "tag": "{{SubscriberAddress line4}}", "src_type":"json" ,"db_value":"'pd'->0->>'p020_subscriber_address_line_4'", "alias" :"subscriberaddressline4"},
+		{"col":"4", "print_yn":"y", "tag": "{{Date_Of_File_Creation_DD-MM-YYYY}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'dd-MM-yyyy')","alias" : "prn_dt" },
+		{"col":"4", "print_yn":"y", "tag": "{{DOCUMENT_ID}}", "src_type":"json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"document_id"},
 
-		{"col":"25", "print_yn":"y", "tag": "{{NL-AO_NL-OO_Reg._No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p025_nl_ao_nl_oo_reg_no'", "alias" :"nl_oo_reg"},
-		{"col":"26", "print_yn":"y", "tag": "{{NL-AO_NL-CC_Reg._No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p035_nl_ao_nl_cc_reg_no'", "alias" :"nl_cc_reg"},
+		{"col":"5", "print_yn":"n", "tag": "{{SUBSCRIBER_FULLNAME_db}}", "src_type":"json" ,"db_value":"'xx'->>'x_sub_full_name1'", "alias" :"sub_fullnamedb"},
+		{"col":"5", "print_yn":"y", "tag": "{{SUBSCRIBER_FULLNAME}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[sub_fullnamedb],no_fmt,singlespace)", "alias" :"sub_fullname"},
+
+		{"col":"8", "print_yn":"y", "tag": "{{SubscriberAddressline1:NL}}", "src_type":"json" ,"db_value":"'xx'->>'x_formatted_addr_sub_wbr'", "alias" :"subscriberaddressline1"},
+		{"col":"9", "print_yn":"y", "tag": "{{SubscriberAddressline2:NL}}", "src_type":"const" ,"db_value":"", "alias" :"subscriberaddressline2"},
+		{"col":"10", "print_yn":"y", "tag": "{{SubscriberAddressline3:NL}}", "src_type":"const" ,"db_value":"", "alias" :"subscriberaddressline3"},
+		{"col":"11", "print_yn":"y", "tag": "{{SubscriberAddressline4:NL}}", "src_type":"const" ,"db_value":"", "alias" :"subscriberaddressline4"},
+
+		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"#json" ,"db_value":"'xx'->>'x_p021_subscriber_address_state'", "alias" :"subscriberaddressstate"},
+		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"const" ,"db_value":"", "alias" :"subscriberaddressstate"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{SubscriberAddressCountryDB}}", "src_type":"json" ,"db_value":"'xx'->>'x_p022_subscriber_address_country'", "alias" :"subscriber_countrydb"},
+		{"col":"13", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[subscriber_countrydb],toupper,singlespace)", "alias" :"subscriber_country"},
+		{"col":"14", "print_yn":"y", "tag": "{{Mobile_Number}}", "src_type":"json" ,"db_value":"'cd'->0->>'c031_mobile_number'", "alias" :"mobilenumber"},
+
+		{"col":"25", "print_yn":"y", "tag": "{{APY_Service_Provider_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p056_apy_service_provider_name'", "alias" :"ap_serv_provider"},
+		{"col":"25", "print_yn":"y", "tag": "{{NL_AO_NL_OO_Office_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p024_nl_ao_nl_oo_office_name'", "alias" :"nl_oo_reg"},
+		{"col":"25", "print_yn":"y", "tag": "{{APY-SP Reg No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p025_nl_ao_nl_oo_reg_no'", "alias" :"apy_sp_reg"},
+		{"col":"26", "print_yn":"y", "tag": "{{NL_AO_NL_CC_Reg_No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p035_nl_ao_nl_cc_reg_no'", "alias" :"nl_cc_reg"},
 		{"col":"28", "print_yn":"y", "tag": "{{NL-AO_NL-OO_Office_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p024_nl_ao_nl_oo_office_name'", "alias" :"nl_oo_office"},
 
 		{"col":"29", "print_yn":"y", "tag": "{{First_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p010_first_name'", "alias" :"first_name2"},
 		{"col":"30", "print_yn":"y", "tag": "{{Middle_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p012_middle_name'", "alias" :"middlename2"},
 		{"col":"31", "print_yn":"y", "tag": "{{Last Name/Surname}}", "src_type":"json" ,"db_value":"'pd'->0->>'p011_last_name_surname'", "alias" :"lastname_surname2"},
 
-		{"col":"32", "print_yn":"y", "tag": "{{Father_First_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p013_fathers_first_name'", "alias" :"father_first_name"},
-		{"col":"33", "print_yn":"y", "tag": "{{Father_Middle_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p015_fathers_middle_name'", "alias" :"father_middle_name"},
-		{"col":"34", "print_yn":"y", "tag": "{{Father_Last_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p014_fathers_last_name_surname'", "alias" :"father_last_name"},
-		{"col":"36", "print_yn":"y", "tag": "{{Activation_date_MMDDYYYY_Date}}", "src_type":"json" ,"db_value":"'cd'->0->>'c006_activation_date_mmddyyyy'", "alias" :"activation_date"},
-		{"col":"37", "print_yn":"y", "tag": "{{Telephone_Number}}", "src_type":"json" ,"db_value":"'cd'->0->>'c030_telephone_number'", "alias" :"telephone_number"},
+		{"col":"32", "print_yn":"y", "tag":"{{PARENTS_FULLNAME}}", "src_type":"json" ,"db_value":"'xx'->>'x_par_full_name1'", "alias" :"parent_nm"},
+		{"col":"36", "print_yn":"y", "tag": "{{Activation_date_DD-MM-YYYY}}", "src_type":"cfunction" ,"db_value":"DateFormat(dr[activation_datedb],dd-MM-yyyy,MMddyyyy)", "alias" :"activation_date"},
+		{"col":"37", "print_yn":"y", "tag": "{{Telephone_Number}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[telephone_numberdb],no_fmt,trim,isnullOrThis::-)", "alias" :"telephone_number"},
+
 		{"col":"38", "print_yn":"y", "tag": "{{PAN}}", "src_type":"json" ,"db_value":"'cd'->0->>'c015_pan'", "alias" :"pan"},
-		{"col":"39", "print_yn":"y", "tag": "{{Date_Of_Birth}}", "src_type":"json" ,"db_value":"'cd'->0->>'c013_date_of_birth'", "alias" :"birth_dt"},
+		{"col":"39", "print_yn":"y", "tag": "{{Date_Of_Birth}}", "src_type":"cfunction" ,"db_value":"DateFormat(dr[birth_dtdb],dd-MM-yyyy,MMddyyyy)","alias" : "" },
 
 		{"col":"40", "print_yn":"y", "tag": "{{Mobile_Number}}", "src_type":"json" ,"db_value":"'cd'->0->>'c031_mobile_number'", "alias" :"mobile_number2"},
 
 		{"col":"41", "print_yn":"y", "tag": "{{Gender}}", "src_type":"json" ,"db_value":"'xx'->>'x_gender'", "alias" :"gender"},
-		{"col":"42", "print_yn":"y", "tag": "{{Email}}", "src_type":"json" ,"db_value":"'cd'->0->>'c033_email'", "alias" :"email"},
-		{"col":"48", "print_yn":"y", "tag": "{{SubscriberAddressPIN}}", "src_type":"json" ,"db_value":"'pd'->0->>'p023_subscriber_address_pin'", "alias" :"sub_addr_pin"},
-		{"col":"49", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"json" ,"db_value":"'pd'->0->>'p022_subscriber_address_country'", "alias" :"sub_addr_country"},
+
+		{"col":"42", "print_yn":"y", "tag": "{{Email}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[emaildb],tolower,trim,isnullOrThis::-)", "alias" :"email"},
+		
+		{"col":"48", "print_yn":"y", "tag": "{{SubscriberAddressPIN}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p023_subscriber_address_pin'", "alias" :"sub_addr_pin"},
+		{"col":"48", "print_yn":"y", "tag": "{{SubscriberAddressPIN}}", "src_type":"const" ,"db_value":"", "alias" :"sub_addr_pin_bl"},
 		
 		{"col":"50", "print_yn":"y", "tag": "{{Bank_Name}}", "src_type":"json" ,"db_value":"'cd'->0->>'c038_bank_name'", "alias" :"bank_name"},
 
-		{"col":"51", "print_yn":"y", "tag": "{{Subscribers_Bank_A_C_No}}", "src_type":"json" ,"db_value":"'cd'->0->>'c037_subscriber’s_bank_a_c_no'", "alias" :"sub_bank_a_c_no"},
+		{"col":"51", "print_yn":"y", "tag": "{{Subscriber_Bank_AC_No}}", "src_type":"json" ,"db_value":"'cd'->0->>'c037_subscriber’s_bank_a_c_no'", "alias" :"sub_bank_a_c_no"},
 		{"col":"54", "print_yn":"y", "tag": "{{Bank_Address}}", "src_type":"json" ,"db_value":"'cd'->0->>'c040_bank_address'", "alias" :"bank_address"},
 		{"col":"55", "print_yn":"y", "tag": "{{Bank_Address_PIN}}", "src_type":"json" ,"db_value":"'cd'->0->>'c041_bank_address_pin'", "alias" :"bank_address_pin"},
-		{"col":"56", "print_yn":"y", "tag": "{{Subscribers_Bank_Type}}", "src_type":"json" ,"db_value":"'cd'->0->>'c036_subscribers_bank_type'", "alias" :"subscribers_bank_type"},
+		{"col":"56", "print_yn":"y", "tag": "{{Subscriber_Bank_Type}}", "src_type":"json" ,"db_value":"'cd'->0->>'c036_subscribers_bank_type'", "alias" :"subscribers_bank_type"},
 		{"col":"57", "print_yn":"y", "tag": "{{Bank_MICR_Code}}", "src_type":"json" ,"db_value":"'cd'->0->>'c042_bank_micr_code'", "alias" :"bank_micr_code"},
 		{"col":"58", "print_yn":"y", "tag": "{{Bank_Branch}}", "src_type":"json" ,"db_value":"'cd'->0->>'c039_bank_branch'", "alias" :"bank_branch"},
-		{"col":"59", "print_yn":"n", "tag": "{{Nominee_FullName_DB}}", "src_type":"json" ,"db_value":"'xx'->>'x_nd1_full_name'", "alias" :"nominee_full_nm_nd1_db"},
-		{"col":"59", "print_yn":"n", "tag": "{{Nominee_First_Name_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nominee_full_nm_nd1_db],no_fmt,singlespace)", "alias" :"nominee_first_name_nd_1"},
-		{"col":"60", "print_yn":"y", "tag": "{{Nominee_Middle_Name_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n008_nominee_middle_name'", "alias" :"nominee_middle_name_nd_1"},
-		{"col":"61", "print_yn":"y", "tag": "{{Nominee_Last_Name_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n007_nominee_last_name'", "alias" :"nominee_last_name_nd_1"},
-		{"col":"62", "print_yn":"y", "tag": "{{Nominee_First_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n006_nominee_first_name'", "alias" :"nominee_first_name_nd_2"},
-		{"col":"63", "print_yn":"y", "tag": "{{Nominee_Middle_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n008_nominee_middle_name'", "alias" :"nominee_middle_name_nd_2"},
-		{"col":"64", "print_yn":"y", "tag": "{{Nominee_Last_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n007_nominee_last_name'", "alias" :"nominee_last_name_nd_2"},
-		{"col":"65", "print_yn":"y", "tag": "{{Nominee_First_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n006_nominee_first_name'", "alias" :"nominee_first_name_nd_3"},
-		{"col":"66", "print_yn":"y", "tag": "{{Nominee_Middle_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n008_nominee_middle_name'", "alias" :"nominee_middle_name_nd_3"},
-		{"col":"67", "print_yn":"y", "tag": "{{Nominee_Last_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n007_nominee_last_name'", "alias" :"nominee_last_name_nd_3"},
-		{"col":"68", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_1"},
-		{"col":"69", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_2"},
-		{"col":"70", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_3"},
-		{"col":"71", "print_yn":"y", "tag": "{{Relationship_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n010_relationship'", "alias" :"relationship_nd_1"},
-		{"col":"72", "print_yn":"y", "tag": "{{Relationship_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n010_relationship'", "alias" :"relationship_nd_2"},
-		{"col":"73", "print_yn":"y", "tag": "{{Relationship_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n010_relationship'", "alias" :"relationship_nd_3"},
-		{"col":"74", "print_yn":"y", "tag": "{{Percentage_Share_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n015_percentage_share'", "alias" :"percentage_share_nd_1"},
-		{"col":"75", "print_yn":"y", "tag": "{{Percentage_Share_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n015_percentage_share'", "alias" :"percentage_share_nd_2"},
-		{"col":"76", "print_yn":"y", "tag": "{{Percentage_Share_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n015_percentage_share'", "alias" :"percentage_share_nd_3"},
-		{"col":"77", "print_yn":"y", "tag": "{{Guardian_First_Name_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n012_guardian_first_name'", "alias" :"guardian_first_name_nd_1"},
-		{"col":"78", "print_yn":"y", "tag": "{{Guardian_Middle_Name_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n014_guardian_middle_name'", "alias" :"guardian_middle_name_nd_1"},
-		{"col":"79", "print_yn":"y", "tag": "{{Guardian_Last_Name_ND_1}}", "src_type":"json" ,"db_value":"'nd'->1->>'n013_guardian_last_name'", "alias" :"guardian_last_name_nd_1"},
-		{"col":"80", "print_yn":"y", "tag": "{{Guardian_First_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n012_guardian_first_name'", "alias" :"guardian_first_name_nd_2"},
-		{"col":"81", "print_yn":"y", "tag": "{{Guardian_Middle_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n014_guardian_middle_name'", "alias" :"guardian_middle_name_nd_2"},
-		{"col":"82", "print_yn":"y", "tag": "{{Guardian_Last_Name_ND_2}}", "src_type":"json" ,"db_value":"'nd'->2->>'n013_guardian_last_name'", "alias" :"guardian_last_name_nd_2"},
-		{"col":"83", "print_yn":"y", "tag": "{{Guardian_First_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n012_guardian_first_name'", "alias" :"guardian_first_name_nd_3"},
-		{"col":"84", "print_yn":"y", "tag": "{{Guardian_Middle_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n014_guardian_middle_name'", "alias" :"guardian_middle_name_nd_3"},
-		{"col":"85", "print_yn":"y", "tag": "{{Guardian_Last_Name_ND_3}}", "src_type":"json" ,"db_value":"'nd'->3->>'n013_guardian_last_name'", "alias" :"guardian_last_name_nd_3"},
-		{"col":"86", "print_yn":"y", "tag": "{{PFM_Name_SD_1}}", "src_type":"json" ,"db_value":"'sd'->1->>'s005_pfm_name'", "alias" :"pfm_name_sd_1"},
-		{"col":"87", "print_yn":"y", "tag": "{{PFM_Name_SD_2}}", "src_type":"json" ,"db_value":"'sd'->2->>'s005_pfm_name'", "alias" :"pfm_name_sd_2"},
-		{"col":"88", "print_yn":"y", "tag": "{{PFM_Name_SD_3}}", "src_type":"json" ,"db_value":"'sd'->3->>'s005_pfm_name'", "alias" :"pfm_name_sd_3"},
-		{"col":"89", "print_yn":"y", "tag": "{{Scheme_Name_SD_1}}", "src_type":"json" ,"db_value":"'sd'->1->>'s007_scheme_name'", "alias" :"scheme_name_sd_1"},
-		{"col":"90", "print_yn":"y", "tag": "{{Scheme_Name_SD_2}}", "src_type":"json" ,"db_value":"'sd'->2->>'s007_scheme_name'", "alias" :"scheme_name_sd_2"},
-		{"col":"91", "print_yn":"y", "tag": "{{Scheme_Name_SD_3}}", "src_type":"json" ,"db_value":"'sd'->3->>'s007_scheme_name'", "alias" :"scheme_name_sd_3"},
-		{"col":"92", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_1}}", "src_type":"json" ,"db_value":"'sd'->1->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_1"},
-		{"col":"93", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_2}}", "src_type":"json" ,"db_value":"'sd'->2->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_2"},
-		{"col":"94", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_3}}", "src_type":"json" ,"db_value":"'sd'->3->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_3"}
+		{"col":"59", "print_yn":"n", "tag": "{{Nominee_FullName_DB1}}", "src_type":"json" ,"db_value":"'xx'->>'x_nd1_full_name'", "alias" :"nominee_full_nm_nd1_db"},
+		{"col":"59", "print_yn":"y", "tag": "{{Nominee_FullName_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nominee_full_nm_nd1_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nominee_first_name_nd1"},
+		
+		{"col":"60", "print_yn":"n", "tag": "{{Nominee_FullName_DB2}}", "src_type":"json" ,"db_value":"'xx'->>'x_nd2_full_name'", "alias" :"nominee_full_nm_nd2_db"},
+		{"col":"60", "print_yn":"y", "tag": "{{Nominee_FullName_ND_2}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nominee_full_nm_nd2_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nominee_first_name_nd2"},
+
+		{"col":"61", "print_yn":"n", "tag": "{{Nominee_FullName_DB3}}", "src_type":"json" ,"db_value":"'xx'->>'x_nd3_full_name'", "alias" :"nominee_full_nm_nd3_db"},
+		{"col":"61", "print_yn":"y", "tag": "{{Nominee_FullName_ND_3}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nominee_full_nm_nd3_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nominee_first_name_nd3"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Nominee_Date_of_Birth_ND_1db}}", "src_type":"json" ,"db_value":"'nd'->0->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_1db"},
+		{"col":"68", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nd_dob_1db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nd_dob_1"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Nominee_Date_of_Birth_ND_2db}}", "src_type":"json" ,"db_value":"'nd'->1->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_2db"},
+		{"col":"69", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_2}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nd_dob_2db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nd_dob_2"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Nominee_Date_of_Birth_ND_3db}}", "src_type":"json" ,"db_value":"'nd'->2->>'n009_nominee_date_of_birth'", "alias" :"nd_dob_3db"},
+		{"col":"70", "print_yn":"y", "tag": "{{Nominee_Date_of_Birth_ND_3}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[nd_dob_3db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"nd_dob_3"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Relationship_ND_1db}}", "src_type":"json" ,"db_value":"'nd'->0->>'n010_relationship'", "alias" :"relationship_nd_1db"},
+		{"col":"71", "print_yn":"y", "tag": "{{Relationship_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[relationship_nd_1db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"relationship_nd_1"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Relationship_ND_2db}}", "src_type":"json" ,"db_value":"'nd'->1->>'n010_relationship'", "alias" :"relationship_nd_2db"},
+		{"col":"72", "print_yn":"y", "tag": "{{Relationship_ND_2}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[relationship_nd_2db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"relationship_nd_2"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Relationship_ND_3db}}", "src_type":"json" ,"db_value":"'nd'->2->>'n010_relationship'", "alias" :"relationship_nd_3db"},
+		{"col":"73", "print_yn":"y", "tag": "{{Relationship_ND_3}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[relationship_nd_3db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"relationship_nd_3db"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Percentage_Share_ND_1db}}", "src_type":"json" ,"db_value":"'nd'->0->>'n015_percentage_share'", "alias" :"percent_nd_1db"},
+		{"col":"74", "print_yn":"y", "tag": "{{Percentage_Share_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[percent_nd_1db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"percentage_share_nd_1"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Percentage_Share_ND_2db}}", "src_type":"json" ,"db_value":"'nd'->1->>'n015_percentage_share'", "alias" :"percent_nd_2db"},
+		{"col":"75", "print_yn":"y", "tag": "{{Percentage_Share_ND_2}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[percent_nd_2db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"percentage_share_nd_2"},
+	
+	    {"col":"0", "print_yn":"n", "tag": "{{Percentage_Share_ND_3db}}", "src_type":"json" ,"db_value":"'nd'->2->>'n015_percentage_share'", "alias" :"percent_nd_3db"},
+	    {"col":"76", "print_yn":"y", "tag": "{{Percentage_Share_ND_3}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[percent_nd_3db],no_fmt,no_trim,isnullOrThis::-)", "alias" :"percentage_share_nd_3"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Guardian_FullName_DB1}}", "src_type":"json" ,"db_value":"'xx'->>'x_ndgrd1_full_name'", "alias" :"xgrd1_full_nm_db"},
+		{"col":"61", "print_yn":"y", "tag": "{{GUARDIAN_FULLNAME_ND_1}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[xgrd1_full_nm_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"grd1_full_name"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Guardian_FullName_DB2}}", "src_type":"json" ,"db_value":"'xx'->>'x_ndgrd2_full_name'", "alias" :"xgrd2_full_nm_db"},
+		{"col":"62", "print_yn":"y", "tag": "{{GUARDIAN_FULLNAME_ND_2}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[xgrd2_full_nm_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"grd1_full_name"},
+
+		{"col":"0", "print_yn":"n", "tag": "{{Guardian_FullName_DB3}}", "src_type":"json" ,"db_value":"'xx'->>'x_ndgrd3_full_name'", "alias" :"xgrd3_full_nm_db"},
+		{"col":"63", "print_yn":"y", "tag": "{{GUARDIAN_FULLNAME_ND_3}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[xgrd3_full_nm_db],no_fmt,singlespace,isnullOrThis::-)", "alias" :"grd1_full_name"},
+
+		{"col":"86", "print_yn":"y", "tag": "{{PFM_Name_SD_1}}", "src_type":"json" ,"db_value":"'sd'->0->>'s005_pfm_name'", "alias" :"pfm_name_sd_1"},
+		{"col":"87", "print_yn":"y", "tag": "{{PFM_Name_SD_2}}", "src_type":"json" ,"db_value":"'sd'->1->>'s005_pfm_name'", "alias" :"pfm_name_sd_2"},
+		{"col":"88", "print_yn":"y", "tag": "{{PFM_Name_SD_3}}", "src_type":"json" ,"db_value":"'sd'->2->>'s005_pfm_name'", "alias" :"pfm_name_sd_3"},
+		{"col":"89", "print_yn":"y", "tag": "{{Scheme_Name_SD_1}}", "src_type":"json" ,"db_value":"'sd'->0->>'s007_scheme_name'", "alias" :"scheme_name_sd_1"},
+		{"col":"90", "print_yn":"y", "tag": "{{Scheme_Name_SD_2}}", "src_type":"json" ,"db_value":"'sd'->1->>'s007_scheme_name'", "alias" :"scheme_name_sd_2"},
+		{"col":"91", "print_yn":"y", "tag": "{{Scheme_Name_SD_3}}", "src_type":"json" ,"db_value":"'sd'->2->>'s007_scheme_name'", "alias" :"scheme_name_sd_3"},
+		{"col":"92", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_1}}", "src_type":"cfunction" ,"db_value":"NumFormat(dr[percentage_of_investment_sd_1db],###,-)", "alias" :"percentage_of_investment_sd_1"},
+		{"col":"93", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_2}}", "src_type":"cfunction" ,"db_value":"NumFormat(dr[percentage_of_investment_sd_2db],###,-)", "alias" :"percentage_of_investment_sd_2"},
+		{"col":"94", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_3}}", "src_type":"cfunction" ,"db_value":"NumFormat(dr[percentage_of_investment_sd_3db],###,-)", "alias" :"percentage_of_investment_sd_3"}
+
+		,
+		{"col":"3z", "print_yn":"y", "tag": "{{Acknowledgement_Number_Printercode_couriercode}}", "src_type":"#json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"ZZdocument_id"},
+		{"col":"5z", "print_yn":"y", "tag": "{{Firstname}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p010_first_name'", "alias" :"ZZfirstname"},
+		{"col":"6z", "print_yn":"y", "tag": "{{Middlename}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p012_middle_name'", "alias" :"ZZmiddlename"},
+		{"col":"7z", "print_yn":"y", "tag": "{{LastName_Surname}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p011_last_name_surname'", "alias" :"ZZlastname_surname"},
+		{"col":"9z", "print_yn":"y", "tag": "{{SubscriberAddressline2:NL}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p018_subscriber_address_line_2'", "alias" :"subscriberaddressline2"},
+		{"col":"10z", "print_yn":"y", "tag": "{{SubscriberAddressline3:NL}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p019_subscriber_address_line_3'", "alias" :"subscriberaddressline3"},
+		{"col":"11z", "print_yn":"y", "tag": "{{SubscriberAddressline4:NL}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p020_subscriber_address_line_4'", "alias" :"subscriberaddressline4"},
+		{"col":"18z", "print_yn":"y", "tag": "{{SubscriberAddress line3}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p019_subscriber_address_line_3'", "alias" :"subscriberaddressline3"},
+		{"col":"19z", "print_yn":"y", "tag": "{{SubscriberAddress line4}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p020_subscriber_address_line_4'", "alias" :"subscriberaddressline4"},
+		{"col":"32z", "print_yn":"y", "tag": "{{Father_First_Name}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p013_fathers_first_name'", "alias" :"father_first_name"},
+		{"col":"33z", "print_yn":"y", "tag": "{{Father_Middle_Name}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p015_fathers_middle_name'", "alias" :"father_middle_name"},
+		{"col":"34z", "print_yn":"y", "tag": "{{Father_Last_Name}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p014_fathers_last_name_surname'", "alias" :"father_last_name"},
+		{"col":"49z", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p022_subscriber_address_country'", "alias" :"sub_addr_country"},
+		{"col":"76z", "print_yn":"y", "tag": "{{Percentage_Share_ND_3}}", "src_type":"#json" ,"db_value":"'nd'->2->>'n015_percentage_share'", "alias" :"percentage_share_nd_3"},
+
+		{"col":"999", "print_yn":"n", "tag": "{{DUMMY_EOF}}", "src_type":"#const" ,"db_value":"", "alias" :"dummy_EOF"}	
 	]
 }

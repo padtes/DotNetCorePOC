@@ -30,6 +30,7 @@
 		{"col":"0", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_3db}}", "src_type":"json" ,"db_value":"'sd'->2->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_3db"},
 		{"col":"0", "print_yn":"n", "tag": "{{Telephone_NumberDB}}", "src_type":"json" ,"db_value":"'cd'->0->>'c030_telephone_number'", "alias" :"telephone_numberdb"},
 		{"col":"0", "print_yn":"n", "tag": "{{Emaildb}}", "src_type":"json" ,"db_value":"'cd'->0->>'c033_email'", "alias" :"emaildb"},
+		{"col":"0", "print_yn":"n", "tag": "{{SubscriberAddressCountrydb}}", "src_type":"json" ,"db_value":"'xx'->>'x_p022_subscriber_address_country'", "alias" :"subscriber_countrydb"},
 
 		{"col":"1", "print_yn":"y", "tag": "{{Subscriber_Bar_Code}}", "src_type":"json" ,"db_value":"'pd'->0->>'p045_subscriber_bar_code'", "alias" :"subscriber_barcode"},
 		{"col":"2", "print_yn":"y", "tag": "{{PRAN}}", "src_type":"json" ,"db_value":"'pd'->0->>'p008_pran'", "alias" :"pran"},
@@ -52,7 +53,7 @@
 		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"#json" ,"db_value":"'xx'->>'x_p021_subscriber_address_state'", "alias" :"subscriberaddressstate"},
 		{"col":"12", "print_yn":"y", "tag": "{{SubscriberAddressState}}", "src_type":"const" ,"db_value":"", "alias" :"subscriberaddressstate"},
 
-		{"col":"13", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"json" ,"db_value":"'xx'->>'x_p022_subscriber_address_country'", "alias" :"subscriberaddresscountry"},
+		{"col":"13", "print_yn":"y", "tag": "{{SubscriberAddressCountry}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[subscriber_countrydb],toupper,singlespace)", "alias" :"subscriberaddresscountry"},
 		{"col":"14", "print_yn":"y", "tag": "{{Mobile_Number}}", "src_type":"json" ,"db_value":"'cd'->0->>'c031_mobile_number'", "alias" :"mobilenumber"},
 
 		{"col":"25", "print_yn":"y", "tag": "{{NL_AO_NL_OO_Office_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p024_nl_ao_nl_oo_office_name'", "alias" :"nl_oo_reg"},
@@ -75,7 +76,7 @@
 
 		{"col":"41", "print_yn":"y", "tag": "{{Gender}}", "src_type":"json" ,"db_value":"'xx'->>'x_gender'", "alias" :"gender"},
 
-		{"col":"42", "print_yn":"y", "tag": "{{Email}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[emaildb],no_fmt,trim,isnullOrThis::-)", "alias" :"email"},
+		{"col":"42", "print_yn":"y", "tag": "{{Email}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[emaildb],tolower,trim,isnullOrThis::-)", "alias" :"email"},
 		
 		{"col":"48", "print_yn":"y", "tag": "{{SubscriberAddressPIN}}", "src_type":"#json" ,"db_value":"'pd'->0->>'p023_subscriber_address_pin'", "alias" :"sub_addr_pin"},
 		{"col":"48", "print_yn":"y", "tag": "{{SubscriberAddressPIN}}", "src_type":"const" ,"db_value":"", "alias" :"sub_addr_pin_bl"},
