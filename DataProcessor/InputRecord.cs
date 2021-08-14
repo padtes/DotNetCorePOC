@@ -388,7 +388,19 @@ namespace DataProcessor
                     freqType = SequenceCol.DAILY;
                 }
 
-                string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, col.SeqLength, freqType: freqType, freqValue: runForParam);
+                string pattern ="";
+                string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, ref pattern, col.SeqLength, freqType: freqType, freqValue: runForParam);
+
+                if (pattern != "")
+                {
+                    string tmp1 = newSeq;
+                    string tmp2 = "";
+                    if (pattern.IndexOf("{CHK_VAL}") > 0)
+                        tmp2 = "TODO-" + srcVal;
+
+                    newSeq = pattern.Replace("{sequence}", tmp1)
+                        .Replace("{CHK_VAL}", tmp2);
+                }
 
                 this.sequenceCols.Add(new SequenceColWithVal()
                 {

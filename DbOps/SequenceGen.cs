@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Logging;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
 
@@ -13,8 +15,11 @@ namespace DbOps
         private static Dictionary<string, int> courierLocks = new Dictionary<string, int>();  //to make sure no other process or machine is using same courier
 
         public static string GetNextSequence(bool withLock, string pgConnection, string pgSchema, string seqName, string seqSourceCode
+            , ref string pattern
             , int fixedLen = -1, bool addIfNeeded = false, bool unlock = false, string freqType = "", string freqValue = "")
         {
+            pattern = "";
+
             bool recFound = true;
             bool dbOk = true;
             int lockKey = 0;
@@ -77,11 +82,41 @@ namespace DbOps
                 retStr = retStr.PadLeft(fixedLen, '0');
             }
 
+            pattern = GetPattern(pgConnection, pgSchema, seqName, freqType);
+
             if (unlock)
             {
                 UnlockSeq(pgConnection, pgSchema, seqName, seqSourceCode, lockKey);
             }
             return retStr;
+        }
+
+        private static string GetPattern(string pgConnection, string pgSchema, string seqName, string freqType)
+        {
+            string sql = $"select pat from {pgSchema}.counters where counter_name = '{seqName}' and parent_id = 0";
+            if (freqType != "")
+            {
+                sql += $" and freq_period = '{freqType}'";
+            }
+            else
+            {
+                sql += " and coalesce(freq_period, '') = ''";
+            }
+            try
+            {
+                DataTable dt = DbUtil.GetDataTab(pgConnection, logProName, "", 0, sql);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    return Convert.ToString(dt.Rows[0][0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("_" + logProName, "GetPattern", 0, "Error Sql:" + sql, Logger.ERROR);
+                Logger.WriteEx("_" + logProName, "GetPattern", 0, ex);
+            }
+
+            return "";
         }
 
         public static void UnlockSeq(string pgConnection, string pgSchema, string seqName, string seqSourceCode, int lockKey)

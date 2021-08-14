@@ -35,6 +35,25 @@ namespace DbOps
             }
         }
 
+        public static DataTable GetDataTab(string pgConnection, string logProgramName, string moduleName, int jobId, string sql)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                using (NpgsqlDataAdapter dataContent = new NpgsqlDataAdapter(sql, pgConnection))
+                {
+                    dataContent.Fill(dt);
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(moduleName, logProgramName, "GetDataTable", jobId, 0, sql, ex);
+                throw;
+            }
+        }
+
+
         public static bool ExecuteNonSql(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql)
         {
             try

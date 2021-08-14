@@ -107,7 +107,8 @@ namespace DataProcessor
 
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, 2, addIfNeeded: true, unlock: true); 
+            string pattern = "";
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string doneAction = "";
@@ -207,7 +208,8 @@ namespace DataProcessor
 
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, 2, addIfNeeded: true, unlock: true); 
+            string pattern= "";
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
@@ -293,7 +295,8 @@ namespace DataProcessor
 
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, 2, addIfNeeded: true, unlock: true); 
+            string pattern = "";
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
