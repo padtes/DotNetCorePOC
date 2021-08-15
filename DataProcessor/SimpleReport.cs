@@ -198,7 +198,7 @@ namespace DataProcessor
             List<string> courierList = new List<string>();
 
             DbUtil.GetCouriers(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //JobId
-            , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCSV, out string sql);
+            , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCSV, "", out string sql);
 
             Logger.WriteInfo(logProgramName, "PrintCardByApy", 0, "sql:" + sql);
             if (courierList.Count < 1)

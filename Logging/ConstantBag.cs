@@ -28,6 +28,8 @@
         public const string LITE_OUT_CARD_NPS = "lite_card_nps";
         public const string LITE_OUT_PTC_APY = "lite_ptc_apy";
         public const string LITE_OUT_PTC_NPS = "lite_ptc_nps";
+        public const string LITE_OUT_AWB_APY = "lite_awb_apy";
+        public const string LITE_OUT_AWB_NPS = "lite_awb_nps";
 
         //file directions
         public const string DIRECTION_IN = "i";
@@ -47,6 +49,7 @@
         public const string DET_LC_STEP_WORD_LTR4 = "4WORD_REP"; //Word Letters printed
         public const string DET_LC_STEP_CARD_OUT5 = "5CARD_OUT"; //Card done
         public const string DET_LC_STEP_PTC_REP6 = "6PTC_REP"; //Printer to Courier done
+        public const string DET_LC_STEP_AWB_REP7 = "7PTC_REP"; //AWB report
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";

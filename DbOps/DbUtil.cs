@@ -550,9 +550,12 @@ namespace DbOps
 
         public static void GetCouriers(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction
-            , List<string> courierList, bool isApy, string courierCsv, out string sql)
+            , List<string> courierList, bool isApy, string courierCsv, string addedWhere, out string sql)
         {
             string wherePart = " and lower(apy_flag) = '" + (isApy ? "y" : "n") + "'";
+            if (addedWhere != "")
+                wherePart += addedWhere;
+
             string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
             if (string.IsNullOrEmpty(courierCsv)==false)
             {
@@ -585,7 +588,7 @@ namespace DbOps
 
             if (ds != null && ds.Tables.Count > 0)
             {
-                foreach(DataRow dr in ds.Tables[0].Rows)
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     courierList.Add(Convert.ToString(dr[0]));
                 }

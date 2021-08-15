@@ -70,7 +70,7 @@ namespace DataProcessor
             }
 
             DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
-                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, out string sql);
+                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, "", out string sql);
 
             Logger.Write(GetProgName(), "ProcessNpsApyWord", 0, "sql:" + sql, Logger.INFO);
             if (courierList.Count < 1)
