@@ -31,6 +31,13 @@
         public const string LITE_OUT_AWB_APY = "lite_awb_apy";
         public const string LITE_OUT_AWB_NPS = "lite_awb_nps";
 
+        //card types 
+        public const string APY_FLAG_DB_COL_NAME = "apy_flag";
+        public const string CARD_NA = "";
+        public const string CARD_APY = "apy";
+        public const string CARD_LITE = "lite";
+        // public const string CARD_REG = "REG";  // these can be decided later
+       
         //file directions
         public const string DIRECTION_IN = "i";
         public const string DIRECTION_OUT = "o";

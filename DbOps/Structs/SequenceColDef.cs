@@ -25,6 +25,8 @@ namespace DbOps.Structs
         [JsonProperty("freq")]
         public string Frequency { get; set; }
 
+        [JsonProperty("by_card_type")]
+        public Int16 ByCardType { get; set; }
         public const string DAILY = "daily";
         public const string GLOBAL = "global";
     }

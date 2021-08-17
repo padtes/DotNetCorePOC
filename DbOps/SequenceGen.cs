@@ -15,7 +15,7 @@ namespace DbOps
         private static Dictionary<string, int> courierLocks = new Dictionary<string, int>();  //to make sure no other process or machine is using same courier
 
         public static string GetNextSequence(bool withLock, string pgConnection, string pgSchema, string seqName, string seqSourceCode
-            , ref string pattern
+            , string cardType, ref string pattern
             , int fixedLen = -1, bool addIfNeeded = false, bool unlock = false, string freqType = "", string freqValue = "")
         {
             pattern = "";
@@ -28,6 +28,7 @@ namespace DbOps
             if (freqValue != "")
                 addIfNeeded = true;
 
+            string sql1 = "";
             if (withLock)
             {
                 if (courierLocks.ContainsKey(lockOn) == false)
@@ -37,7 +38,7 @@ namespace DbOps
                         Random rand = new Random();
                         lockKey = rand.Next(10, 5000);
                         //lock
-                        string sql1 = $"SELECT {pgSchema}.lock_counter('{seqName}','{seqSourceCode}','{lockKey}','{(addIfNeeded ? "1" : "0")}','{freqType}','{freqValue}')";
+                        sql1 = $"SELECT {pgSchema}.lock_counter('{seqName}','{seqSourceCode}','{cardType}','{lockKey}','{(addIfNeeded ? "1" : "0")}','{freqType}','{freqValue}')";
                         dbOk = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql1, out counterId, out recFound);
 
                         if (recFound && counterId > 0)
@@ -54,25 +55,30 @@ namespace DbOps
 
                 if (dbOk == false)
                 {
+                    Logger.Write(logProName, "GetNextSequence", 0, "lck er1 sql " + sql1, Logger.ERROR);
                     throw new Exception("DB ERROR: Could not lock Courier " + lockOn + " make sure no other instance running. Use -op=UNLOCK if sure.");
                 }
                 if (recFound == false)
                 {
+                    Logger.Write(logProName, "GetNextSequence", 0, "lck er2 sql " + sql1, Logger.ERROR);
                     throw new Exception("Could not lock Courier " + lockOn + " make sure no other instance running. Use -op=UNLOCK if sure.");
                 }
             }
 
-            string sql = $"SELECT {pgSchema}.get_serial_number('{seqName}','{seqSourceCode}', '{(addIfNeeded ? "1" : "0")}', '{lockKey}', '{freqType}','{freqValue}')";
+            string sql = $"SELECT {pgSchema}.get_serial_number('{seqName}','{seqSourceCode}', '{cardType}', '{(addIfNeeded ? "1" : "0")}', '{lockKey}', '{freqType}','{freqValue}')";
             lock (syncLock)
             {
                 dbOk = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql, out counterId, out recFound);
             }
             if (dbOk == false)
             {
+                Logger.Write(logProName, "GetNextSequence", 0, "er1 sql " + sql, Logger.ERROR);
                 throw new Exception("DB ERROR: Could not lock Courier " + seqSourceCode + " make sure no other instance running. Use -op=UNLOCK if sure.");
             }
             if (recFound == false || counterId <= 0)
             {
+                Logger.Write(logProName, "GetNextSequence", 0, "er2 sql " + sql, Logger.ERROR);
+                Logger.Write(logProName, "GetNextSequence", 0, "out: recFound" + recFound + ", counterId" + counterId, Logger.ERROR);
                 throw new Exception("Could not get ser number for Courier " + seqSourceCode + " see if there is enough range.");
             }
 

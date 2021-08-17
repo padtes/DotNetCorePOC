@@ -113,7 +113,8 @@ namespace DataProcessor
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string pattern = "";
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
+            string cardType = ConstantBag.CARD_NA; //as long as the sequence is card independent ELSE use APY or Lite based on isApy
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, cardType, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string doneAction = "";
@@ -193,7 +194,8 @@ namespace DataProcessor
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string pattern = "";
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true);
+            string cardType = ConstantBag.CARD_NA; //as long as the sequence is card independent ELSE use APY or Lite based on isApy
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, cardType, ref pattern, 2, addIfNeeded: true, unlock: true);
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
@@ -305,7 +307,8 @@ namespace DataProcessor
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string pattern= "";
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
+            string cardType = ConstantBag.CARD_NA; //as long as the sequence is card independent ELSE use APY or Lite based on isApy
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, cardType, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
@@ -392,7 +395,8 @@ namespace DataProcessor
             //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string pattern = "";
-            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, ref pattern, 2, addIfNeeded: true, unlock: true); 
+            string cardType = ConstantBag.CARD_NA; //as long as the sequence is card independent ELSE use APY or Lite based on isApy
+            string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, cardType, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  

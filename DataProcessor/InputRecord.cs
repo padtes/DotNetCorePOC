@@ -1,4 +1,5 @@
-﻿using DbOps;
+﻿using CommonUtil;
+using DbOps;
 using DbOps.Structs;
 using Logging;
 using Newtonsoft.Json;
@@ -220,7 +221,20 @@ namespace DataProcessor
 
         internal void PrepareColumns(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo, string runFor)
         {
-            GetSequenceValues(withLock, pgConnection, pgSchema, jDef, runFor);
+            string cardType = ConstantBag.CARD_NA;
+
+            foreach (var item in DbColsWithVals)
+            {
+                if (item.Key == ConstantBag.APY_FLAG_DB_COL_NAME)
+                {
+                    if (item.Value == "1" || item.Value == "Y")
+                        cardType = ConstantBag.CARD_APY;
+                    else
+                        cardType = ConstantBag.CARD_LITE;
+                }
+            }
+
+            GetSequenceValues(withLock, pgConnection, pgSchema, jDef, runFor, cardType);
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
         }
 
@@ -370,10 +384,10 @@ namespace DataProcessor
             }
         }
 
-        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor)
+        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor, string cardType)
         {
             string srcVal;
-            string runForParam, freqType;
+            string runForParam, freqType, cardTypeParam;
             foreach (SequenceCol col in jDef.sequenceColDefnn.SequenceColList)
             {
                 bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
@@ -382,14 +396,19 @@ namespace DataProcessor
 
                 runForParam = "";
                 freqType = "";
+                cardTypeParam = ConstantBag.CARD_NA;
+
                 if (col.Frequency == SequenceCol.DAILY)
                 {
                     runForParam = runFor;
                     freqType = SequenceCol.DAILY;
                 }
+                if (col.ByCardType == 1)
+                    cardTypeParam = cardType;
 
                 string pattern ="";
-                string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, ref pattern, col.SeqLength, freqType: freqType, freqValue: runForParam);
+                string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, cardTypeParam
+                    , ref pattern, col.SeqLength, freqType: freqType, freqValue: runForParam);
 
                 if (pattern != "")
                 {
