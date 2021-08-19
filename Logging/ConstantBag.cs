@@ -56,7 +56,7 @@
         public const string DET_LC_STEP_WORD_LTR4 = "4WORD_REP"; //Word Letters printed
         public const string DET_LC_STEP_CARD_OUT5 = "5CARD_OUT"; //Card done
         public const string DET_LC_STEP_PTC_REP6 = "6PTC_REP"; //Printer to Courier done
-        public const string DET_LC_STEP_AWB_REP7 = "7PTC_REP"; //AWB report
+        public const string DET_LC_STEP_AWB_REP7 = "7AWB_REP"; //AWB report
 
         //public const string FILE_NAME_TAG_UNIQUE_COL = "{{unique_column}}";
         //public const string FILE_NAME_TAG_REC_ID = "{{record_id}}";
