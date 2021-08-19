@@ -25,7 +25,7 @@ namespace DataProcessor
                     bool isConst;
                     if (detailRowDS != null && detailRowDS.Tables.Count > 0 && detailRowDS.Tables[0].Rows.Count > rowInd)
                     {
-                        val = cmdHandler.Handle(columnDetail.DbValue, progParams, detailRowDS.Tables[0].Rows[rowInd], out isConst);
+                        val = cmdHandler.Handle(columnDetail.DbValue, progParams, detailRowDS.Tables[0].Rows[rowInd], paramsDict, out isConst);
                         if (isConst)
                         {
                             columnDetail.SrcType = "const";
@@ -100,7 +100,7 @@ namespace DataProcessor
 
     public class CsvOutputDetHandler : CsvOutputHandler
     {
-        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, string delimt, string textQualifier, string escQualifier)
+        internal string GetDetRow(int iRow, List<ColumnDetail> detailColumns, DataSet ds, string[] progParams, Dictionary<string, string> paramsDict, string delimt, string textQualifier, string escQualifier)
         {
             String det = "";
             int cellInd = 0;
@@ -128,7 +128,7 @@ namespace DataProcessor
 
                 if (detailColumns[i].SrcType.ToUpper() == "CFUNCTION")
                 {
-                    val = cmdHandler.Handle(detailColumns[i].DbValue, progParams, dr, out isConst);
+                    val = cmdHandler.Handle(detailColumns[i].DbValue, progParams, dr, paramsDict, out isConst);
                 }
                 else
                 {

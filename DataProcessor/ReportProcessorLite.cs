@@ -187,7 +187,7 @@ namespace DataProcessor
         private void ProcessNpsApyAwbCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierId, string whereAWB)
         {
             string fileName = fTypeMaster.fnamePattern
-                .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
+                .Replace("{{sys_param(awb_trans)}}", MiscUtil.GetAwbTranslatedCode(paramsDict, courierId))
                 .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy"))
                 .Replace("{{courier}}", courierId); //TO DO : parse the file name pattern
 

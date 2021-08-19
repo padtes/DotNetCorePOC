@@ -99,7 +99,7 @@ namespace DataProcessor
 
             for (int iRow = 0; iRow < ds.Tables[0].Rows.Count; iRow++)
             {
-                String det = detHandler.GetDetRow(iRow, csvConfig.Detail, ds, progParams
+                String det = detHandler.GetDetRow(iRow, csvConfig.Detail, ds, progParams, paramsDict
                     , csvConfig.System.Delimt, csvConfig.System.TextQualifier, csvConfig.System.EscQualifier);
 
                 sw.WriteLine(det);

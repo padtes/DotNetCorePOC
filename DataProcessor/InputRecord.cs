@@ -14,6 +14,7 @@ namespace DataProcessor
     public class InputRecord : InputRecordAbs
     {
         private const string FILE_SAVE_PLACEHOLDER = "###FILESAVE###";
+        private Dictionary<string, string> tmpCourrAWB = new Dictionary<string, string>();
 
         public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
         public List<SaveAsFileColumn> saveAsFiles = new List<SaveAsFileColumn>();
@@ -234,7 +235,7 @@ namespace DataProcessor
                 }
             }
 
-            GetSequenceValues(withLock, pgConnection, pgSchema, jDef, runFor, cardType);
+            GetSequenceValues(withLock, pgConnection, pgSchema, logProgName, moduleName, jobId, jDef, runFor, cardType);
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
         }
 
@@ -384,7 +385,7 @@ namespace DataProcessor
             }
         }
 
-        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, JsonInputFileDef jDef, string runFor, string cardType)
+        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, JsonInputFileDef jDef, string runFor, string cardType)
         {
             string srcVal;
             string runForParam, freqType, cardTypeParam;
@@ -414,11 +415,13 @@ namespace DataProcessor
                 {
                     string tmp1 = newSeq;
                     string tmp2 = "";
-                    if (pattern.IndexOf("{CHK_VAL}") > 0)
-                        tmp2 = "TODO-" + srcVal;
+                    if (pattern.IndexOf("{chk_val}") > 0)
+                    {
+                        tmp2 = GetCheckDigit(pgConnection, pgSchema, logProgName, moduleName, jobId, courierId: srcVal, seqNumAsStr: tmp1);
+                    }
 
                     newSeq = pattern.Replace("{sequence}", tmp1)
-                        .Replace("{CHK_VAL}", tmp2);
+                        .Replace("{chk_val}", tmp2);
                 }
 
                 this.sequenceCols.Add(new SequenceColWithVal()
@@ -432,7 +435,50 @@ namespace DataProcessor
             }
         }
 
+        private string GetCheckDigit(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, string courierId, string seqNumAsStr)
+        {
+            string awbParams;
+            if (tmpCourrAWB.ContainsKey(courierId))
+                awbParams = tmpCourrAWB[courierId];
+            else
+            {
+                awbParams = DbUtil.GetAWBParams(pgConnection, pgSchema, logProgName, moduleName, jobId, courierId);
+                tmpCourrAWB[courierId] = awbParams;
+            }
 
+            if (string.IsNullOrEmpty(awbParams))
+                return "";
+
+            string[] theParams = awbParams.Split(':');
+            int magicDiv = 11;
+            if (theParams.Length > 1)
+                int.TryParse(theParams[1], out magicDiv);
+
+            string workSeq = seqNumAsStr;
+            string workKey = theParams[0];
+            
+            if(workKey.Length < workSeq.Length)
+            {
+                workSeq = seqNumAsStr.Substring(0, workKey.Length);
+            }
+
+            int sumOfMult = 0;
+            int theZeroCh = (int)('0');
+            char[] seqChArr = workSeq.ToCharArray();
+            char[] keyChArr = workKey.ToCharArray();
+            for (int i = 0; i < workSeq.Length; i++)
+            {
+                int s1 = (int)seqChArr[i] - theZeroCh;
+                int s2 = (int)keyChArr[i] - theZeroCh;
+                sumOfMult += s1 * s2;
+            }
+            int rMod = sumOfMult % magicDiv;
+            rMod = magicDiv - rMod;
+            if (rMod > 9)
+                rMod = rMod % 9;
+
+            return rMod.ToString();
+        }
     }
 
 }

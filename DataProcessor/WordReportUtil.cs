@@ -93,7 +93,7 @@ namespace DataProcessor
                     curCount++;
                     remainCount--;
 
-                    FillTokenMap(tokenMap, dr, progParams, cmdHandler);
+                    FillTokenMap(tokenMap, dr, progParams, paramsDict, cmdHandler);
                     //if header or footer has tags, it will need to be addressed here when curCount == 1
                     AddMidSection(sbMidSect, tokenMap, curCount, mergeCount, remainCount, midXml); //, usedIds);
                     hasUnPrinted = true;
@@ -310,7 +310,7 @@ namespace DataProcessor
             //    sbMidSect.Append("<w:lastRenderedPageBreak/>");  //page break
             //}
         }
-        private void FillTokenMap(List<KeyValuePair<string, string>> tokenMap, DataRow dr, string[] progParams, CommandHandler cmdHandler)
+        private void FillTokenMap(List<KeyValuePair<string, string>> tokenMap, DataRow dr, string[] progParams, Dictionary<string, string> paramsDict, CommandHandler cmdHandler)
         {
             int cellInd = 0;
 
@@ -321,7 +321,7 @@ namespace DataProcessor
                 string dbVal = "";
                 if (phCol.SrcType.ToUpper() == "CFUNCTION")
                 {
-                    dbVal = cmdHandler.Handle(phCol.DbValue, progParams, dr, out bool isConst); //C Functions are not part of sql select
+                    dbVal = cmdHandler.Handle(phCol.DbValue, progParams, dr, paramsDict, out bool isConst); //C Functions are not part of sql select
                 }
                 else
                 {

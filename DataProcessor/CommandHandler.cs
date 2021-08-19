@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DbOps;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -9,7 +10,7 @@ namespace DataProcessor
 {
     public class CommandHandler
     {
-        public string Handle(string commandString, string[] progParams, DataRow dr, out bool isConst)
+        public string Handle(string commandString, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             commandString = commandString.Trim();
 
@@ -32,7 +33,7 @@ namespace DataProcessor
 
             Command cmd = GetCommand(commandName);
 
-            return cmd.Run(pArr, progParams, dr, out isConst);
+            return cmd.Run(pArr, progParams, dr, paramsDict, out isConst);
         }
 
         public Command GetCommand(string commandName)
@@ -45,6 +46,11 @@ namespace DataProcessor
 
             if (commandName.Equals("NumFormat", StringComparison.OrdinalIgnoreCase))
                 return new NumFormatter();
+
+            if (commandName.Equals("miscutil", StringComparison.OrdinalIgnoreCase))
+            {
+                return new MiscUtilCaller();
+            }
 
             if (commandName.Equals("RowCount", StringComparison.OrdinalIgnoreCase))
                 return new RowCount();
@@ -59,7 +65,7 @@ namespace DataProcessor
 
     public abstract class Command
     {
-        public abstract string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst);
+        public abstract string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst);
 
         protected void GetArgStEnd(string[] pArr, out int argStInd, out int argEndInd)
         {
@@ -73,7 +79,7 @@ namespace DataProcessor
             }
         }
 
-        protected string GetResultAsStr(string[] pArr, string[] progParams, DataRow dr, ref bool isConst, int argStInd, int argEndInd, string defaultOnNull)
+        protected string GetResultAsStr(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, ref bool isConst, int argStInd, int argEndInd, string defaultOnNull)
         {
             string valAsStr;
             string src = pArr[0].Substring(0, argStInd).Trim();
@@ -119,12 +125,11 @@ namespace DataProcessor
             return valAsStr;
         }
 
-
     }
 
     public class Join : Command
     {
-        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             throw new Exception("Join.Run Not coded ");
         }
@@ -132,7 +137,7 @@ namespace DataProcessor
 
     public class RowCount : Command
     {
-        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             isConst = false;  //we don't know
 
@@ -140,22 +145,44 @@ namespace DataProcessor
             return dt.Rows.Count.ToString();
         }
     }
+
+    public class MiscUtilCaller : Command
+    {
+        //param 0 - data
+        //param 1 - function name 
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
+        {
+            isConst = false;
+            GetArgStEnd(pArr, out int argStInd, out int argEndInd);
+
+            string valAsStr = GetResultAsStr(pArr, progParams, dr, paramsDict, ref isConst, argStInd, argEndInd, defaultOnNull:"");
+            if (pArr[1].ToLower() == "getawbtranslatedcode") //function
+            {
+                valAsStr = MiscUtil.GetAwbTranslatedCode(paramsDict, valAsStr);
+            }
+            else
+            {
+                throw new Exception(pArr[1] + " not coded");
+            }
+            return valAsStr;
+        }
+    }
     public class NumFormatter : Command
     {
         //param 0 - data
         //param 1 - format string 
         //param 2 - default if null
-        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             isConst = false;
             GetArgStEnd(pArr, out int argStInd, out int argEndInd);
 
-            string def = "";
+            string defIfNull = "";
             if (pArr.Length > 2)
             {
-                def = pArr[2].ToLower();
+                defIfNull = pArr[2].ToLower();
             }
-            string valAsStr = GetResultAsStr(pArr, progParams, dr, ref isConst, argStInd, argEndInd, def);
+            string valAsStr = GetResultAsStr(pArr, progParams, dr, paramsDict, ref isConst, argStInd, argEndInd, defIfNull);
 
             try
             {
@@ -175,7 +202,7 @@ namespace DataProcessor
         //param 1 - format: no_fmt, toupper, tolower, totitle
         //param 2 - no_trim, trimstart, trimend, trim, singlespace
         //param 3 - isnullOrThis:this:default val
-        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             isConst = false;
             GetArgStEnd(pArr, out int argStInd, out int argEndInd);
@@ -197,7 +224,7 @@ namespace DataProcessor
                 }
             }
 
-            string valAsStr = GetResultAsStr(pArr, progParams, dr, ref isConst, argStInd, argEndInd, def);
+            string valAsStr = GetResultAsStr(pArr, progParams, dr, paramsDict, ref isConst, argStInd, argEndInd, def);
             string trimWhat = "no_trim";
             if (pArr.Length > 2)
             {
@@ -254,7 +281,7 @@ namespace DataProcessor
         //param 0 - data  - now
         //param 1 - format
         //param 2 - input format such as ddMMyyyy
-        public override string Run(string[] pArr, string[] progParams, DataRow dr, out bool isConst)
+        public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             DateTime val = DateTime.Now;
             isConst = false;

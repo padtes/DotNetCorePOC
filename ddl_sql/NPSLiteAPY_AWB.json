@@ -8,7 +8,8 @@
 		"3.2a": "src_type is code - needs C# to generate snippet, column- from data_table",
 		"3.2b": "--sqlfuntion-same as column but actually a pgsql func, param- program parameter index 0 rel",
 		"3.2c": "--srctype starting with # is comment - to be ignored, like TEST Mode or deprecated but kept for historical reasons",
-		"3.3": "db_value is database column name or function name or named c# snippet"
+		"3.3": "db_value is database column name or function name or named c# snippet",
+		"NB1": "whatever you need in header from database should be selected in detail as maybe print=n"
 	}
 	,"system":{
 		"file_type" : "nps_lite_apy_PTC",
@@ -22,7 +23,10 @@
 		]
 	}
 	,"header":[
-		{"col":"0","tag":"Printer Code","src_type":"SYS_PARAM","db_value":"printer_code3", "print_yn":"y"},
+		{"col":"0","tag":"Printer Code","src_type":"#SYS_PARAM","db_value":"printer_code3", "print_yn":"y"},
+		{"col":"0","tag":"Courier CodeDB","src_type":"#column","db_value":"courier_id_db", "print_yn":"n"},
+		{"col":"0","tag":"Courier Code awb","src_type":"cfunction","db_value":"miscutil(dr[courier_id_db],GetAwbTranslatedCode)", "print_yn":"y"},
+		
 		{"col":"1","tag":"Total number of records","src_type":"cfunction","db_value":"RowCount", "print_yn":"y"},
 		{"col":"2","tag":"File Mode","src_type":"const","db_value":"RES", "print_yn":"y"},
 		{"col":"3","tag":"Related Records","src_type":"const","db_value":"PRN", "print_yn":"y"},
@@ -30,10 +34,12 @@
 	]
 	,"detail":[
 		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"},
+		{"col":"0", "print_yn":"n","tag":"Courier Code db","src_type":"column","db_value":"filedetails.courier_id", "alias":"courier_id_db"},
 
 		{"col":"0", "print_yn":"y", "tag":"Line Number","src_type":"code","db_value":"row_number", "alias":"line_number"},
 		{"col":"1", "print_yn":"y", "tag":"Subscriber_Bar_Code","src_type":"json","db_value":"'pd'->0->>'p045_subscriber_bar_code'"},
 		{"col":"2","tag":"Date of File","src_type":"cfunction","db_value":"DateFormat(now,dd-MMM-yyyy)", "print_yn":"y"},
-		{"col":"3", "print_yn":"y", "tag":"Letter AWB","src_type":"json","db_value":"'xx'->>'x_letter_awb'", "alias" :"x_letter_awb"}
+		{"col":"3", "print_yn":"y", "tag":"Letter AWB","src_type":"json","db_value":"'xx'->>'x_letter_awb'", "alias" :"x_letter_awb"},
+		{"col":"3", "print_yn":"y", "tag":"Pkg Wt","src_type":"const","db_value":"14", "alias" :"pkg_wt"}
 	]
 }

@@ -82,6 +82,7 @@
         public const string PARAM_SUBDIR_APROX_LIMIT = "expect_max_subdir";
         public const string PARAM_PRINTER_CODE2 = "printer_code2";
         public const string PARAM_PRINTER_CODE3 = "printer_code3";
+        public const string PARAM_COURIER_KVCSV = "courier_awb_kvcsv";
 
         //file definition descriptors
         public const string FD_SYSTEM_PARAM = "system";

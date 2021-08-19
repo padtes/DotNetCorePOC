@@ -21,7 +21,8 @@ insert into ventura.system_param (biztype, module_name, params_json)
 values ('system','lite',
 '{"inputdir":"c:\\zunk\\lite\\input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
 , "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
-, "printer_code3":"XYZ", "printer_code2":"51"}');
+, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD"}'
+);
 
 
 CREATE TABLE ventura.fileinfo (
@@ -123,9 +124,9 @@ insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fN
 values('1','lite_ptc_nps','lite','NPSLiteAPY_PTC.json','PRAN{{sys_param(printer_code)}}PTC{{now_ddmmyy}}{{serial_no}}.txt');
 
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_awb_apy','lite','NPSLiteAPY_AWB.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{serial_no}}.txt');
+values('1','lite_awb_apy','lite','NPSLiteAPY_AWB.json','PRN{{sys_param(awb_trans)}}RES{{now_ddmmyy}}{{serial_no}}.txt');
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
-values('1','lite_awb_nps','lite','NPSLiteAPY_AWB.json','PRN{{sys_param(printer_code)}}RES{{now_ddmmyy}}{{serial_no}}.txt');
+values('1','lite_awb_nps','lite','NPSLiteAPY_AWB.json','PRN{{sys_param(awb_trans)}}RES{{now_ddmmyy}}{{serial_no}}.txt');
 
 insert into ventura.filetypemaster(isactive,biztype,module_name,file_def_json_fName, fname_pattern)
 values('1','lite_word_apy','lite','apy_letter.json','apy_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.docx');

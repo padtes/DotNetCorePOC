@@ -630,5 +630,21 @@ namespace DbOps
             return ds;
         }
 
+        public static string GetAWBParams(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, string courierId)
+        {
+            string retStr = "";
+            string sql = $"select awb_params from {pgSchema}.couriers where code3='{courierId}'";
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                if (ds.Tables[0].Rows[0][0] != DBNull.Value)
+                {
+                    retStr = Convert.ToString(ds.Tables[0].Rows[0][0]);
+                }
+            }
+            return retStr;
+        }
+
     }
 }
