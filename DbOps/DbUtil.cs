@@ -479,6 +479,7 @@ namespace DbOps
                 $",(select 'letter done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_WORD_LTR4}' limit 1) ltract"+
                 $",(select 'card done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_CARD_OUT5}' limit 1) cardact"+
                 $",(select 'PTC done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_PTC_REP6}' limit 1) ptcact"+
+                $",(select 'AWB done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_AWB_REP7}' limit 1) awbact"+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +

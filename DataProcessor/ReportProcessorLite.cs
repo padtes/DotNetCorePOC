@@ -217,7 +217,7 @@ namespace DataProcessor
                 Logger.Write(GetProgName(), "ProcessNpsApyAWB", 0, "NO AWB for courierId:" + courierId + " isApy " + isApy, Logger.INFO);
             }
 
-            string doneAction = ConstantBag.DET_LC_STEP_PTC_REP6;
+            string doneAction = ConstantBag.DET_LC_STEP_AWB_REP7;
             string subDir = $"PTC_{workdirYmd}_{courierId}";
             csvRep.CreateFile(workdirYmd, fileName, subDir, args, paramsDict, ds, doneAction);
         }

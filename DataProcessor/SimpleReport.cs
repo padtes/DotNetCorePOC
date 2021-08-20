@@ -84,6 +84,7 @@ namespace DataProcessor
                 string secondaryAct = DbUtil.GetStringDbNullable(dr["ltract"]);
                 secondaryAct += " " + DbUtil.GetStringDbNullable(dr["cardact"]);
                 secondaryAct += " " + DbUtil.GetStringDbNullable(dr["ptcact"]);
+                secondaryAct += " " + DbUtil.GetStringDbNullable(dr["awbact"]);
                 secondaryAct = secondaryAct.Trim();
 
                 string firstName = DbUtil.GetStringDbNullable(dr["fname"]);
