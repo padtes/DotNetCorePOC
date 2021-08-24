@@ -94,6 +94,12 @@ namespace DataProcessor
                 , csvConfig.System.Delimt, csvConfig.System.TextQualifier, csvConfig.System.EscQualifier);
             sw.WriteLine(hdr);
 
+            int numOfBlanks = csvConfig.System.GetNumberOfBlankLines();
+            if (numOfBlanks > 0)
+            {
+                WriteBlankLines(sw, hdr, numOfBlanks);
+            }
+
             //print details
             CsvOutputDetHandler detHandler = new CsvOutputDetHandler();
 
@@ -117,6 +123,18 @@ namespace DataProcessor
             sw.Flush();
 
             return true;
+        }
+
+        private void WriteBlankLines(StreamWriter sw, string hdr, int numOfBlanks)
+        {
+            char cd = char.Parse(csvConfig.System.Delimt);
+            string[] tmp2 = hdr.Split(cd);
+            string tmpCSV = new string(cd, tmp2.Length - 1);
+
+            for (int i = 0; i < numOfBlanks; i++)
+            {
+                sw.WriteLine(tmpCSV);
+            }
         }
     }
 

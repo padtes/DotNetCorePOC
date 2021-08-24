@@ -150,6 +150,7 @@ namespace DataProcessor
     {
         //param 0 - data
         //param 1 - function name 
+        //param 2 - additional param
         public override string Run(string[] pArr, string[] progParams, DataRow dr, Dictionary<string, string> paramsDict, out bool isConst)
         {
             isConst = false;
@@ -159,6 +160,11 @@ namespace DataProcessor
             if (pArr[1].ToLower() == "getawbtranslatedcode") //function
             {
                 valAsStr = MiscUtil.GetAwbTranslatedCode(paramsDict, valAsStr);
+            }
+            else
+            if (pArr[1].ToLower() == "getsplitsection") //function
+            {
+                valAsStr = MiscUtil.GetSplitSection(valAsStr, pArr[2]);
             }
             else
             {
@@ -187,7 +193,9 @@ namespace DataProcessor
             try
             {
                 double num = Convert.ToDouble(valAsStr);
-                valAsStr = num.ToString(pArr[1]);
+                string fmt = pArr[1];
+                fmt = fmt.Replace(":", ",");
+                valAsStr = num.ToString(fmt, CultureInfo.CreateSpecificCulture("hi-IN"));
             }
             catch
             {

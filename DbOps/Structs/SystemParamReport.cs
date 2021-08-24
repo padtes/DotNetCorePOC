@@ -83,6 +83,21 @@ namespace DbOps.Structs
         [JsonProperty("delimt")]
         public string Delimt { get; set; }
 
+        [JsonProperty("number_of_blanks")]
+        public string NumberOfBlankStr { get; set; }
+        public int GetNumberOfBlankLines()
+        {
+            if (string.IsNullOrEmpty(NumberOfBlankStr))
+                return 0;
+
+            int cnt;
+            NumberOfBlankStr =NumberOfBlankStr.Trim();
+            if (int.TryParse(NumberOfBlankStr, out cnt))
+                return cnt;
+
+            return 0;
+        }
+
         [JsonProperty("text_qualifier")]
         public string TextQualifier { get; set; }
 

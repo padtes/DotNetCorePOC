@@ -32,6 +32,9 @@ namespace DbOps
 
         public static string GetSplitSection(string fullName, string splitParams)
         {
+            //splitParams = how many parts: what select index 1 relative: as many char counts per section
+            //3:1:15:15:9  is 3 sections, select 1st part, has 15, 15 chars in 1st and second section, 9 is 3rd section placeholder
+
             if (string.IsNullOrEmpty(fullName))
                 return "";
 
@@ -41,7 +44,7 @@ namespace DbOps
             int splitCount; int selectIndex;
 
             List<int> maxLengths = new List<int>();
-            string[] tmpParams = splitParams.Split(',');
+            string[] tmpParams = splitParams.Split(':');
             if (tmpParams.Length < 4)
             {
                 throw new Exception(" GetSplitSection: invalid arg splitParams. Need min 4 args " + splitParams);

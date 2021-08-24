@@ -85,7 +85,7 @@
         public const string PARAM_COURIER_KVCSV = "courier_awb_kvcsv";
         public const string PARAM_PRINTED_OK_CODE = "printed_ok_code";
 
-        //file definition descriptors
+        //input file definition descriptors
         public const string FD_SYSTEM_PARAM = "system";
         public const string FD_FILE_TYPE = "file_type";
         public const string FD_DELIMT = "delimt";

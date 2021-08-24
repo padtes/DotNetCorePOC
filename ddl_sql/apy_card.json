@@ -10,12 +10,13 @@
 		"file_type" : "apy_card",
 		"write_type": "csv",
 		"delimt":",",
+		"number_of_blanks":"24",
 		"text_qualifier":"\"",
 		"escape_qualifier":"\\\"",
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
 		"data_where":"",
-		"data_order":"json_data->'xx'->'x_document_id'",
+		"data_order":"json_data->'xx'->'x_daily_serno'",
 		"where_cols": [
 		]
 	}
@@ -23,9 +24,11 @@
 		{"col":"0","tag":"PACKAGE_ID","src_type":"const","db_value":"PACKAGE_ID", "print_yn":"y"},
 		{"col":"1","tag":"NAME_01","src_type":"const","db_value":"NAME_01", "print_yn":"y"},
 		{"col":"2","tag":"NAME_02","src_type":"const","db_value":"NAME_02", "print_yn":"y"},
+		{"col":"2","tag":"NAME_03","src_type":"const","db_value":"NAME_03", "print_yn":"y"},
 		{"col":"3","tag":"DATE_OF_BIRTH","src_type":"const","db_value":"DATE_OF_BIRTH", "print_yn":"y"},
 		{"col":"4","tag":"PRAN","src_type":"const","db_value":"PRAN", "print_yn":"y"},
-		{"col":"5","tag":"APY_SERVICE_PROVIDER","src_type":"const","db_value":"APY_SERVICE_PROVIDER", "print_yn":"y"},
+		{"col":"5","tag":"APY_SERVICE_PROVIDER","src_type":"const","db_value":"APY_SERVICE_PROVIDER_01", "print_yn":"y"},
+		{"col":"5","tag":"APY_SERVICE_PROVIDER_02","src_type":"const","db_value":"APY_SERVICE_PROVIDER_02", "print_yn":"y"},
 		{"col":"6","tag":"NAME_OF_SPOUSE_01","src_type":"const","db_value":"NAME_OF_SPOUSE_01", "print_yn":"y"},
 		{"col":"7","tag":"NAME_OF_SPOUSE_02","src_type":"const","db_value":"NAME_OF_SPOUSE_02", "print_yn":"y"},
 		{"col":"8","tag":"NAME_OF_NOMINEE_01","src_type":"const","db_value":"NAME_OF_NOMINEE_01", "print_yn":"y"},
@@ -40,20 +43,37 @@
 		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
 		,{"col":"0", "print_yn":"n", "tag":"db date of birth","src_type":"json","db_value":"'pd'->0->>'p016_date_of_birth'", "alias":"db_date_of_birth"}
 		,{"col":"0", "print_yn":"n", "tag":"db pension st dt","src_type":"json","db_value":"'pd'->0->>'p058_pension_start_date'", "alias":"db_pensiondate"}
+		,{"col":"1", "print_yn":"n", "tag":"Name 01 db","src_type":"json","db_value":"'xx'->>'x_sub_full_name1'", "alias":"name1db"}
+		,{"col":"5", "print_yn":"n", "tag":"APY_SERVICE_PR_DB", "src_type":"json" ,"db_value":"'pd'->0->>'p056_apy_service_provider_name'", "alias" :"apy_service_prov_db"}
+		,{"col":"6", "print_yn":"n", "tag":"NAME_OF_SPOUSE_DB","src_type":"json","db_value":"'xx'->>'x_spouse_full_name1'", "alias":"sp_namedb"}
+		,{"col":"8", "print_yn":"n", "tag":"NAME_NOMINEE_db","src_type":"json","db_value":"'xx'->>'x_nd1_full_name'", "alias":"nd1_fu_nmdb"}
+		,{"col":"11", "print_yn":"n", "tag":"PENSION_AMOUNTdb","src_type":"json","db_value":"'pd'->0->>'p057_pension_amount'", "alias":"pensiondb"}
 
 		,{"col":"0", "print_yn":"y", "tag":"PACKAGE_ID","src_type":"json","db_value":"'xx'->>'x_package_id'", "alias":"package_id"}
-		,{"col":"1", "print_yn":"y", "tag":"Name 01","src_type":"json","db_value":"'xx'->>'x_sub_full_name1'", "alias":"name1"}
-		,{"col":"2", "print_yn":"y", "tag":"Name 02","src_type":"json","db_value":"'xx'->>'x_sub_full_name2'", "alias":"name2"}
+
+		,{"col":"1a", "print_yn":"y", "tag":"Name 01a","src_type":"cfunction","db_value":"miscutil(dr[name1db],getsplitsection,3:1:20:20:99)", "alias":"name1a"}
+		,{"col":"1b", "print_yn":"y", "tag":"Name 01b","src_type":"cfunction","db_value":"miscutil(dr[name1db],getsplitsection,3:2:20:20:99)", "alias":"name1b"}
+		,{"col":"1c", "print_yn":"y", "tag":"Name 01c","src_type":"cfunction","db_value":"miscutil(dr[name1db],getsplitsection,3:3:20:20:99)", "alias":"name1c"}
+
 		,{"col":"3", "print_yn":"y", "tag":"DATE_OF_BIRTH","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_date_of_birth],dd/MM/yyyy,mmddyyyy)", "alias":"date_of_birth"}
 		,{"col":"4", "print_yn":"y", "tag":"PRAN", "src_type":"json" ,"db_value":"'pd'->0->>'p008_pran'", "alias" :"pran"}
-		,{"col":"5", "print_yn":"y", "tag":"APY_SERVICE_PROVIDER", "src_type":"json" ,"db_value":"'pd'->0->>'p056_apy_service_provider_name'", "alias" :"apy_service_provider_name"}
-		,{"col":"6", "print_yn":"y", "tag":"NAME_OF_SPOUSE_01","src_type":"json","db_value":"'xx'->>'x_spouse_full_name1'", "alias":"sp_name1"}
-		,{"col":"7", "print_yn":"y", "tag":"NAME_OF_SPOUSE_02","src_type":"json","db_value":"'xx'->>'x_spouse_full_name2'", "alias":"sp_name2"}
-		,{"col":"8", "print_yn":"y", "tag":"NAME_OF_NOMINEE_01","src_type":"json","db_value":"'xx'->>'x_nd1_full_name'", "alias":"nd1_fullname"}
-		,{"col":"9", "print_yn":"y", "tag":"NAME_OF_NOMINEE_02","src_type":"json","db_value":"'xx'->>'x_nd2_full_name'", "alias":"nd2_fullname"}
+		
+		,{"col":"5a", "print_yn":"y", "tag":"APY_SERVICE_PR 1", "src_type":"cfunction" ,"db_value":"miscutil(dr[apy_service_prov_db],getsplitsection,2:1:30:99)", "alias" :"apy_service_prov_name1"}
+		,{"col":"5b", "print_yn":"y", "tag":"APY_SERVICE_PR 2", "src_type":"cfunction" ,"db_value":"miscutil(dr[apy_service_prov_db],getsplitsection,2:2:30:99)", "alias" :"apy_service_prov_name2"}
+
+		,{"col":"6a", "print_yn":"y", "tag":"NAME_SPOUSE_01","src_type":"cfunction","db_value":"miscutil(dr[sp_namedb],getsplitsection,3:1:20:20:99)", "alias":"sp_name1"}
+		,{"col":"6b", "print_yn":"y", "tag":"NAME_SPOUSE_02","src_type":"cfunction","db_value":"miscutil(dr[sp_namedb],getsplitsection,3:2:20:20:99)", "alias":"sp_name2"}
+		,{"col":"6c", "print_yn":"y", "tag":"NAME_SPOUSE_03","src_type":"cfunction","db_value":"miscutil(dr[sp_namedb],getsplitsection,3:3:20:20:99)", "alias":"sp_name3"}
+
+		,{"col":"9a", "print_yn":"y", "tag":"NAME_OF_NOMINEE_01","src_type":"cfunction","db_value":"miscutil(dr[nd1_fu_nmdb],getsplitsection,3:1:20:20:99)", "alias":"nd1_fullname1"}
+		,{"col":"9b", "print_yn":"y", "tag":"NAME_OF_NOMINEE_02","src_type":"cfunction","db_value":"miscutil(dr[nd1_fu_nmdb],getsplitsection,3:2:20:20:99)", "alias":"nd1_fullname2"}
+		,{"col":"9c", "print_yn":"y", "tag":"NAME_OF_NOMINEE_03","src_type":"cfunction","db_value":"miscutil(dr[nd1_fu_nmdb],getsplitsection,3:3:20:20:99)", "alias":"nd1_fullname3"}
+
 		,{"col":"10", "print_yn":"y", "tag":"PENSION_START_DATE","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_pensiondate],dd/MM/yyyy,mmddyyyy)", "alias":"pensiondate"}
-		,{"col":"11", "print_yn":"y", "tag":"PENSION_AMOUNT","src_type":"json","db_value":"'pd'->0->>'p057_pension_amount'", "alias":"pension"}
-		,{"col":"12", "print_yn":"y", "tag":"document id", "src_type":"json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"document_id"}
+		
+		,{"col":"11", "print_yn":"y", "tag":"PENSION_AMOUNT","src_type":"cfunction","db_value":"NumFormat(dr[pensiondb],##:##:##:###.##)", "alias":"pension"}
+		
+		,{"col":"12", "print_yn":"y", "tag":"Subscirber Barcode", "src_type":"json" ,"db_value":"'pd'->0->>'p045_subscriber_bar_code'", "alias" :"sub_barcode"}
 		,{"col":"13", "print_yn":"y", "tag":"AWB_NO", "src_type":"json" ,"db_value":"'xx'->>'x_awb'", "alias" :"x_awb"}
 		,{"col":"14", "print_yn":"y", "tag":"legend", "src_type":"const" ,"db_value":"APY_Legend.wmf", "alias" :"legend"}
 
