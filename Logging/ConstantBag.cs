@@ -83,6 +83,7 @@
         public const string PARAM_PRINTER_CODE2 = "printer_code2";
         public const string PARAM_PRINTER_CODE3 = "printer_code3";
         public const string PARAM_COURIER_KVCSV = "courier_awb_kvcsv";
+        public const string PARAM_PRINTED_OK_CODE = "printed_ok_code";
 
         //file definition descriptors
         public const string FD_SYSTEM_PARAM = "system";

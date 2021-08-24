@@ -21,7 +21,8 @@ insert into ventura.system_param (biztype, module_name, params_json)
 values ('system','lite',
 '{"inputdir":"c:\\zunk\\lite\\input", "output_par":"nps_lite", "output_lite":"NPSLite", "output_apy":"APY", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
 , "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
-, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD"}'
+, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD"
+, "printed_ok_code":"PTD"}'
 );
 
 

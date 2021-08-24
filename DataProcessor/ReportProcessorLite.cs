@@ -156,7 +156,7 @@ namespace DataProcessor
             List<string> courierList = new List<string>();
             SetupActions(bizTypeToWrite, out string waitingAction, out string doneAction);
 
-            string whereAWB = " and json_data->'xx'->>'x_letter_awb' != '' ";
+            string whereAWB = $" and json_data->'xx'->>'x_letter_awb' != '' and coalesce(det_err_csv,'') = '{paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE]}' ";
             DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
                 , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, whereAWB, out string sql);
 
@@ -270,8 +270,9 @@ namespace DataProcessor
             List<string> courierList = new List<string>();
             SetupActions(bizType, out string waitingAction, out string doneAction);
 
+            string wherePart = $" and coalesce(det_err_csv,'') = '{paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE]}' ";
             DbUtil.GetCouriers(GetConnection(), GetSchema(), GetProgName(), moduleName, bizTypeToRead, JobId
-                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, "", out string sql);
+                , workdirYmd, waitingAction, doneAction, courierList, isApy, courierCsv, wherePart, out string sql);
 
             Logger.Write(GetProgName(), "ProcessNpsApyPTC", 0, "sql:" + sql, Logger.INFO);
             if (courierList.Count < 1)
@@ -293,11 +294,11 @@ namespace DataProcessor
 
             foreach (string courierCd in courierList)
             {
-                ProcessNpsApyPtcCourier(csvRep, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd);
+                ProcessNpsApyPtcCourier(csvRep, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd, wherePart);
             }
         }
 
-        private void ProcessNpsApyPtcCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierId)
+        private void ProcessNpsApyPtcCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierId, string addWherePart)
         {
             string fileName = fTypeMaster.fnamePattern
                 .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
@@ -315,7 +316,7 @@ namespace DataProcessor
 
             RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
             string wherePart = "lower(apy_flag) = '" + (isApy ? "y" : "n") + "'"
-                + $" and courier_id='{courierId}'";
+                + $" and courier_id='{courierId}'" + addWherePart;
 
             DataSet ds = GetReportDS(pgConnection, pgSchema, moduleName, bizTypeToRead, bizTypeToWrite, JobId
             , csvConfig, args, workdirYmd, wherePart);
@@ -494,12 +495,12 @@ namespace DataProcessor
             else if (bizTypeToWrite == ConstantBag.LITE_OUT_PTC_APY || bizTypeToWrite == ConstantBag.LITE_OUT_PTC_NPS)
             {
                 waitingAction = ConstantBag.DET_LC_STEP_PTC_REP6;
-                doneAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
+                doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
             }
             else if (bizTypeToWrite == ConstantBag.LITE_OUT_AWB_APY || bizTypeToWrite == ConstantBag.LITE_OUT_AWB_NPS)
             {
                 waitingAction = ConstantBag.DET_LC_STEP_AWB_REP7;
-                doneAction = ConstantBag.DET_LC_STEP_WORD_LTR4;
+                doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
             }
             else if (bizTypeToWrite == ConstantBag.LITE_OUT_CARD_APY || bizTypeToWrite == ConstantBag.LITE_OUT_CARD_NPS)
             {

@@ -67,7 +67,7 @@ namespace DataProcessor
                 DataRow dr = ds.Tables[0].Rows[iRow];
                 string courierId = Convert.ToString(dr["courier_id"]);
                 //string pran = Convert.ToString(dr["prod_id"]);
-                string docId = DbUtil.GetStringDbNullable(dr["docId"]);
+                string docId = DbUtil.GetStringDbNullable(dr["sub_barcode"]);
                 string fpath = DbUtil.GetStringDbNullable(dr["fpath"]);
                 //fpath c:\...\lite\input\20210620\nps_lite - we want 20210620
                 string[] dirSpl = fpath.Split(new char[] { '/', '\\' });
@@ -90,9 +90,18 @@ namespace DataProcessor
                 string firstName = DbUtil.GetStringDbNullable(dr["fname"]);
                 string lastName = DbUtil.GetStringDbNullable(dr["lname"]);
                 string printDt = DbUtil.GetStringDbNullable(dr["print_dt"]);
+                if (string.IsNullOrEmpty(printDt) == false)
+                {
+                    DateTime dtTmp;
+                    bool dtOk= DateTime.TryParse(printDt, out dtTmp);
+                    if (dtOk)
+                        printDt = "'" + dtTmp.ToString("yyyy/MM/dd");
+                }
                 string pickupDt = DbUtil.GetStringDbNullable(dr["pickup_dt"]);
                 string errCSV = DbUtil.GetStringDbNullable(dr["det_err_csv"]);
                 errCSV = errCSV.Replace(",", "+");
+                if (string.IsNullOrEmpty(errCSV))
+                    errCSV = paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE];
 
                 String det = qt.ToString() + dr[0] + seprr + dr[1] + seprr + courierId
                     + seprr + '\'' + dateAsDir
@@ -146,7 +155,7 @@ namespace DataProcessor
             char qt = '\"';
             char delimit = ',';
             string seprr = qt.ToString() + delimit + qt;
-            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}File Date{seprr}Document ID{seprr}Last Action{seprr}" +
+            return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}File Date{seprr}Subscr Barcode{seprr}Last Action{seprr}" +
                 $"first name{seprr}last name{seprr}other{seprr}Print Dt{seprr}Pickup Dt{seprr}Status{qt}";
         }
         public static string CsvEscapeGreedy(string inStr)

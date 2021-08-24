@@ -41,6 +41,8 @@
 		{"col":"4", "print_yn":"y", "tag": "{{Date_Of_File_Creation_DD-MM-YYYY}}", "src_type":"column" ,"db_value":"TO_CHAR(NOW() :: DATE, 'dd-MM-yyyy')","alias" : "prn_dt" },
 		{"col":"4", "print_yn":"y", "tag": "{{DOCUMENT_ID}}", "src_type":"json" ,"db_value":"'xx'->>'x_document_id'", "alias" :"document_id"},
 
+		{"col":"4", "print_yn":"y", "tag": "{{AWB_NUMBER}}", "src_type":"json" ,"db_value":"'xx'->>'x_letter_awb'", "alias" :"letter_awb_num"},
+		
 		{"col":"5", "print_yn":"n", "tag": "{{SUBSCRIBER_FULLNAME_db}}", "src_type":"json" ,"db_value":"'xx'->>'x_sub_full_name1'", "alias" :"sub_fullnamedb"},
 		{"col":"5", "print_yn":"y", "tag": "{{SUBSCRIBER_FULLNAME}}", "src_type":"cfunction" ,"db_value":"StrFormat(dr[sub_fullnamedb],no_fmt,singlespace)", "alias" :"sub_fullname"},
 
@@ -58,7 +60,7 @@
 
 		{"col":"25", "print_yn":"y", "tag": "{{APY_Service_Provider_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p056_apy_service_provider_name'", "alias" :"ap_serv_provider"},
 		{"col":"25", "print_yn":"y", "tag": "{{NL_AO_NL_OO_Office_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p024_nl_ao_nl_oo_office_name'", "alias" :"nl_oo_reg"},
-		{"col":"25", "print_yn":"y", "tag": "{{APY-SP Reg No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p025_nl_ao_nl_oo_reg_no'", "alias" :"apy_sp_reg"},
+		{"col":"25", "print_yn":"y", "tag": "{{APY_SP_Reg_No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p025_nl_ao_nl_oo_reg_no'", "alias" :"apy_sp_reg"},
 		{"col":"26", "print_yn":"y", "tag": "{{NL_AO_NL_CC_Reg_No}}", "src_type":"json" ,"db_value":"'pd'->0->>'p035_nl_ao_nl_cc_reg_no'", "alias" :"nl_cc_reg"},
 		{"col":"28", "print_yn":"y", "tag": "{{NL-AO_NL-OO_Office_Name}}", "src_type":"json" ,"db_value":"'pd'->0->>'p024_nl_ao_nl_oo_office_name'", "alias" :"nl_oo_office"},
 

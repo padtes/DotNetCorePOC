@@ -15,6 +15,7 @@ namespace DataProcessor
         private string pgConnection;
         private string moduleName;
         private int JobId;
+        protected Dictionary<string, string> paramsDict = new Dictionary<string, string>();
 
         public UpdateStatus(string schemaName, string connectionStr, string moduleType, int jobId)
         {
@@ -22,6 +23,10 @@ namespace DataProcessor
             pgConnection = connectionStr;
             moduleName = moduleType;
             JobId = jobId;
+
+            string systemConfigDir, inputRootDir, workDir;
+            paramsDict = ProcessorUtil.LoadSystemParam(pgConnection, pgSchema, logProgramName, moduleName, JobId
+                , out systemConfigDir, out inputRootDir, out workDir);
         }
 
         public bool Update(bool superUpd, string inputFilePathName)
@@ -41,10 +46,18 @@ namespace DataProcessor
 
             List<string> rejectCodes = new List<string>();
             DbUtil.GetRejectCodes(pgConnection, pgSchema, logProgramName, moduleName, JobId, rejectCodes);
+            string printOkCode = paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE];
+            if (string.IsNullOrEmpty(printOkCode))
+                throw new Exception("Did not find Print Code in ventura.system_param");
+            else
+                Logger.WriteInfo(logProgramName, "update", 0, "Printed Ok Code " + printOkCode);
+
+            if (rejectCodes.Contains(printOkCode))
+                throw new Exception("Print Code in ventura.system_param cannot be in ventura.reject_reasons");
 
             int errCnt = 0;
             List<UpdStatusStruct> updRecList = new List<UpdStatusStruct>();
-            bool dbOk = ValidateFile(superUpd, inputFilePathName, maxCount, rejectCodes, updRecList, out int lineNo, out errCnt);
+            bool dbOk = ValidateFile(superUpd, inputFilePathName, maxCount, rejectCodes, printOkCode, updRecList, out int lineNo, out errCnt);
 
             if (dbOk)
             {
@@ -71,7 +84,7 @@ namespace DataProcessor
         } //update
 
         private bool ValidateFile(bool superUpd, string inputFilePathName, int maxCount, List<string> rejectCodes
-            , List<UpdStatusStruct> updRecList, out int lineNo, out int errCnt)
+            , string printOkCode, List<UpdStatusStruct> updRecList, out int lineNo, out int errCnt)
         {
             lineNo = 0;
             errCnt = 0;
@@ -101,7 +114,7 @@ namespace DataProcessor
                         continue; //skip header
                     }
 
-                    if (IsLineValid(rejectCodes, lineNo, cells, maxCount, out detId, out prnDt, out pickDt, out string errValCsv))
+                    if (IsLineValid(rejectCodes, printOkCode, lineNo, cells, maxCount, out detId, out prnDt, out pickDt, out string errValCsv))
                     {
                         bool postOk = IsLinePosting(superUpd, updRecList, lineNo, line, prnDt, detId, errValCsv, ref dbOk);
                         if (postOk == false)
@@ -197,7 +210,7 @@ namespace DataProcessor
             }
         }
 
-        private bool IsLineValid(List<string> rejectCodes, int lineNo, string[] cells, int maxCount
+        private bool IsLineValid(List<string> rejectCodes, string printOkCode, int lineNo, string[] cells, int maxCount
             , out int detId, out string prnDtStr, out string pickDtStr, out string errValCsv)
         {
             prnDtStr = "";
@@ -232,7 +245,13 @@ namespace DataProcessor
                 }
 
                 string err = cells[maxCount - 1].Trim();
-                if (string.IsNullOrEmpty(err) == false)
+                if (string.IsNullOrEmpty(err) )
+                {
+                    Logger.Write(logProgramName, "IsLineValid", 0, $"line {lineNo} must have reject codes OR " + printOkCode, Logger.ERROR);
+                    isValid = false;
+                }
+                else 
+                if (err != printOkCode)
                 {
                     string[] errVals = err.Split('+');
                     string wrongRejCd = "";
@@ -263,6 +282,9 @@ namespace DataProcessor
             dtStrYMD = "";
             if (string.IsNullOrEmpty(dtStr) == false)
             {
+                if (dtStr.StartsWith("'"))
+                    dtStr = dtStr.Substring(1);
+
                 if (DateTime.TryParse(dtStr, out dt) == false)
                 {
                     Logger.Write(logProgramName, "IsDateValid", 0, $"line {lineNo} has wrong {dtNm} date {dtStr}", Logger.ERROR);

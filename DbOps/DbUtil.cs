@@ -466,22 +466,25 @@ namespace DbOps
         public static DataSet GetInternalStatusReport(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction, out string sql)
         {
-            sql = $"select row_number() over () rownum, filedetails.id, filedetails.courier_id" + //filedetails.prod_id, 
+            sql = $"select row_number() over (order by filedetails.courier_id, filedetails.json_data->'pd'->0->>'p045_subscriber_bar_code') rownum" +
+                $", filedetails.id, filedetails.courier_id" + //filedetails.prod_id, 
                 ",filedetails.json_data->'pd'->0->>'p010_first_name' fname" +
                 ",filedetails.json_data->'pd'->0->>'p011_last_name_surname' lname" +
-                ",filedetails.json_data->'xx'->>'x_document_id' docId" +
+                ",filedetails.json_data->'pd'->0->>'p045_subscriber_bar_code' sub_barcode" +
                 ",fileinfo.fpath fpath" +
-                ",filedetails.print_dt, filedetails.pickup_dt" +
+                ", coalesce(filedetails.print_dt, wp.addeddate) print_dt" +
+                ",filedetails.pickup_dt" +
                 ",filedetails.det_err_csv" +
-                $",(select 'imm resp sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_RESPONSE1}' limit 1) respact"+
-                $",(select 'status updated' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_UPD2}' limit 1) updact"+
-                $",(select 'status sent' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_REP3}' limit 1) statact"+
-                $",(select 'letter done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_WORD_LTR4}' limit 1) ltract"+
-                $",(select 'card done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_CARD_OUT5}' limit 1) cardact"+
-                $",(select 'PTC done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_PTC_REP6}' limit 1) ptcact"+
-                $",(select 'AWB done' from ventura.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_AWB_REP7}' limit 1) awbact"+
+                $",(select 'imm resp sent' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_RESPONSE1}' limit 1) respact"+
+                $",(select 'status updated' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_UPD2}' limit 1) updact"+
+                $",(select 'status sent' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_STAT_REP3}' limit 1) statact"+
+                $",(select 'letter done' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_WORD_LTR4}' limit 1) ltract"+
+                $",(select 'card done' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_CARD_OUT5}' limit 1) cardact"+
+                $",(select 'PTC done' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_PTC_REP6}' limit 1) ptcact"+
+                $",(select 'AWB done' from {pgSchema}.filedetail_actions a where a.filedet_id = filedetails.id and a.action_done = '{ConstantBag.DET_LC_STEP_AWB_REP7}' limit 1) awbact"+
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
+                $" left outer join {pgSchema}.filedetail_actions wp on filedetails.id = wp.filedet_id and wp.action_done = '{ConstantBag.DET_LC_STEP_WORD_LTR4}'" +
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
                 $" and fileinfo.biztype = '{bizTypeToRead}'" +
@@ -499,6 +502,7 @@ namespace DbOps
                 $"   action_void = '0' and action_done='{waitingAction}')";
             }
 
+            sql += " order by filedetails.courier_id, filedetails.json_data->'pd'->0->>'p045_subscriber_bar_code'";
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
             return ds;
         }

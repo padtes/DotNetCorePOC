@@ -33,8 +33,8 @@
 		,{"col":"8", "print_yn":"y", "tag":"Courier Pickup Date","src_type":"cfunction","db_value":"DateFormat(dr[1],dd-MMM-yyyy)"}
 		,{"col":"9", "print_yn":"y", "tag":"Courier Agent","src_type":"json","db_value":"'pd'->0->>'p006_courier_id'"}
 		,{"col":"10", "print_yn":"y", "tag":"Delivery Mode","src_type":"json","db_value": "'xx'->>'x_deliverymode'"}
-		,{"col":"11", "print_yn":"y", "tag":"DDO Barcode","src_type":"json","db_value":"'pd'->0->>'p043_nl_ao_nl_oo_bar_code'"}
-		,{"col":"12", "print_yn":"y", "tag":"PAO Barcode","src_type":"json","db_value":"'pd'->0->>'p044_nl_ao_nl_cc_bar_code'"}
+		,{"col":"11", "print_yn":"y", "tag":"DDO Barcode","src_type":"json","db_value":"'pd'->0->>'p044_nl_ao_nl_cc_bar_code'"}
+		,{"col":"12", "print_yn":"y", "tag":"PAO Barcode","src_type":"json","db_value":"'pd'->0->>'p043_nl_ao_nl_oo_bar_code'"}
 		,{"col":"13", "print_yn":"y", "tag":"Weight of envelop in gram","src_type":"const","db_value":"14", "alias":"env_wt"}
 	]
 }
