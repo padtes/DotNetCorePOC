@@ -57,7 +57,7 @@
 		,{"col":"1b", "print_yn":"y", "tag":"Name 01b","src_type":"cfunction","db_value":"miscutil(dr[name1db],getsplitsection,3:2:20:20:99)", "alias":"name1b"}
 		,{"col":"1c", "print_yn":"y", "tag":"Name 01c","src_type":"cfunction","db_value":"miscutil(dr[name1db],getsplitsection,3:3:20:20:99)", "alias":"name1c"}
 
-		,{"col":"3", "print_yn":"y", "tag":"DATE_OF_BIRTH","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_date_of_birth],dd/MM/yyyy,mmddyyyy)", "alias":"date_of_birth"}
+		,{"col":"3", "print_yn":"y", "tag":"DATE_OF_BIRTH","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_date_of_birth],dd/MM/yyyy,MMddyyyy)", "alias":"date_of_birth"}
 		,{"col":"4", "print_yn":"y", "tag":"PRAN", "src_type":"json" ,"db_value":"'pd'->0->>'p008_pran'", "alias" :"pran"}
 		
 		,{"col":"5a", "print_yn":"y", "tag":"APY_SERVICE_PR 1", "src_type":"cfunction" ,"db_value":"miscutil(dr[apy_service_prov_db],getsplitsection,2:1:30:99)", "alias" :"apy_service_prov_name1"}
@@ -71,7 +71,7 @@
 		,{"col":"9b", "print_yn":"y", "tag":"NAME_OF_NOMINEE_02","src_type":"cfunction","db_value":"miscutil(dr[nd1_fu_nmdb],getsplitsection,3:2:20:20:99)", "alias":"nd1_fullname2"}
 		,{"col":"9c", "print_yn":"y", "tag":"NAME_OF_NOMINEE_03","src_type":"cfunction","db_value":"miscutil(dr[nd1_fu_nmdb],getsplitsection,3:3:20:20:99)", "alias":"nd1_fullname3"}
 
-		,{"col":"10", "print_yn":"y", "tag":"PENSION_START_DATE","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_pensiondate],dd/MM/yyyy,mmddyyyy)", "alias":"pensiondate"}
+		,{"col":"10", "print_yn":"y", "tag":"PENSION_START_DATE","src_type":"cfunction" ,"db_value":"DateFormat(dr[db_pensiondate],dd/MM/yyyy,MMddyyyy)", "alias":"pensiondate"}
 		
 		,{"col":"11", "print_yn":"y", "tag":"PENSION_AMOUNT","src_type":"cfunction","db_value":"NumFormat(dr[pensiondb],##:##:##:###.##)", "alias":"pension"}
 		

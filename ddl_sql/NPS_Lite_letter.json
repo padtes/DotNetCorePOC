@@ -22,7 +22,7 @@
 	,"placeholders":[
 		{"col":"0", "print_yn":"n", "tag": "{{det_id}}", "src_type":"column" ,"db_value":"filedetails.id", "alias":"detail_id" },
 		{"col":"0", "print_yn":"n", "tag": "{{serial_num}}", "src_type":"#sqlfunction" ,"db_value":"get_serial_number('letter1')","alias" : "" },
-		{"col":"0", "print_yn":"n", "tag": "{{print_date}}", "src_type":"#cfunction" ,"db_value":"DateFormat(now,yyyymmdd)","alias" : "" },
+		{"col":"0", "print_yn":"n", "tag": "{{print_date}}", "src_type":"#cfunction" ,"db_value":"DateFormat(now,yyyyMMdd)","alias" : "" },
 		{"col":"0", "print_yn":"n", "tag": "{{Date_Of_Birth db}}", "src_type":"json" ,"db_value":"'cd'->0->>'c013_date_of_birth'", "alias" :"birth_dtdb"},
 		{"col":"0", "print_yn":"n", "tag": "{{Activation_date_MMDDYYYY_Date}}", "src_type":"json" ,"db_value":"'cd'->0->>'c006_activation_date_mmddyyyy'", "alias" :"activation_datedb"},
 		{"col":"0", "print_yn":"y", "tag": "{{Percentage_of_Investment_SD_1db}}", "src_type":"json" ,"db_value":"'sd'->0->>'s008_percentage_of_investment'", "alias" :"percentage_of_investment_sd_1db"},
