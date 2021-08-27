@@ -116,7 +116,7 @@
 	   ,{"dest_col":"x_formatted_addr_sub_br", "script_file":"formatted_addr_subscriber_BR.txt","script":""}
 	   ,{"dest_col":"x_formatted_addr_sub_wbr", "script_file":"formatted_addr_subscriber_wBR.txt","script":""}
 	   
-	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p009_acknowledgement_number | string.append '51' | string.append model.xx.x_p006_courier_code2}}" }
+	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p045_subscriber_bar_code}}" }
 	   ,{"dest_col":"x_package_id", "script_file":"package_id.txt","script":""}
 	   ,{"dest_col":"x_hdr_date","script_file":"date_of_file_creation.txt","script": ""}
 	   ,{"dest_col":"x_deliverymode", "script_file":"","script":"{{ if model.pd[0].p054_apy_flag == 'Y'; 'S'; else; if model.pd[0].p003_printing_mode == 'TPSP'; 'S'; else; 'C'; end;end; }}"}
