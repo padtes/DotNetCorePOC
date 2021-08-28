@@ -1,5 +1,6 @@
 ﻿using CommonUtil;
 using DbOps;
+using DbOps.Structs;
 using Logging;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,11 @@ namespace DataProcessor
         public bool Print(string moduleName, string runFor, string fileType)
         {
             Setup(moduleName);
+            if (fileType == "eod" || fileType == "populate") //populate or eod - summary
+            {
+                return PrintSummaryLiteApy(moduleName, runFor, fileType);
+            }
+
             string workdirYmd = runFor;
             string bizTypeToRead = ConstantBag.LITE_IN;
             string waitingAction = "";   //all data
@@ -93,7 +99,7 @@ namespace DataProcessor
                 if (string.IsNullOrEmpty(printDt) == false)
                 {
                     DateTime dtTmp;
-                    bool dtOk= DateTime.TryParse(printDt, out dtTmp);
+                    bool dtOk = DateTime.TryParse(printDt, out dtTmp);
                     if (dtOk)
                         printDt = "'" + dtTmp.ToString("yyyy/MM/dd");
                 }
@@ -120,6 +126,126 @@ namespace DataProcessor
             sw.Flush();
 
             return true;
+        }
+
+        private bool PrintSummaryLiteApy(string moduleName, string runFor, string fileType)
+        {
+            bool isEodReport = (fileType == "eod");
+            string workdirYmd = runFor;
+            string bizTypeToRead = ConstantBag.LITE_IN;
+            string waitingAction = "";   //all data
+            string doneAction = ""; //all data
+
+            string fileName = (isEodReport ? "EOD_Dispaych_Report_" : "Populate_File_Report_") + runFor;
+
+            DataSet ds = DbUtil.GetInternalStatusReportSummaryFI(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
+                , workdirYmd, waitingAction, doneAction, out string sql);
+            if (ds == null || ds.Tables.Count < 1)
+            {
+                Logger.Write(logProgramName, "Print_int_statSum_FI", 0, fileType + "-No Table returned check sql", Logger.WARNING);
+                Logger.Write(logProgramName, "Print_int_statSum_FI", 0, "sql:" + sql, Logger.WARNING);
+
+                return false;
+            }
+
+            SummaryReport report = new SummaryReport(runFor);
+            DateTime procDt;
+            string printedOKcode = paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE];
+            if (string.IsNullOrEmpty(printedOKcode))
+                printedOKcode = "PTD";
+            printedOKcode = printedOKcode.ToUpper();
+
+            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+            {
+                DataRow dr = ds.Tables[0].Rows[i];
+                int fileId = Convert.ToInt32(dr["id"]);
+                int serNo = Convert.ToInt32(dr["ser_no"]);
+                string fname = Convert.ToString(dr["fname"]);
+                string fileCat = Convert.ToString(dr["fileCat"]);
+                string fileDtMdy = Convert.ToString(dr["fileDt"]);
+
+                if (isEodReport)
+                {
+                    if (dr["pr_date"] != DBNull.Value)
+                        procDt = Convert.ToDateTime(dr["pr_date"]);
+                    else
+                        procDt = Convert.ToDateTime(dr["addeddt"]);
+                }
+                else
+                    procDt = Convert.ToDateTime(dr["addeddt"]);
+
+                SummaryReportFileLine fiLine = report.AddSummaryReportFileLine(fileId, serNo, fname, fileCat, fileDtMdy, procDt);
+
+                DataSet dsDet = DbUtil.GetInternalStatusReportSummaryAct(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
+                , workdirYmd, fiLine, out sql);
+
+                if (dsDet != null && dsDet.Tables.Count > 0)
+                {
+                    foreach (DataRow drDet in dsDet.Tables[0].Rows)
+                    {
+                        int ptdCount = 0;
+                        int holdCount = 0;
+                        string crrName = Convert.ToString(drDet["pst_type"]);
+                        string holdReason = "";
+                        if (drDet["det_err_csv"] != DBNull.Value)
+                            holdReason = Convert.ToString(drDet["det_err_csv"]);
+
+                        int stCount = Convert.ToInt32(drDet["st_count"]);
+
+                        if (holdReason.ToUpper() == printedOKcode)
+                            ptdCount = stCount;
+                        else
+                            holdCount = stCount;
+
+                        fiLine.AddSummaryCounts(crrName, ptdCount, holdCount);
+                    }
+                }
+            }
+
+            string outputDir = Path.Combine(paramsDict[ConstantBag.PARAM_WORK_DIR]
+                        , workdirYmd// "yyyymmdd" 
+                        , paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+                        );
+
+            //fileName = outputDir + "\\" + fileName + DateTime.Now.ToString("yyyyMMMdd_HH_mm") + ".csv";
+            string tmpStr = Path.Combine(outputDir, fileName) + ".csv";
+            fileName = GetUniqueFileName(fileName, outputDir, tmpStr);
+
+            List<string> crrNames = new List<string>();
+            report.GetCouriers(crrNames);
+            crrNames.Sort();
+
+            StreamWriter sw = new StreamWriter(fileName, true);
+            char delimit = ',';
+
+            string recLine = report.GetHeader1Dt(isEodReport, delimit);
+            sw.WriteLine(recLine);
+            recLine = report.GetHeader2Tot(delimit);
+            sw.WriteLine(recLine);
+            recLine = report.GetHeader3Courier(delimit, crrNames);
+            sw.WriteLine(recLine);
+            recLine = report.GetHeader4Det(delimit, crrNames);
+            sw.WriteLine(recLine);
+            for (int i = 0; i < report.FileLines.Count; i++)
+            {
+                recLine = report.FileLines[i].GetPrintLine(delimit, crrNames);
+                sw.WriteLine(recLine);
+            }
+
+            sw.Flush();
+            return true;
+        }
+
+        private static string GetUniqueFileName(string fileName, string outputDir, string tmpStr)
+        {
+            int tmp = 0;
+            while (File.Exists(tmpStr))
+            {
+                tmp++;
+                tmpStr = Path.Combine(outputDir, fileName + "_new" + tmp) + ".csv";
+            }
+
+            return tmpStr;
         }
 
         private static void SetupFlagsForReports(string fileType, ref string waitingAction, ref string doneAction, ref string fileName)
@@ -203,7 +329,7 @@ namespace DataProcessor
             string doneAction = ConstantBag.DET_LC_STEP_RESPONSE1; //imm response sent
             string fileName = "card_";
 
-            fileName += (isApy ? "apy": "nps");
+            fileName += (isApy ? "apy" : "nps");
 
             List<string> courierList = new List<string>();
 
@@ -219,7 +345,7 @@ namespace DataProcessor
 
             bool er = false;
             foreach (string courierCd in courierList)
-            { 
+            {
                 er = er | PrintCardsByCourier(fileName, courierCd, moduleName, jobId, workdirYmd, isApy, waitingAction, doneAction);
             }
 
@@ -245,8 +371,8 @@ namespace DataProcessor
                 return false;
             }
 
-//print header
-            if (isApy) 
+            //print header
+            if (isApy)
             {
                 //PACKAGE_ID	NAME_01	NAME_02	DATE_OF_BIRTH	PRAN	APY_SERVICE_PROVIDER	NAME_OF_SPOUSE_01	NAME_OF_SPOUSE_02	NAME_OF_NOMINEE_01	NAME_OF_NOMINEE_02	PENSION_START_DATE	PENSION_AMOUNT	DOCUMENT_ID	AWB_NO	SYS_TEMPLATE
             }

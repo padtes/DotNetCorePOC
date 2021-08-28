@@ -187,6 +187,38 @@ namespace DbOps
             return recFound;
         }
 
+        public static DataSet GetInternalStatusReportSummaryFI(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, string waitingAction, string doneAction, out string sql)
+        {
+            sql = $"select fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat' fileCat, fd.json_data->'fh'->>'h004_date_of_file_creation_mmddyyyy' fileDt" +
+                $", max(fi.addeddate) addeddt, row_number() over(order by fi.fname, fd.json_data->'xx'->>'x_file_cat') ser_no" +
+                $", max(fa.addeddate) pr_date" +
+                $" from {pgSchema}.filedetails fd" +
+                $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
+                $" left join {pgSchema}.filedetail_actions fa on fa.filedet_id = fd.id" +
+                $" where fi.isdeleted='0'" +
+                $" and fi.module_name = '{moduleName}'" +
+                $" and fi.biztype = '{bizTypeToRead}'" +
+                $" and fi.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                $" group by fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.json_data->'fh'->>'h004_date_of_file_creation_mmddyyyy'" +
+                $" order by fi.fname, fd.json_data->'xx'->>'x_file_cat'";
+
+            return GetDataSet(pgConnection, logProgName + "_ReportSummaryFI", moduleName, jobId, sql);
+        }
+
+        public static DataSet GetInternalStatusReportSummaryAct(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, SummaryReportFileLine fiLine, out string sql)
+        {
+            sql = $"select count(*) st_count, fd.det_err_csv, fd.json_data->'xx'->>'x_pst_type' pst_type" + //fd.courier_id, 
+                $" from {pgSchema}.filedetails fd" +
+                $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
+                " where fi.isdeleted='0'" +
+                $" and fi.id = {fiLine.FileId} group by fd.det_err_csv, fd.courier_id, fd.json_data->'xx'->>'x_pst_type'"
+                ;
+
+            return GetDataSet(pgConnection, logProgName + "_ReportSummaryAct", moduleName, jobId, sql);
+        }
+
         public static bool CanConnectToDB(string pgConnection)
         {
             try

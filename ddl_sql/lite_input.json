@@ -121,12 +121,9 @@
 	   ,{"dest_col":"x_hdr_date","script_file":"date_of_file_creation.txt","script": ""}
 	   ,{"dest_col":"x_deliverymode", "script_file":"","script":"{{ if model.pd[0].p054_apy_flag == 'Y'; 'S'; else; if model.pd[0].p003_printing_mode == 'TPSP'; 'S'; else; 'C'; end;end; }}"}
 	   ,{"dest_col":"x_sub_full_name1", "script_file":"","script":"{{- model.pd[0].p010_first_name | string.append ' ' | string.append model.pd[0].p012_middle_name | string.append ' '  | string.append model.pd[0].p011_last_name_surname -}}"}
-	   ,{"dest_col":"x_sub_full_name2", "script_file":"","script":"{{- model.pd[0].p010_first_name | string.append ' ' | string.append model.pd[0].p012_middle_name | string.append ' '  | string.append model.pd[0].p011_last_name_surname -}}"}
 	   ,{"dest_col":"x_par_full_name1", "script_file":"parent_name.txt","script":""}
-	   ,{"dest_col":"x_par_full_name2", "script_file":"parent_name2.txt","script":""}
 	   ,{"dest_col":"x_fathermotherlegend", "script_file":"","script":"{{-if model.pd[0].p049_mothers_name_flag =='F'; 'Father_Legend.wmf'; else; 'Mother_Legend.wmf'; end; -}}"}
 	   ,{"dest_col":"x_spouse_full_name1", "script_file":"","script":"{{- model.pd[0].p055_spouse_name -}}"}
-	   ,{"dest_col":"x_spouse_full_name2", "script_file":"","script":"{{- if model.pd[0].p055_spouse_name | string.size > 20; model.pd[0].p055_spouse_name; else; ''; end; -}}"}
 	   ,{"dest_col":"x_nd1_full_name", "script_file":"","script":"{{- model.nd[0].n006_nominee_first_name | string.append ' ' | string.append model.nd[0].n008_nominee_middle_name | string.append ' ' | string.append model.pd[0].n007_nominee_last_name -}}"}
 	   ,{"dest_col":"x_nd2_full_name", "script_file":"","script":"{{- model.nd[1].n006_nominee_first_name | string.append ' ' | string.append model.nd[1].n008_nominee_middle_name | string.append ' ' | string.append model.nd[1].n007_nominee_last_name -}}"}
 	   ,{"dest_col":"x_nd3_full_name", "script_file":"","script":"{{- model.nd[2].n006_nominee_first_name | string.append ' ' | string.append model.nd[2].n008_nominee_middle_name | string.append ' ' | string.append model.nd[2].n007_nominee_last_name -}}"}
@@ -136,6 +133,9 @@
 	   ,{"dest_col":"x_fileName_date", "script_file":"","script":"{{-model.fh.xinpfile | string.slice 6 8; -}}"}
 	   ,{"dest_col":"x_fileName_ser_no", "script_file":"","script":"{{-model.fh.xinpfile | string.slice 22 3; -}}"}
 	   ,{"dest_col":"x_letter_awb", "script_file":"","script":"{{if model.pd[0].p054_apy_flag == 'Y'; model.xx.x_awb; else; ''; end;"}
+	   ,{"dest_col":"x_file_cat", "script_file":"","script":"{{if model.pd[0].p054_apy_flag == 'Y'; 'APY'; else; 'NPSLITE'; end;"}
+	   ,{"dest_col":"x_pst_type", "script_file":""
+		 ,"script":"{{if model.pd[0].p006_courier_id == 'PST';if model.pd[0].p054_apy_flag == 'Y'; 'PSTS'; else; 'PSTN'; end; else; model.pd[0].p006_courier_id; end;"}
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"},
