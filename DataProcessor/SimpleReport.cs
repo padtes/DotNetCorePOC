@@ -13,6 +13,8 @@ namespace DataProcessor
     public class SimpleReport
     {
         private const string logProgramName = "Simple Report";
+        private const char delimit = ',';
+
         protected string pgSchema;
         protected string pgConnection;
         protected Dictionary<string, string> paramsDict = new Dictionary<string, string>();
@@ -35,6 +37,11 @@ namespace DataProcessor
             if (fileType == "eod" || fileType == "populate") //populate or eod - summary
             {
                 return PrintSummaryLiteApy(moduleName, runFor, fileType);
+            }
+
+            if (fileType == "mis" ) //MIS - summary
+            {
+                return PrintLiteApyMIS(moduleName, runFor, fileType);
             }
 
             string workdirYmd = runFor;
@@ -63,7 +70,6 @@ namespace DataProcessor
 
             StreamWriter sw = new StreamWriter(fileName, true);
             char qt = '\"';
-            char delimit = ',';
             string seprr = qt.ToString() + delimit + qt;
             //header
             string hdr = GetHeader();
@@ -125,6 +131,68 @@ namespace DataProcessor
 
             sw.Flush();
 
+            return true;
+        }
+
+        private bool PrintLiteApyMIS(string moduleName, string runFor, string fileType)
+        {
+            string workdirYmd = runFor;
+            string bizTypeToRead = ConstantBag.LITE_IN;
+            string printedOKcode = paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE];
+            if (string.IsNullOrEmpty(printedOKcode))
+                printedOKcode = "PTD";
+            printedOKcode = printedOKcode.ToUpper();
+
+            DataSet ds = DbUtil.GetInternalStatusReportMIS(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
+                , workdirYmd, printedOKcode, out string sql);
+            if (ds == null || ds.Tables.Count < 1)
+            {
+                Logger.Write(logProgramName, "Print_int_statSum_MIS", 0, fileType + "-No Table returned check sql", Logger.WARNING);
+                Logger.Write(logProgramName, "Print_int_statSum_MIS", 0, "sql:" + sql, Logger.WARNING);
+
+                return false;
+            }
+
+            string fileName = "PRAN_COURIER_MIS_" + runFor;
+
+            string outputDir = Path.Combine(paramsDict[ConstantBag.PARAM_WORK_DIR]
+            , workdirYmd// "yyyymmdd" 
+            , paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+            );
+
+            string tmpStr = Path.Combine(outputDir, fileName) + ".csv";
+            fileName = GetUniqueFileName(fileName, outputDir, tmpStr);
+
+            StreamWriter sw = new StreamWriter(fileName, true);
+
+            string recLine = "FILE CATEGORY,FILE NAME,COURIER,DATE OF PICKUP,TIME,NO OF KIT,REMARK";
+            sw.WriteLine(recLine);
+
+            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+            {
+                DataRow dr = ds.Tables[0].Rows[i];
+                string fileCat = Convert.ToString(dr["fileCat"]);
+                string fname = Convert.ToString(dr["fname"]);
+                string courr = Convert.ToString(dr["courier_id"]);
+                string pickupDtDMY = "";
+                string pickupDtHHmm = "";
+                DateTime pickDt;
+                if (dr["pickup_dt"] != DBNull.Value)
+                {
+                    pickupDtDMY = Convert.ToString(dr["pickup_dt"]);
+                    if (DateTime.TryParse(pickupDtDMY, out pickDt))
+                    {
+                        pickupDtDMY = "'" + pickDt.ToString("dd/MM/yyyy");
+                        pickupDtHHmm = "'" + pickDt.ToString("HH:mm");
+                    }
+                }
+                int pCount = Convert.ToInt32(dr["pCount"]);
+
+                recLine = fileCat + delimit + fname + delimit + courr + delimit + pickupDtDMY + delimit + pickupDtHHmm + delimit + pCount + delimit + "";
+                sw.WriteLine(recLine);
+            }
+
+            sw.Flush();
             return true;
         }
 
@@ -216,7 +284,6 @@ namespace DataProcessor
             crrNames.Sort();
 
             StreamWriter sw = new StreamWriter(fileName, true);
-            char delimit = ',';
 
             string recLine = report.GetHeader1Dt(isEodReport, delimit);
             sw.WriteLine(recLine);
@@ -279,7 +346,6 @@ namespace DataProcessor
         public static string GetHeader()
         {
             char qt = '\"';
-            char delimit = ',';
             string seprr = qt.ToString() + delimit + qt;
             return $"{qt}Row Number{seprr}detail id{seprr}courier id{seprr}File Date{seprr}Subscr Barcode{seprr}Last Action{seprr}" +
                 $"first name{seprr}last name{seprr}other{seprr}Print Dt{seprr}Pickup Dt{seprr}Status{qt}";

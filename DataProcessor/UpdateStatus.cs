@@ -116,7 +116,7 @@ namespace DataProcessor
 
                     if (IsLineValid(rejectCodes, printOkCode, lineNo, cells, maxCount, out detId, out prnDt, out pickDt, out string errValCsv))
                     {
-                        bool postOk = IsLinePosting(superUpd, updRecList, lineNo, line, prnDt, detId, errValCsv, ref dbOk);
+                        bool postOk = IsLinePosting(superUpd, updRecList, lineNo, line, prnDt, pickDt, detId, errValCsv, ref dbOk);
                         if (postOk == false)
                             errCnt++;
                     }
@@ -132,7 +132,7 @@ namespace DataProcessor
             return dbOk;
         }
 
-        private bool IsLinePosting(bool superUpd, List<UpdStatusStruct> updRecList, int lineNo, string line, string prnDt, int detId, string errValCsv, ref bool dbOk)
+        private bool IsLinePosting(bool superUpd, List<UpdStatusStruct> updRecList, int lineNo, string line, string prnDt, string pickDt, int detId, string errValCsv, ref bool dbOk)
         {
             bool postOk = true;
             bool isFinalStatSent = CheckFinalStatSent(superUpd, lineNo, line, detId);
@@ -150,7 +150,7 @@ namespace DataProcessor
                     {
                         DetId = detId,
                         PrnDtYMD = prnDt,
-                        PickDtYMD = prnDt,
+                        PickDtYMD = pickDt,
                         ErrCsv = errValCsv
                     });
                 }
