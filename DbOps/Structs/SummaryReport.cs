@@ -56,12 +56,25 @@ namespace DbOps.Structs
 
         public void AddSummaryCounts(string crrName, int ptdCount, int holdCount)
         {
-            courDetList.Add(new SummaryReportByCourier()
+            bool recFound = false;
+            foreach (SummaryReportByCourier crr in courDetList)
             {
-                Courier = crrName,
-                HoldCount = holdCount,
-                PtdCount = ptdCount
-            });
+                if (crr.Courier == crrName)
+                {
+                    recFound = true;
+                    crr.HoldCount += holdCount;
+                    crr.PtdCount += ptdCount;
+                }
+            }
+            if (recFound == false)
+            {
+                courDetList.Add(new SummaryReportByCourier()
+                {
+                    Courier = crrName,
+                    HoldCount = holdCount,
+                    PtdCount = ptdCount
+                });
+            }
         }
 
         public string GetPrintLine(char delimit, List<string> crrNames)

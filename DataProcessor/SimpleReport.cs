@@ -177,7 +177,7 @@ namespace DataProcessor
                 SummaryReportFileLine fiLine = report.AddSummaryReportFileLine(fileId, serNo, fname, fileCat, fileDtMdy, procDt);
 
                 DataSet dsDet = DbUtil.GetInternalStatusReportSummaryAct(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
-                , workdirYmd, fiLine, out sql);
+                , workdirYmd, fiLine, printedOKcode, out sql);
 
                 if (dsDet != null && dsDet.Tables.Count > 0)
                 {

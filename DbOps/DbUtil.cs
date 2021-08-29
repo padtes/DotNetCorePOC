@@ -207,13 +207,14 @@ namespace DbOps
         }
 
         public static DataSet GetInternalStatusReportSummaryAct(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
-            , string workdirYmd, SummaryReportFileLine fiLine, out string sql)
+            , string workdirYmd, SummaryReportFileLine fiLine, string printedOKcode, out string sql)
         {
-            sql = $"select count(*) st_count, fd.det_err_csv, fd.json_data->'xx'->>'x_pst_type' pst_type" + //fd.courier_id, 
+            sql = $"select count(*) st_count, case when fd.det_err_csv ='{printedOKcode}' then '{printedOKcode}' else 'HOLD' end det_err_csv" +
+                $", fd.json_data->'xx'->>'x_pst_type' pst_type" + //fd.courier_id, 
                 $" from {pgSchema}.filedetails fd" +
                 $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
                 " where fi.isdeleted='0'" +
-                $" and fi.id = {fiLine.FileId} group by fd.det_err_csv, fd.courier_id, fd.json_data->'xx'->>'x_pst_type'"
+                $" and fi.id = {fiLine.FileId} group by case when fd.det_err_csv ='PTD' then 'PTD' else 'HOLD' end, fd.courier_id, fd.json_data->'xx'->>'x_pst_type'"
                 ;
 
             return GetDataSet(pgConnection, logProgName + "_ReportSummaryAct", moduleName, jobId, sql);

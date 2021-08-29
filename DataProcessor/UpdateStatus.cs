@@ -223,6 +223,8 @@ namespace DataProcessor
 
             try
             {
+                cells[1] = cells[1].Replace("\"", "").Replace("'", "");
+
                 if (int.TryParse(cells[1], out detId) == false)
                 {
                     Logger.Write(logProgramName, "IsLineValid", 0, $"{lineNo} has Non numeric detail Id {cells[1]}", Logger.ERROR);
@@ -282,6 +284,7 @@ namespace DataProcessor
             dtStrYMD = "";
             if (string.IsNullOrEmpty(dtStr) == false)
             {
+                dtStr = dtStr.Replace("\"", "");
                 if (dtStr.StartsWith("'"))
                     dtStr = dtStr.Substring(1);
 
