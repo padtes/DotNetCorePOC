@@ -221,7 +221,7 @@ namespace DbOps
         }
 
         public static DataSet GetInternalStatusReportMIS(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
-            , string workdirYmd, string printedOKcode, out string sql)
+            , string workdirYmd, string beforeAfter, string printedOKcode, out string sql)
         {
             sql = $"select count(*) pCount, fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat' fileCat, fd.courier_id, max(fd.pickup_dt) pickup_dt" +
                 $" from {pgSchema}.filedetails fd" +
@@ -229,8 +229,18 @@ namespace DbOps
                 $" where fi.isdeleted='0'" +
                 $" and fi.module_name = '{moduleName}'" +
                 $" and fi.biztype = '{bizTypeToRead}'" +
-                $" and fi.fpath like '%\\\\{workdirYmd}\\\\%'" +
-                $" and fd.det_err_csv = '{printedOKcode}'" +
+                $" and fd.det_err_csv = '{printedOKcode}'";
+
+            if (string.IsNullOrEmpty(workdirYmd) == false)
+            {
+                if (string.IsNullOrEmpty(beforeAfter))
+                    sql += $" and fi.fpath like '%\\\\{workdirYmd}\\\\%'";
+                else
+                {
+                    sql += $" and fi.addeddate " +( (beforeAfter == "before") ? "<=" : ">=") + " '" + workdirYmd + "'";
+                }
+            }
+            sql +=
                 $" group by fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id" +
                 $" order by fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id"
                 ;

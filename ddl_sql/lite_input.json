@@ -124,10 +124,10 @@
 	   ,{"dest_col":"x_par_full_name1", "script_file":"parent_name.txt","script":""}
 	   ,{"dest_col":"x_fathermotherlegend", "script_file":"","script":"{{-if model.pd[0].p049_mothers_name_flag =='F'; 'Father_Legend.wmf'; else; 'Mother_Legend.wmf'; end; -}}"}
 	   ,{"dest_col":"x_spouse_full_name1", "script_file":"","script":"{{- model.pd[0].p055_spouse_name -}}"}
-	   ,{"dest_col":"x_nd1_full_name", "script_file":"","script":"{{- model.nd[0].n006_nominee_first_name | string.append ' ' | string.append model.nd[0].n008_nominee_middle_name | string.append ' ' | string.append model.pd[0].n007_nominee_last_name -}}"}
+	   ,{"dest_col":"x_nd1_full_name", "script_file":"","script":"{{- model.nd[0].n006_nominee_first_name | string.append ' ' | string.append model.nd[0].n008_nominee_middle_name | string.append ' ' | string.append model.nd[0].n007_nominee_last_name -}}"}
 	   ,{"dest_col":"x_nd2_full_name", "script_file":"","script":"{{- model.nd[1].n006_nominee_first_name | string.append ' ' | string.append model.nd[1].n008_nominee_middle_name | string.append ' ' | string.append model.nd[1].n007_nominee_last_name -}}"}
 	   ,{"dest_col":"x_nd3_full_name", "script_file":"","script":"{{- model.nd[2].n006_nominee_first_name | string.append ' ' | string.append model.nd[2].n008_nominee_middle_name | string.append ' ' | string.append model.nd[2].n007_nominee_last_name -}}"}
-	   ,{"dest_col":"x_ndgrd1_full_name", "script_file":"","script":"{{- model.nd[0].n012_guardian_first_name | string.append ' ' | string.append model.nd[0].n014_guardian_middle_name | string.append ' ' | string.append model.pd[0].n013_guardian_last_name -}}"}
+	   ,{"dest_col":"x_ndgrd1_full_name", "script_file":"","script":"{{- model.nd[0].n012_guardian_first_name | string.append ' ' | string.append model.nd[0].n014_guardian_middle_name | string.append ' ' | string.append model.nd[0].n013_guardian_last_name -}}"}
 	   ,{"dest_col":"x_ndgrd2_full_name", "script_file":"","script":"{{- model.nd[1].n012_guardian_first_name | string.append ' ' | string.append model.nd[1].n014_guardian_middle_name | string.append ' ' | string.append model.nd[1].n013_guardian_last_name -}}"}
 	   ,{"dest_col":"x_ndgrd3_full_name", "script_file":"","script":"{{- model.nd[2].n012_guardian_first_name | string.append ' ' | string.append model.nd[2].n014_guardian_middle_name | string.append ' ' | string.append model.nd[2].n013_guardian_last_name -}}"}
 	   ,{"dest_col":"x_fileName_date", "script_file":"","script":"{{-model.fh.xinpfile | string.slice 6 8; -}}"}

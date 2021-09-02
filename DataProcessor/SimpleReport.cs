@@ -137,6 +137,21 @@ namespace DataProcessor
         private bool PrintLiteApyMIS(string moduleName, string runFor, string fileType)
         {
             string workdirYmd = runFor;
+            string beforeAfter = "";
+            if (string.IsNullOrEmpty(runFor)==false)
+            {
+                if (runFor.StartsWith("before"))
+                {
+                    beforeAfter = "before";
+                    workdirYmd = runFor.Replace("before","");
+                }
+                if (runFor.StartsWith("after"))
+                {
+                    beforeAfter = "after";
+                    workdirYmd = runFor.Replace("after", "");
+                }
+            }
+
             string bizTypeToRead = ConstantBag.LITE_IN;
             string printedOKcode = paramsDict[ConstantBag.PARAM_PRINTED_OK_CODE];
             if (string.IsNullOrEmpty(printedOKcode))
@@ -144,7 +159,7 @@ namespace DataProcessor
             printedOKcode = printedOKcode.ToUpper();
 
             DataSet ds = DbUtil.GetInternalStatusReportMIS(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
-                , workdirYmd, printedOKcode, out string sql);
+                , workdirYmd, beforeAfter, printedOKcode, out string sql);
             if (ds == null || ds.Tables.Count < 1)
             {
                 Logger.Write(logProgramName, "Print_int_statSum_MIS", 0, fileType + "-No Table returned check sql", Logger.WARNING);
@@ -155,10 +170,19 @@ namespace DataProcessor
 
             string fileName = "PRAN_COURIER_MIS_" + runFor;
 
-            string outputDir = Path.Combine(paramsDict[ConstantBag.PARAM_WORK_DIR]
-            , workdirYmd// "yyyymmdd" 
-            , paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
-            );
+            string outputDir;
+            if (beforeAfter == "" && workdirYmd != "")
+            {
+                outputDir = Path.Combine(paramsDict[ConstantBag.PARAM_WORK_DIR]
+                , workdirYmd// "yyyymmdd" 
+                , paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
+                );
+            }
+            else
+            {
+                fileName = "PRAN_COURIER_MIS_"+ "ALL" + DateTime.Now.ToString("yyyyMMdd_HHmm");
+                outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR];
+            }
 
             string tmpStr = Path.Combine(outputDir, fileName) + ".csv";
             fileName = GetUniqueFileName(fileName, outputDir, tmpStr);
