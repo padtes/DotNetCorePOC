@@ -237,14 +237,18 @@ namespace DataProcessor
             //paramsDict
             string tmpFName = Path.Combine(inpFileInfo.fpath, inpFileInfo.fname);
             string tmpJsonFName = Path.Combine(paramsDict[ConstantBag.PARAM_SYS_DIR], fTypeMaster.fileDefJsonFName);
+            bool hasDup = false;
 
             //Save from txt file to data table
             ////save photos and signatures
-            bool suc = FileProcessorUtil.SaveInputToDB(this, inpFileInfo, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir);
+            bool suc = FileProcessorUtil.SaveInputToDB(this, inpFileInfo, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir, ref hasDup);
 
             if (suc)
             {
-                inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
+                if (hasDup)
+                    inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_WARN_DUP;
+                else
+                    inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
                 DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
 
                 //delete file from input dir ???

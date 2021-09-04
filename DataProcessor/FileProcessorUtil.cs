@@ -19,7 +19,7 @@ namespace DataProcessor
         private static Dictionary<string, JsonInputFileDef> jsonCache = new Dictionary<string, JsonInputFileDef>();
 
         public static bool SaveInputToDB(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, string inputFilePathName, string jsonParamFilePath
-            , Dictionary<string, string> paramsDict, string dateAsDir)
+            , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
         {
             Logger.Write(logProgName, "SaveInputToDB", 0, $"params: {jsonParamFilePath} file {inputFilePathName} ", Logger.WARNING);
 
@@ -65,13 +65,13 @@ namespace DataProcessor
 
                         ProcessDataRow(fileProcessor, fileInfoStr, jobId, ref startRowNo, cells, inputHdr
                             , ref curRec, ref saveOk, jDef, lineNo, inputFilePathName
-                            , paramsDict, dateAsDir);
+                            , paramsDict, dateAsDir, ref hasDup);
                     }
                     if (curRec != null)
                     {
                         //save the current rec - last record
                         if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFilePathName, startRowNo, lineNo
-                            , inputHdr, curRec, paramsDict, dateAsDir) == false)
+                            , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup) == false)
                             saveOk = false;
                     }
                 }
@@ -100,7 +100,7 @@ namespace DataProcessor
             , ref InputRecord curRec, ref bool saveOk
             , JsonInputFileDef jDef
             , int lineNo, string inputFile
-            , Dictionary<string, string> paramsDict, string dateAsDir)
+            , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
         {
             string rowType = cells[jDef.inpSysParam.RowTypeIndex].ToLower();
 
@@ -125,7 +125,7 @@ namespace DataProcessor
                 if (curRec != null)
                 {
                     if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
-                        , inputHdr, curRec, paramsDict, dateAsDir) == false)
+                        , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup) == false)
                     {
                         //to do : create error reporting
                         saveOk = false;
@@ -155,23 +155,25 @@ namespace DataProcessor
         private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
             , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
             , InputHeader inputHdr, InputRecord curRec
-            , Dictionary<string, string> paramsDict, string dateAsDir)
+            , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
         {
             string pgConnection = fileProcessor.GetConnection();
             string pgSchema = fileProcessor.GetSchema();
 
             string yMdDirName = new DirectoryInfo(dateAsDir).Name;
-            curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName);
 
             SystemParamInput inpSysParam = jDef.inpSysParam;
-
             string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
+
             if (DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int id))
             {
                 //to do mark dup ??
                 Logger.Write(logProgName, "InsertCurrRec", 0, $"ignored row {startRowNo} / {inputFile} duplicate rec Was saved as id:{id}", Logger.ERROR);
-                return false;
+                hasDup = true;
+                return true;
             }
+
+            curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName);
 
             string courierSeq = "", courierSName = "";
             GetCourierVal(pgConnection, pgSchema, curRec, inpSysParam, ref courierSeq, ref courierSName);

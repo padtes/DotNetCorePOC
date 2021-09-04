@@ -110,10 +110,10 @@ namespace DataProcessor
             .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
             .Replace("{{now_ddmmyy}}", DateTime.Now.ToString("ddMMyy")); //TO DO : parse the file name pattern
 
-            //TO DO get serial number - add rec if not found
             string tmpFileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, "");
             string pattern = "";
             string cardType = ConstantBag.CARD_NA; //as long as the sequence is card independent ELSE use APY or Lite based on isApy
+            //get serial number - add rec if not found
             string serNo = SequenceGen.GetNextSequence(false, GetConnection(), GetSchema(), ConstantBag.SEQ_GENERIC, tmpFileName, cardType, ref pattern, 2, addIfNeeded: true, unlock: true); 
             fileName = fileName.Replace(ConstantBag.FILE_NAME_TAG_SER_NO, serNo);
 
@@ -422,30 +422,6 @@ namespace DataProcessor
 
         #endregion
         /**/
-        private void ProcessNpsLiteOutput(string runFor, string courierCsv)
-        {
-            /*
-            OUTPUT file structure 
-            --NPS LITE
-                workDir / ddmmyyyy / nps_lite_apy / nps / 
-                workDir / ddmmyyyy / nps_lite_apy / nps / courier_name_ddmmyy / <PTC file> <card file> <letter files> 
-             */
-            //collect what all couriers to process
-            //for each courier
-            //create outputs
-
-        }
-
-        private void ProcessApyOutput(string runFor, string courierCsv)
-        {
-            /*
-            OUTPUT file structure 
-            --APY
-                workDir / ddmmyyyy / nps_lite_apy / apy
-                workDir / ddmmyyyy / nps_lite_apy / apy / courier_name_ddmmyy / <PTC file> <card file> <letter files>
-             */
-            throw new NotImplementedException();
-        }
 
         protected override void LoadModuleParam(string runFor, string courierCsv)
         {

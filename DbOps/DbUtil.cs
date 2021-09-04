@@ -223,13 +223,13 @@ namespace DbOps
         public static DataSet GetInternalStatusReportMIS(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string beforeAfter, string printedOKcode, out string sql)
         {
-            sql = $"select count(*) pCount, fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat' fileCat, fd.courier_id, max(fd.pickup_dt) pickup_dt" +
+            sql = $"select count(*) tot_count, fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat' fileCat, fd.courier_id, max(fd.pickup_dt) pickup_dt" +
+                $", sum(case when fd.det_err_csv = '{printedOKcode}' then 1 else 0 end) print_count" +
                 $" from {pgSchema}.filedetails fd" +
                 $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
                 $" where fi.isdeleted='0'" +
                 $" and fi.module_name = '{moduleName}'" +
-                $" and fi.biztype = '{bizTypeToRead}'" +
-                $" and fd.det_err_csv = '{printedOKcode}'";
+                $" and fi.biztype = '{bizTypeToRead}'"; // +      $" and fd.det_err_csv = '{printedOKcode}'";
 
             if (string.IsNullOrEmpty(workdirYmd) == false)
             {

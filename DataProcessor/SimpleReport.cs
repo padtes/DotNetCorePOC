@@ -68,6 +68,8 @@ namespace DataProcessor
                         ;
             fileName = outputDir + "\\" + fileName + DateTime.Now.ToString("yyyyMMMdd_HH_mm") + ".csv";
 
+            Logger.WriteInfo(logProgramName, "print", 0, fileType + " report file name: " + fileName);
+
             StreamWriter sw = new StreamWriter(fileName, true);
             char qt = '\"';
             string seprr = qt.ToString() + delimit + qt;
@@ -187,9 +189,11 @@ namespace DataProcessor
             string tmpStr = Path.Combine(outputDir, fileName) + ".csv";
             fileName = GetUniqueFileName(fileName, outputDir, tmpStr);
 
+            Logger.WriteInfo(logProgramName, "print", 0, fileType + " report file name: " + fileName);
+
             StreamWriter sw = new StreamWriter(fileName, true);
 
-            string recLine = "FILE CATEGORY,FILE NAME,COURIER,DATE OF PICKUP,TIME,NO OF KIT,REMARK";
+            string recLine = "FILE CATEGORY,FILE NAME,COURIER,DATE OF PICKUP,TIME,NO OF KIT SENT,ON HOLD,TOTAL,REMARK";
             sw.WriteLine(recLine);
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
@@ -210,9 +214,12 @@ namespace DataProcessor
                         pickupDtHHmm = "'" + pickDt.ToString("HH:mm");
                     }
                 }
-                int pCount = Convert.ToInt32(dr["pCount"]);
+                int pCount = Convert.ToInt32(dr["print_count"]);
+                int totCount = Convert.ToInt32(dr["tot_count"]);
+                int onHold = totCount - pCount;
 
-                recLine = fileCat + delimit + fname + delimit + courr + delimit + pickupDtDMY + delimit + pickupDtHHmm + delimit + pCount + delimit + "";
+                recLine = fileCat + delimit + fname + delimit + courr + delimit + pickupDtDMY + delimit + pickupDtHHmm 
+                    + delimit + pCount + delimit + onHold + delimit + totCount + delimit + "";
                 sw.WriteLine(recLine);
             }
 
@@ -302,6 +309,8 @@ namespace DataProcessor
             //fileName = outputDir + "\\" + fileName + DateTime.Now.ToString("yyyyMMMdd_HH_mm") + ".csv";
             string tmpStr = Path.Combine(outputDir, fileName) + ".csv";
             fileName = GetUniqueFileName(fileName, outputDir, tmpStr);
+
+            Logger.WriteInfo(logProgramName, "print", 0, fileType + " report file name: " + fileName);
 
             List<string> crrNames = new List<string>();
             report.GetCouriers(crrNames);

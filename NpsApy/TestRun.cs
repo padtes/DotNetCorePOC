@@ -119,9 +119,12 @@ namespace NpsApy
                 id = 1  //the header Id for saving children
             };
 
-            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, fileInfoStr, jobId, inputFilePathName, jsonParamFilePath, paramsDict, dateAsDir);
+            bool hasDup = false;
+            bool suc = FileProcessorUtil.SaveInputToDB(fileProcessor, fileInfoStr, jobId, inputFilePathName, jsonParamFilePath, paramsDict, dateAsDir, ref hasDup);
             if (suc)
                 Console.WriteLine("Great Success");
+            if (hasDup)
+                Console.WriteLine("Found Dups");
         }
 
         private static void PopulateParamsDict(Dictionary<string, string> paramsDict)

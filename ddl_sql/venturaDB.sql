@@ -157,14 +157,31 @@ CREATE TABLE ventura.counters(
 	lock_key integer,
 	card_type  varchar(4), --APY - Lite - Reg
 	addeddate	timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+	sort_order integer integer DEFAULT 1,
 	CONSTRAINT counters_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
 
-insert into ventura.counters(isactive,counter_name,parent_id,descript) values   ('1','couriers',0, 'master rec for AWB couriers');
+/*
+alter table ventura.counters add sort_order integer DEFAULT 1;
 
-insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, start_num, end_num, step) values 
-	('1','PST','AWB PST', '', '5 1', '100001', '199999', 1);
+update ventura.counters set sort_order = 1 where sort_order is null;
+*/
+
+/*
+isactive	counter_name	descript	parent_id	is_immutable	archived	pat	start_num	step	end_num	next_num	autoreset	lock_key	addeddate	freq_period	card_type
+TRUE	couriers_global	master rec for couriers	0	TRUE	NULL	EA{sequence}{chk_val}IN	NULL	1	NULL	NULL	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
+TRUE	PRF	detail rec for couriers	1	TRUE	NULL	NULL	1000	1	7000	1000	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
+TRUE	PST	sql/skp	1	NULL	NULL	NULL	30726182	1	30726271	30726259	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
+*/
+
+insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num) values
+('1','PST','sql/skp AWB range-2',1,'30739786',1,'30739840','30739786')
+
+--insert into ventura.counters(isactive,counter_name,parent_id,descript) values   ('1','couriers',0, 'master rec for AWB couriers');
+
+--insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, start_num, end_num, step) values 
+--	('1','PST','AWB PST', '', '5 1', '100001', '199999', 1);
 
 insert into ventura.counters(isactive,counter_name,parent_id) values ('1','generic',0);
 --"couriers" master rec for couriers
@@ -285,6 +302,7 @@ begin
   master_step := 1;
   nx := 1;
   
+  --find master record--
   if freq_type = '' then
     select id, coalesce(step, 1)
     into lmaster_id, master_step
@@ -295,7 +313,7 @@ begin
     into lmaster_id
     from ventura.counters
     where isactive='1' and counter_name = master_type and parent_id = 0 and coalesce(freq_period,'') = freq_type and coalesce(card_type, '') =card_type_param;
-	if found then
+	if found then  -- also find 2nd level master based on freq (daily) + what variation such as courier (PST / PRF)
 	  select id, start_num, end_num, coalesce(step, 1) 
       into lmaster_id, master_start, master_end, master_step
       from ventura.counters
@@ -305,7 +323,7 @@ begin
     end if;
   end if;
   
-  if not found then  --mater rec not found
+  if not found then  -- master rec not found
     if init_if_need = '1' then
 	  if freq_type = '' then
 	    insert into ventura.counters (isactive, counter_name, descript, parent_id, step, card_type)
@@ -316,28 +334,30 @@ begin
 		
  	    lser_no := 1;
 	  else
-	    return '-21';
+	    return '-21';  -- daily or other periodical intermediate master missing
 	  end if;
+	else
+		return '-31';  -- master rec not found, record was expected
     end if;
-  else  --mater rec found
+  else  --master rec found
 	if freq_type = '' then
       select next_num, id 
       into lser_no, child_id
       from ventura.counters
       where isactive='1' and counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
 	   and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
-	   and coalesce(freq_period, '') = ''
+	   and coalesce(freq_period, '') = ''  -- if not frequency dependent - must be empty
 	   and coalesce(card_type, '') =card_type_param
-	  order by start_num limit 1;
+	  order by sort_order, start_num limit 1;
 	else
       select next_num, id
       into lser_no, child_id
       from ventura.counters
       where isactive='1' and counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
 	   and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
-	   and freq_period = freq_val
+	   and freq_period = freq_val -- what period like exact date 20210801
 	   and coalesce(card_type, '') =card_type_param
-	  order by start_num limit 1;
+	  order by sort_order, start_num limit 1;
 	end if;
 
     if found then -- child rec found
@@ -361,11 +381,11 @@ begin
 			lser_no := master_start;
 		end if; --by freq_type		
 	  else
-		return '-71'; 
+		return '-71'; -- child rec expected but not found
 	  end if; -- can add 
 	end if; -- child rec
 	
- end if; --mater rec
+ end if; --master rec
 
   return lser_no;
  
