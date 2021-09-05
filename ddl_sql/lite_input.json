@@ -139,7 +139,6 @@
 	]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
-		,{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb_old","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
 		,{"row_type" : "xx", "index_0":"0", "source_col":"x_pst_type", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
 	]
 	, "file_def" : {
@@ -313,7 +312,7 @@
 			"50":"s005_pfm_name",
 			"60":"s006_scheme_id",
 			"70":"s007_scheme_name",
-			"80":"s008_percentage_of_investment",
+			"80":"s008_percentage_of_investment"
 		}
 	}
 }
