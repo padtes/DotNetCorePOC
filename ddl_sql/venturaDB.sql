@@ -172,11 +172,14 @@ update ventura.counters set sort_order = 1 where sort_order is null;
 isactive	counter_name	descript	parent_id	is_immutable	archived	pat	start_num	step	end_num	next_num	autoreset	lock_key	addeddate	freq_period	card_type
 TRUE	couriers_global	master rec for couriers	0	TRUE	NULL	EA{sequence}{chk_val}IN	NULL	1	NULL	NULL	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
 TRUE	PRF	detail rec for couriers	1	TRUE	NULL	NULL	1000	1	7000	1000	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
-TRUE	PST	sql/skp	1	NULL	NULL	NULL	30726182	1	30726271	30726259	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
+TRUE	PSTS	sql/skp	1	NULL	NULL	NULL	30726182	1	30726271	30726259	NULL	NULL	7/10/21 11:00 PM	NULL	NULL
 */
 
 insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num) values
-('1','PST','sql/skp AWB range-2',1,'30739786',1,'30739840','30739786')
+('1','PSTS','sql/skp AWB range-2',1,'30739786',1,'30739840','30739786')
+
+insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num) values
+('1','PSTN','sql/skp AWB placeholder',1,'10000000',1,'99999999','10000000')
 
 --insert into ventura.counters(isactive,counter_name,parent_id,descript) values   ('1','couriers',0, 'master rec for AWB couriers');
 

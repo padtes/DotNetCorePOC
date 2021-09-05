@@ -92,6 +92,22 @@ namespace DataProcessor
             //string jStr = JsonConvert.SerializeObject(JsonByRowType);
             bool first = true;
             StringBuilder jStr = new StringBuilder();
+
+            first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
+
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
+            //done mapped columns
+            jStr.Append('}');
+
+            sb2.Append(jStr.Replace("'", "''"));
+            sb2.Append('\'');
+            sb1.Append(") values (").Append(sb2).Append(')');
+
+            return sb1.ToString();
+        }
+
+        private bool BuildJsonForInputRows(string inputFile, InputHeader inputHdr, bool first, StringBuilder jStr)
+        {
             jStr.Append('{');
 
             AppendFHtoDet(inputHdr, jStr, inputFile);
@@ -106,15 +122,8 @@ namespace DataProcessor
                 jsonRow.Value.RenderJson(jStr);
                 first = false;
             }
-            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr);
-            //done mapped columns
-            jStr.Append('}');
 
-            sb2.Append(jStr.Replace("'", "''"));
-            sb2.Append('\'');
-            sb1.Append(") values (").Append(sb2).Append(')');
-
-            return sb1.ToString();
+            return first;
         }
 
         private static void AppendFHtoDet(InputHeader inputHdr, StringBuilder jStr, string inputFile)
@@ -132,7 +141,8 @@ namespace DataProcessor
             jStr.Append("},");
         }
 
-        private void GenerateMappedColumnPart(string sysPath, JsonInputFileDef jDef, InputHeader inputHdr, bool hasNoOtherRows, StringBuilder jStr)
+        private void GenerateMappedColumnPart(string sysPath, JsonInputFileDef jDef, InputHeader inputHdr, bool hasNoOtherRows, StringBuilder jStr
+            , bool justPreScriban, out string almostWholeJson)
         {
             if (hasNoOtherRows == false)
             {
@@ -153,13 +163,22 @@ namespace DataProcessor
                 first = false;
             }
 
-            AddToJsonFromSequences(jStr, ref first);
+            if (justPreScriban == false)
+            {
+                AddToJsonFromSequences(jStr, ref first);
+            }
 
-            string almostWholeJson = jStr.ToString()
+            almostWholeJson = jStr.ToString()
                 + "}}";
-            AddToJsonFromScriban("inputRecord", jStr, first, sysPath, jDef, almostWholeJson);
 
-            jStr.Append('}'); //end "xx"
+            if (justPreScriban == false)
+            {
+                AddToJsonFromScriban("inputRecord", jStr, first, sysPath, jDef, almostWholeJson);
+
+                jStr.Append('}'); //end "xx"
+
+                almostWholeJson = ""; // clear out
+            }
         }
 
         //private string AppendFileHeader(InputHeader inputHdr)
@@ -220,7 +239,9 @@ namespace DataProcessor
             }
         }
 
-        internal void PrepareColumns(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef, int jobId, int startRowNo, string runFor)
+        internal void PrepareColumns(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef
+            , int jobId, int startRowNo, string runFor
+            , string sysPath, string inputFile, InputHeader inputHdr)
         {
             string cardType = ConstantBag.CARD_NA;
 
@@ -228,15 +249,58 @@ namespace DataProcessor
             {
                 if (item.Key == ConstantBag.APY_FLAG_DB_COL_NAME)
                 {
-                    if (item.Value == "1" || item.Value == "Y")
+                    if (item.Value == "1" || item.Value.ToUpper() == "Y")
                         cardType = ConstantBag.CARD_APY;
                     else
                         cardType = ConstantBag.CARD_LITE;
                 }
             }
 
-            GetSequenceValues(withLock, pgConnection, pgSchema, logProgName, moduleName, jobId, jDef, runFor, cardType);
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
+
+            Dictionary<string, string> evalCols = new Dictionary<string, string>();
+            EvalPreSeq(logProgName, jDef, sysPath, inputFile, inputHdr, evalCols);
+            GetSequenceValues(withLock, pgConnection, pgSchema, logProgName, moduleName, jobId, jDef, evalCols, runFor, cardType);
+        }
+
+        private void EvalPreSeq(string logProgName, JsonInputFileDef jDef, string sysPath, string inputFile, InputHeader inputHdr, Dictionary<string, string> evalCols)
+        {
+            StringBuilder jStr = new StringBuilder();
+            bool first = BuildJsonForInputRows(inputFile, inputHdr, true, jStr);
+            string almostWholeJson;
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, out almostWholeJson);
+            //pre eval phase
+            List<string> scribanToEval = new List<string>();
+            scribanToEval.Add("x_pst_type");
+            foreach (string aColName in scribanToEval)
+            {
+                foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
+                {
+                    if (scrptCol.DestCol == aColName)
+                    {
+                        string val = "";
+                        try
+                        {
+                            val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
+                            if (evalCols.ContainsKey(aColName))
+                            {
+                                evalCols[aColName] = val;
+                            }
+                            else
+                            {
+                                evalCols.Add(aColName, val);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ScribanHandler.IsSameError(ex.Message) == false)
+                                Logger.WriteEx(logProgName, "EvalPreSeq", 0, ex);
+                        }
+                        break;
+                    }
+                }
+            }
+            //add to dervice column
         }
 
         private static void AddToJsonFromMapped(StringBuilder jStr, MappedColWithVal col)
@@ -370,7 +434,10 @@ namespace DataProcessor
                 var col = jDef.mappedColDefnn.MappedColList[i];
                 bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
                 if (hasVal == false)
+                {
+                    Logger.WriteInfo("Lite Input", "GetMappedColValues", 0,"col map not found " + col.RowType + "-" + col.Index0 + "-" + col.SourceCol);
                     continue;
+                }
 
                 string sqlRead = col.GetSqlStr(pgSchema);
                 string val = DbUtil.GetMappedVal(pgConnection, logProgName, moduleName, jobId, startRowNo, sqlRead, srcVal);
@@ -385,13 +452,22 @@ namespace DataProcessor
             }
         }
 
-        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, JsonInputFileDef jDef, string runFor, string cardType)
+        private void GetSequenceValues(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId
+            , JsonInputFileDef jDef, Dictionary<string, string> evalCols, string runFor, string cardType)
         {
             string srcVal;
             string runForParam, freqType, cardTypeParam;
             foreach (SequenceCol col in jDef.sequenceColDefnn.SequenceColList)
             {
                 bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
+                if (hasVal == false)
+                {
+                    if (evalCols.ContainsKey(col.SourceCol))
+                    {
+                        hasVal = true;
+                        srcVal = evalCols[col.SourceCol];
+                    }
+                }
                 if (hasVal == false)
                     continue;
 
@@ -407,7 +483,7 @@ namespace DataProcessor
                 if (col.ByCardType == 1)
                     cardTypeParam = cardType;
 
-                string pattern ="";
+                string pattern = "";
                 string newSeq = SequenceGen.GetNextSequence(withLock, pgConnection, pgSchema, col.SequenceMasterType, srcVal, cardTypeParam
                     , ref pattern, col.SeqLength, freqType: freqType, freqValue: runForParam);
 
@@ -456,8 +532,8 @@ namespace DataProcessor
 
             string workSeq = seqNumAsStr;
             string workKey = theParams[0];
-            
-            if(workKey.Length < workSeq.Length)
+
+            if (workKey.Length < workSeq.Length)
             {
                 workSeq = seqNumAsStr.Substring(0, workKey.Length);
             }

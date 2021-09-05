@@ -76,7 +76,7 @@
 	  {"row_type" : "pd", "index_0":"0", "source_col":"p021_subscriber_address_state", "dest_col":"x_p021_subscriber_address_state"
 	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1' and code <> '99'"
 	  }
-	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p030_nl_ao_nl_ooaddress_state", "dest_col":"x_p030_nl_ao_nl_ooaddress_state"
+	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p030_nl_ao_nl_oo_address_state", "dest_col":"x_p030_nl_ao_nl_oo_address_state"
 	   , "map_table":"states","map_key_col":"code", "map_val_col":"name", "where" : "isactive='1'"
 	  }
 	 ,{"row_type" : "pd", "index_0":"0", "source_col":"p040_nl_ao_nl_cc_address_state", "dest_col":"x_p040_nl_ao_nl_cc_address_state"
@@ -112,8 +112,8 @@
 	]
 	,"script_columns":[
 		{"dest_col":"x_gender", "script_file":"","script":"{{ if model.cd[0].c014_gender == 'M'; 'MALE'; else; 'FEMALE'; end; }}"}
-	   ,{"dest_col":"x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
-	   ,{"dest_col":"x_formatted_addr_sub_br", "script_file":"formatted_addr_subscriber_BR.txt","script":""}
+	   ,{"dest_col":"#x_formatted_addr_sub", "script_file":"formatted_addr_subscriber.txt","script":""}
+	   ,{"dest_col":"#x_formatted_addr_sub_br", "script_file":"formatted_addr_subscriber_BR.txt","script":""}
 	   ,{"dest_col":"x_formatted_addr_sub_wbr", "script_file":"formatted_addr_subscriber_wBR.txt","script":""}
 	   
 	   ,{"dest_col":"x_document_id", "script_file":"","script":"{{model.pd[0].p045_subscriber_bar_code}}" }
@@ -138,8 +138,9 @@
 		 ,"script":"{{if model.pd[0].p006_courier_id == 'PST';if model.pd[0].p054_apy_flag == 'Y'; 'PSTS'; else; 'PSTN'; end; else; model.pd[0].p006_courier_id; end;"}
 	]
 	,"sequence_columns":[
-		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"},
-		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
+		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
+		,{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_awb_old","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
+		,{"row_type" : "xx", "index_0":"0", "source_col":"x_pst_type", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
 	]
 	, "file_def" : {
 		 "fh":{

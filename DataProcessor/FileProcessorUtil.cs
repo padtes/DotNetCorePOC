@@ -173,7 +173,10 @@ namespace DataProcessor
                 return true;
             }
 
-            curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName);
+            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+
+            curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName
+                , sysPath, inputFile, inputHdr);
 
             string courierSeq = "", courierSName = "";
             GetCourierVal(pgConnection, pgSchema, curRec, inpSysParam, ref courierSeq, ref courierSName);
@@ -181,7 +184,7 @@ namespace DataProcessor
             {
                 throw new Exception("Courier Short name not found:" + inpSysParam.CourierCol);
             }
-            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+
             string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
                 , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr);
 
@@ -357,6 +360,14 @@ namespace DataProcessor
             {
                 List<ScriptCol> tmpColumns = paramSect.ToObject<List<ScriptCol>>();
                 scriptedColDefnn.ScriptColList = tmpColumns;
+                int i = scriptedColDefnn.ScriptColList.Count - 1;
+                while (i >= 0)
+                {
+                    ScriptCol scrCol = scriptedColDefnn.ScriptColList[i];
+                    if (scrCol.DestCol.StartsWith("#"))  //commented column
+                        scriptedColDefnn.ScriptColList.RemoveAt(i);
+                    i--;
+                }
             }
             //validate
             string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
