@@ -340,10 +340,21 @@ namespace DataProcessor
             LoadSaveAsFileDef(oParams, jDef.saveAsFileDefnn);
             LoadMappedColList(oParams, pgConnection, pgSchema, jDef.mappedColDefnn);
             LoadScriptedColList(oParams, jDef.scrpitedColDefnn, paramsDict);
-            LoadSequenceColList(oParams, jDef.sequenceColDefnn, paramsDict);
+            LoadPreEvalStep(oParams, jDef);
+            LoadSequenceColList(oParams, jDef.sequenceColDefnn);
         }
 
-        private static void LoadSequenceColList(JObject oParams, SequenceColDef sequenceColDefnn, Dictionary<string, string> paramsDict)
+        private static void LoadPreEvalStep(JObject oParams, JsonInputFileDef jDef)
+        {
+            var paramSect = (JArray)oParams["pre_eval_step"];
+            if (paramSect != null)
+            {
+                List<string> tmpColumns = paramSect.ToObject<List<string>>();
+                jDef.scribanToEval.AddRange(tmpColumns);
+            }
+        }
+
+        private static void LoadSequenceColList(JObject oParams, SequenceColDef sequenceColDefnn)
         {
             var paramSect = (JArray)oParams["sequence_columns"];
             if (paramSect != null)

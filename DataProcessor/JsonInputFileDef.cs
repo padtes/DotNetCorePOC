@@ -15,5 +15,6 @@ namespace DataProcessor
         public ScriptedColDef scrpitedColDefnn = new ScriptedColDef();
         public SequenceColDef sequenceColDefnn = new SequenceColDef();
         public SystemParamInput inpSysParam = new SystemParamInput();
+        public List<string> scribanToEval = new List<string>();
     }
 }

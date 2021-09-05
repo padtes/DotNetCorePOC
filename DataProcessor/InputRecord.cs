@@ -258,8 +258,10 @@ namespace DataProcessor
 
             GetMappedColValues(pgConnection, pgSchema, logProgName, moduleName, jDef, jobId, startRowNo);
 
+            //pre eval phase
             Dictionary<string, string> evalCols = new Dictionary<string, string>();
             EvalPreSeq(logProgName, jDef, sysPath, inputFile, inputHdr, evalCols);
+
             GetSequenceValues(withLock, pgConnection, pgSchema, logProgName, moduleName, jobId, jDef, evalCols, runFor, cardType);
         }
 
@@ -269,10 +271,11 @@ namespace DataProcessor
             bool first = BuildJsonForInputRows(inputFile, inputHdr, true, jStr);
             string almostWholeJson;
             GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, out almostWholeJson);
-            //pre eval phase
-            List<string> scribanToEval = new List<string>();
-            scribanToEval.Add("x_pst_type");
-            foreach (string aColName in scribanToEval)
+
+            //List<string> scribanToEval = new List<string>();
+            //scribanToEval.Add("x_pst_type");
+
+            foreach (string aColName in jDef.scribanToEval)
             {
                 foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
                 {
@@ -300,7 +303,6 @@ namespace DataProcessor
                     }
                 }
             }
-            //add to dervice column
         }
 
         private static void AddToJsonFromMapped(StringBuilder jStr, MappedColWithVal col)

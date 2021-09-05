@@ -137,6 +137,7 @@
 	   ,{"dest_col":"x_pst_type", "script_file":""
 		 ,"script":"{{if model.pd[0].p006_courier_id == 'PST';if model.pd[0].p054_apy_flag == 'Y'; 'PSTS'; else; 'PSTN'; end; else; model.pd[0].p006_courier_id; end;"}
 	]
+	, "pre_eval_step":["x_pst_type"]
 	,"sequence_columns":[
 		{"row_type" : "pd", "index_0":"0", "source_col":"p006_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
 		,{"row_type" : "xx", "index_0":"0", "source_col":"x_pst_type", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
