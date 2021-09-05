@@ -157,7 +157,7 @@ CREATE TABLE ventura.counters(
 	lock_key integer,
 	card_type  varchar(4), --APY - Lite - Reg
 	addeddate	timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-	sort_order integer integer DEFAULT 1,
+	sort_order integer DEFAULT 1,
 	CONSTRAINT counters_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
@@ -244,17 +244,34 @@ CREATE TABLE ventura.couriers(
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
 	isactive	bool,
 	code varchar(2) not null,
-	code3 varchar(3),
+	code3 varchar(4),
 	name varchar(100) not null,
+	
+	isvirtual	bool,
+	awb_params varchar(40),
+	sort_order integer DEFAULT 1,
 
 	CONSTRAINT couriers_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
 
---insert into ventura.couriers(isactive,code, code3, name) values
---('1','D1','PRF','Prefered Courier TEST')
---, ('1','A1','PST','Post TEST');
+-- alter table ventura.couriers alter column code3 type varchar(4);
 
+-- alter table ventura.couriers add awb_params varchar(40)
+-- update ventura.couriers set awb_params = ''
+
+--alter table ventura.couriers add isvirtual	bool; 
+--update ventura.couriers set isvirtual = false;
+
+--alter table ventura.couriers add sort_order integer  DEFAULT 1; 
+--update ventura.couriers set sort_order = '1';
+
+--insert into ventura.couriers(isactive,code, code3, name, isvirtual) values
+--('1','D1','PRF','Prefered Courier TEST', false)
+--, ('1','A1','PST','Post', false);
+
+--insert into ventura.couriers(isactive,code, code3, name, isvirtual, awb_params) values
+-- ('1','x1','PSTS','Speed Post', true, '86423597:11');
 ---------
 
 /*
