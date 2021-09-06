@@ -224,25 +224,32 @@ namespace DbOps
             , string workdirYmd, string beforeAfter, string printedOKcode, out string sql)
         {
             sql = $"select count(*) tot_count, fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat' fileCat, fd.courier_id, max(fd.pickup_dt) pickup_dt" +
+                ", max(TO_CHAR(TO_DATE(json_data->'fh'->>'h004_date_of_file_creation_mmddyyyy','MMDDYYYY'),'YYYYMMDD') ) fileDtYmd" +
                 $", sum(case when fd.det_err_csv = '{printedOKcode}' then 1 else 0 end) print_count" +
+                ", sum(case when fd.det_err_csv is null then 1 else 0 end) pend_count" +
+                ", sum(case when fd.det_err_csv is not null then 1 else 0 end) notpend_count" +
                 $" from {pgSchema}.filedetails fd" +
                 $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
                 $" where fi.isdeleted='0'" +
                 $" and fi.module_name = '{moduleName}'" +
                 $" and fi.biztype = '{bizTypeToRead}'"; // +      $" and fd.det_err_csv = '{printedOKcode}'";
 
-            if (string.IsNullOrEmpty(workdirYmd) == false)
+            string havingCl = "";
+            if (string.IsNullOrEmpty(workdirYmd) == false && workdirYmd != "all")
             {
+                havingCl = " having max(TO_CHAR(TO_DATE(json_data->'fh'->>'h004_date_of_file_creation_mmddyyyy','MMDDYYYY'),'YYYYMMDD')) ";
+
                 if (string.IsNullOrEmpty(beforeAfter))
-                    sql += $" and fi.fpath like '%\\\\{workdirYmd}\\\\%'";
+                    havingCl += "=";
                 else
-                {
-                    sql += $" and fi.addeddate " +( (beforeAfter == "before") ? "<=" : ">=") + " '" + workdirYmd + "'";
-                }
+                    havingCl += ((beforeAfter == "before") ? "<=" : ">=");
+                havingCl += " '" + workdirYmd + "'";
             }
+
             sql +=
-                $" group by fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id" +
-                $" order by fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id"
+                " group by fi.id, fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id" +
+                havingCl +
+                " order by fi.fname, fd.json_data->'xx'->>'x_file_cat', fd.courier_id"
                 ;
 
             return GetDataSet(pgConnection, logProgName + "_ReportMIS", moduleName, jobId, sql);

@@ -5,6 +5,7 @@ using Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -39,7 +40,7 @@ namespace DataProcessor
                 return PrintSummaryLiteApy(moduleName, runFor, fileType);
             }
 
-            if (fileType == "mis" ) //MIS - summary
+            if (fileType == "mis") //MIS - summary
             {
                 return PrintLiteApyMIS(moduleName, runFor, fileType);
             }
@@ -140,12 +141,12 @@ namespace DataProcessor
         {
             string workdirYmd = runFor;
             string beforeAfter = "";
-            if (string.IsNullOrEmpty(runFor)==false)
+            if (string.IsNullOrEmpty(runFor) == false && runFor !="all")
             {
                 if (runFor.StartsWith("before"))
                 {
                     beforeAfter = "before";
-                    workdirYmd = runFor.Replace("before","");
+                    workdirYmd = runFor.Replace("before", "");
                 }
                 if (runFor.StartsWith("after"))
                 {
@@ -173,7 +174,7 @@ namespace DataProcessor
             string fileName = "PRAN_COURIER_MIS_" + runFor;
 
             string outputDir;
-            if (beforeAfter == "" && workdirYmd != "")
+            if (beforeAfter == "" && workdirYmd != "" && workdirYmd != "all")
             {
                 outputDir = Path.Combine(paramsDict[ConstantBag.PARAM_WORK_DIR]
                 , workdirYmd// "yyyymmdd" 
@@ -182,7 +183,7 @@ namespace DataProcessor
             }
             else
             {
-                fileName = "PRAN_COURIER_MIS_"+ "ALL" + DateTime.Now.ToString("yyyyMMdd_HHmm");
+                //fileName = "PRAN_COURIER_MIS_" + "ALL_" + DateTime.Now.ToString("yyyyMMdd_HHmm");
                 outputDir = paramsDict[ConstantBag.PARAM_WORK_DIR];
             }
 
@@ -193,33 +194,42 @@ namespace DataProcessor
 
             StreamWriter sw = new StreamWriter(fileName, true);
 
-            string recLine = "FILE CATEGORY,FILE NAME,COURIER,DATE OF PICKUP,TIME,NO OF KIT SENT,ON HOLD,TOTAL,REMARK";
+            string recLine = "File Send Date,File name,File Category,Records Received,Printed,Hold,Pending for Dispatch,Courier,Dispatched date,Dispatched,Remarks";
             sw.WriteLine(recLine);
+            DateTime pickDt;
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
             {
                 DataRow dr = ds.Tables[0].Rows[i];
+                string fileDtYmd = Convert.ToString(dr["fileDtYmd"]);
+                if (DateTime.TryParseExact(fileDtYmd, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out pickDt))
+                {
+                    fileDtYmd = pickDt.ToString("dd/MM/yyyy");
+                }
                 string fileCat = Convert.ToString(dr["fileCat"]);
                 string fname = Convert.ToString(dr["fname"]);
                 string courr = Convert.ToString(dr["courier_id"]);
                 string pickupDtDMY = "";
-                string pickupDtHHmm = "";
-                DateTime pickDt;
+                //string pickupDtHHmm = "";
                 if (dr["pickup_dt"] != DBNull.Value)
                 {
                     pickupDtDMY = Convert.ToString(dr["pickup_dt"]);
                     if (DateTime.TryParse(pickupDtDMY, out pickDt))
                     {
                         pickupDtDMY = "'" + pickDt.ToString("dd/MM/yyyy");
-                        pickupDtHHmm = "'" + pickDt.ToString("HH:mm");
+                        //pickupDtHHmm = "'" + pickDt.ToString("HH:mm");
                     }
                 }
-                int pCount = Convert.ToInt32(dr["print_count"]);
+                int printCount = Convert.ToInt32(dr["print_count"]);
                 int totCount = Convert.ToInt32(dr["tot_count"]);
-                int onHold = totCount - pCount;
+                int notpendCount = Convert.ToInt32(dr["notpend_count"]);
+                int pendCount = Convert.ToInt32(dr["pend_count"]);
+                int onHold = notpendCount - printCount; 
 
-                recLine = fileCat + delimit + fname + delimit + courr + delimit + pickupDtDMY + delimit + pickupDtHHmm 
-                    + delimit + pCount + delimit + onHold + delimit + totCount + delimit + "";
+                recLine = fileDtYmd + delimit + fname + delimit + fileCat + delimit + totCount + delimit 
+                    + notpendCount + delimit + onHold + delimit + pendCount + delimit + courr + delimit + pickupDtDMY 
+                    + delimit + printCount
+                    + delimit + "";
                 sw.WriteLine(recLine);
             }
 
