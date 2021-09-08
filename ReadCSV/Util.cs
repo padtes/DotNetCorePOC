@@ -391,7 +391,7 @@ namespace ReadCSV
 
             string jStr = JsonConvert.SerializeObject(jDictPar);
 
-            Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}  {jStr}");
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {jStr}");
 
             jStr = "{\"k3\":\"v3\", \"k4\": \"Tom\", \"k5\": \"Jerry\"}";
             jDictCh = JsonConvert.DeserializeObject<Dictionary<string, string>>(jStr);

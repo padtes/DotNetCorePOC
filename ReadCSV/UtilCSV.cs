@@ -141,7 +141,7 @@ namespace ReadCSV
 
         private static void UpdateStat(string connectionStr, string pgSchema, string stat, int jobId, int rowNum)
         {
-            string nowStr = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            string nowStr = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             string sql = $"update {pgSchema}.read_job set status='{stat}', status_row_num='{rowNum}', last_upd_date='{nowStr}' where id = {jobId};";
             try
             {
@@ -329,7 +329,7 @@ namespace ReadCSV
                 //download file, rename as $"{aJob.ClientId}_{nowStr}.csv"
                 //
 
-                string nowStr = DateTime.UtcNow.ToString("yyyy_MM_dd_HH_mm_ss");
+                string nowStr = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
                 aJob.OutFileName = $"{aJob.ClientId}_{nowStr}.csv";
 
                 //to do - remove placeholder File Copy from below.

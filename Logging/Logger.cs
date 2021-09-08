@@ -61,7 +61,7 @@ namespace Logging
         {
             //to do
             //use database log table
-            Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} {GetText(severity)} \t {programName} - {stepName} job# {jobId}\t{msg}");
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} {GetText(severity)} \t {programName} - {stepName} job# {jobId}\t{msg}");
             //to do
             //remove file write after database write is done
             WriteToFile(programName, stepName, jobId, msg, severity);
@@ -69,7 +69,7 @@ namespace Logging
 
         private static void WriteToFile(string programName, string stepName, int jobId, string msg, int severity)
         {
-            string logLine = $"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} {GetText(severity)} \t {programName} - {stepName} job# {jobId}\t{msg}";
+            string logLine = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} {GetText(severity)} \t {programName} - {stepName} job# {jobId}\t{msg}";
 
             if (fileLogOff)
             {

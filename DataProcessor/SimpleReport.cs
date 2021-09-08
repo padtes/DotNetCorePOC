@@ -244,6 +244,8 @@ namespace DataProcessor
             string bizTypeToRead = ConstantBag.LITE_IN;
             string waitingAction = "";   //all data
             string doneAction = ""; //all data
+            if (isEodReport)
+                doneAction = ConstantBag.DET_LC_STEP_STAT_REP3;
 
             string fileName = (isEodReport ? "EOD_Dispaych_Report_" : "Populate_File_Report_") + runFor;
 
@@ -322,6 +324,12 @@ namespace DataProcessor
 
             Logger.WriteInfo(logProgramName, "print", 0, fileType + " report file name: " + fileName);
 
+            PrintSummaryLiteApyFlatFile(isEodReport, fileName, report);
+            return true;
+        }
+
+        private static void PrintSummaryLiteApyFlatFile(bool isEodReport, string fileName, SummaryReport report)
+        {
             List<string> crrNames = new List<string>();
             report.GetCouriers(crrNames);
             crrNames.Sort();
@@ -343,7 +351,6 @@ namespace DataProcessor
             }
 
             sw.Flush();
-            return true;
         }
 
         private static string GetUniqueFileName(string fileName, string outputDir, string tmpStr)

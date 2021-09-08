@@ -119,7 +119,7 @@ namespace POC_readCSV
             bool isReadOk = util.ReadCSV(pgConnection, pgSchema);
             if (isReadOk)
             {
-                string nowStr = DateTime.UtcNow.ToString("yyyy_MM_dd_HH_mm_ss");
+                string nowStr = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
 
                 Console.WriteLine("Done reading " + nowStr);
             }

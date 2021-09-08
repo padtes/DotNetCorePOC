@@ -195,7 +195,8 @@ namespace DbOps
                 $", max(fa.addeddate) pr_date" +
                 $" from {pgSchema}.filedetails fd" +
                 $" join {pgSchema}.fileinfo fi on fi.id = fd.fileinfo_id" +
-                $" left join {pgSchema}.filedetail_actions fa on fa.filedet_id = fd.id" +
+                $" left join {pgSchema}.filedetail_actions fa on fa.filedet_id = fd.id and fa.action_void = '0'" +
+                (doneAction == "" ? "" : $" and fa.action_done='{doneAction}'") +
                 $" where fi.isdeleted='0'" +
                 $" and fi.module_name = '{moduleName}'" +
                 $" and fi.biztype = '{bizTypeToRead}'" +
@@ -365,10 +366,10 @@ namespace DbOps
 
         public static bool AddAction(string pgConnection, string pgSchema, string logProgramName, string moduleName, int jobId, int rowNum, int detailId, string actionDone)
         {
-            string addDtUTC = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+            string addDt = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
 
             string sql = $"insert into {pgSchema}.filedetail_actions(action_void, filedet_id, action_done, addeddate)" +
-                $" values ('0',{detailId}, '{actionDone}','{addDtUTC}')";
+                $" values ('0',{detailId}, '{actionDone}','{addDt}')";
             return ExecuteNonSql(pgConnection, logProgramName, moduleName, jobId, rowNum, sql);
         }
 
