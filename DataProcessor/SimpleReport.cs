@@ -171,7 +171,7 @@ namespace DataProcessor
                 return false;
             }
 
-            string fileName = "PRAN_COURIER_MIS_" + runFor;
+            string fileName = "PRAN_COURIER_MIS_" + DateTime.Now.ToString("yyyy_MM_dd");// runFor;
 
             string outputDir;
             if (beforeAfter == "" && workdirYmd != "" && workdirYmd != "all")
@@ -247,7 +247,7 @@ namespace DataProcessor
             if (isEodReport)
                 doneAction = ConstantBag.DET_LC_STEP_STAT_REP3;
 
-            string fileName = (isEodReport ? "EOD_Dispaych_Report_" : "Populate_File_Report_") + runFor;
+            string fileName = (isEodReport ? "EOD_Dispaych_Report_" : "Populate_File_Report_") + DateTime.Now.ToString("yyyy_MM_dd") ;// runFor;
 
             DataSet ds = DbUtil.GetInternalStatusReportSummaryFI(pgConnection, pgSchema, logProgramName, moduleName, bizTypeToRead, 0 //jobId
                 , workdirYmd, waitingAction, doneAction, out string sql);

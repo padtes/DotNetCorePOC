@@ -20,11 +20,14 @@ namespace DataProcessor
             return "ReportProcLiteLetter";
         }
 
-        protected override void SetupActions(string bizTypeToWrite, out string waitingAction, out string doneAction)
+        protected void SetupActionsLetter(string bizTypeToWrite, bool isAdminReprint, out string waitingAction, out string doneAction)
         {
             if (bizTypeToWrite == ConstantBag.LITE_OUT_WORD_APY || bizTypeToWrite == ConstantBag.LITE_OUT_WORD_NPS)
             {
-                waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+                if (isAdminReprint)
+                    waitingAction = "";
+                else
+                    waitingAction = ConstantBag.DET_LC_STEP_STAT_REP3;
                 doneAction = "";
             }
             else
@@ -33,25 +36,25 @@ namespace DataProcessor
 
         public override void WriteOutput(string runFor, string courierCsv)
         {
-            if (fileType == "letter" || fileType == "let_reprint") //letters //to do define const
+            if (fileType == "letter" || fileType == "let_reprint" || fileType == "adm_reprint") //letters //to do define const
             {
-                WriteWordFiles(runFor, courierCsv, fileType == "let_reprint");
+                WriteWordFiles(runFor, courierCsv, fileType != "letter", isAdmin: fileType == "adm_reprint");
             }
             else
             {
                 base.WriteOutput(runFor, courierCsv);
             }
         }
-        private void WriteWordFiles(string runFor, string courierCsv, bool reprint)
+        private void WriteWordFiles(string runFor, string courierCsv, bool reprint, bool isAdmin)
         {
             string bizTypeToRead = ConstantBag.LITE_IN;
             string bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_LITE_DIR];
-            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, false, courierCsv, reprint);
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, false, courierCsv, reprint, isAdmin);
 
             bizDir = paramsDict[ConstantBag.PARAM_OUTPUT_APY_DIR];
-            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, true, courierCsv, reprint);
+            ProcessNpsApyWord(bizTypeToRead, runFor, bizDir, true, courierCsv, reprint, isAdmin);
         }
-        private void ProcessNpsApyWord(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv, bool reprint)
+        private void ProcessNpsApyWord(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv, bool reprint, bool isAdmin)
         {
             string bizType = isApy ? ConstantBag.LITE_OUT_WORD_APY : ConstantBag.LITE_OUT_WORD_NPS;
 
@@ -97,15 +100,16 @@ namespace DataProcessor
 
             foreach (string courierCd in courierList)
             {
-                ProcessNpsApyWordCourier(wordUtil, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd);
+                ProcessNpsApyWordCourier(wordUtil, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, isApy, courierCd, isAdminReprint: isAdmin);
             }
         }
-        private void ProcessNpsApyWordCourier(WordReportUtil wordUtil, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierCd)
+        private void ProcessNpsApyWordCourier(WordReportUtil wordUtil, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, bool isApy, string courierCd
+            , bool isAdminReprint)
         {
             RootJsonParamWord wordConfig = wordUtil.GetWordConfig();
 
             string waitingAction, doneAction;
-            SetupActions(bizTypeToWrite, out waitingAction, out doneAction);
+            SetupActionsLetter(bizTypeToWrite, isAdminReprint, out waitingAction, out doneAction);
 
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  ?? program params if any
 

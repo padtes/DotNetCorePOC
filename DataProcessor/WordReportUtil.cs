@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Security;
 using System.Text;
 
 namespace DataProcessor
@@ -331,6 +332,14 @@ namespace DataProcessor
                     }
                     cellInd++;
                 }
+                if (dbVal.Contains("<w:br/>"))
+                {
+                    string tmpDbVal = dbVal.Replace("<w:br/>", "!!:br/$");
+                    tmpDbVal = SecurityElement.Escape(tmpDbVal);
+                    dbVal = tmpDbVal.Replace("!!:br/$", "<w:br/>");
+                }
+                else
+                    dbVal = SecurityElement.Escape(dbVal);
 
                 tokenMap.Add(new KeyValuePair<string, string>(phCol.Tag, dbVal));
             }
