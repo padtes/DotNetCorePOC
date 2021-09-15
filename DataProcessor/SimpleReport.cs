@@ -244,8 +244,8 @@ namespace DataProcessor
             string bizTypeToRead = ConstantBag.LITE_IN;
             string waitingAction = "";   //all data
             string doneAction = ""; //all data
-            if (isEodReport)
-                doneAction = ConstantBag.DET_LC_STEP_STAT_REP3;
+            //if (isEodReport)
+            //    doneAction = ConstantBag.DET_LC_STEP_STAT_UPD2;
 
             string fileName = (isEodReport ? "EOD_Dispaych_Report_" : "Populate_File_Report_") + DateTime.Now.ToString("yyyy_MM_dd") ;// runFor;
 

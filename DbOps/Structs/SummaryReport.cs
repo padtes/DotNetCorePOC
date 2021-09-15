@@ -213,7 +213,7 @@ namespace DbOps.Structs
         {
             string h1 = (isEodReport ? "EOD Dispatch Report: " : "Populate File Report: ");
 
-            return h1 + delimit + "'" + RunDtDMY;
+            return h1 + delimit + "'" + DateTime.Now.ToString("dd/MM/yyyy");// RunDtDMY;
         }
 
         public string GetHeader2Tot(char delimit)
