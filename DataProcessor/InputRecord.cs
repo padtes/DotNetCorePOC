@@ -553,7 +553,12 @@ namespace DataProcessor
             int rMod = sumOfMult % magicDiv;
             rMod = magicDiv - rMod;
             if (rMod > 9)
-                rMod = rMod % 9;
+            {
+                if (rMod == 10)
+                    rMod = 0;
+                if (rMod == 11)
+                    rMod = 5;
+            }
 
             return rMod.ToString();
         }
