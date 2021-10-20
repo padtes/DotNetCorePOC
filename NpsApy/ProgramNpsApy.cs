@@ -13,6 +13,7 @@ namespace NpsApy
 {
     class ProgramNpsApy
     {
+        private static string prg_version = "v1.00.0 Change Date:2021-Oct-19";
         static void Main(string[] args)
         {
             //TestSomething();
@@ -21,16 +22,25 @@ namespace NpsApy
 
             if (args.Length == 0 || (args.Length == 1 && args[0] == "-help"))
             {
+                Console.WriteLine("version :" + prg_version);
                 Console.WriteLine("enter command as following:");
                 Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report|updstat] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
                 Console.WriteLine("for ex. NOTE the DASH");
-                Console.WriteLine("ProgramNpsApy -bizType=Lite -op=Read");
-                Console.WriteLine("ProgramNpsApy -bizType=Lite -op=write -courier=ABC,PQR");
+                Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=Read -runfor=20210726");
+                Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=write -file=letter -runfor=20210726");
+                Console.WriteLine("ProgramNpsApy -v");
                 Console.WriteLine("---- special case ----");
-                Console.WriteLine("ProgramNpsApy -bizType=Lite -op=UNLOCK  : this will unlock Courier Counter lock");
+                //Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=UNLOCK  : this will unlock Courier Counter lock");
                 return;
             }
 
+            if (args.Length == 1 && (args[0].Equals("-v", StringComparison.InvariantCultureIgnoreCase)
+                || args[0].Equals("-ver", StringComparison.InvariantCultureIgnoreCase)
+                || args[0].Equals("-version",StringComparison.InvariantCultureIgnoreCase)  ))
+            {
+                Console.WriteLine("version :" + prg_version);
+                return;
+            }
             string pgSchema, pgConnection, logFileName, deleteDir;
 
             // read appSettings.json config
@@ -49,7 +59,7 @@ namespace NpsApy
             ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV, out fileType);
 
             Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
-            Logger.Write("ProgramNpsApy", "main", 0, "==================== Nps APY Run Start " + string.Join(' ', args), Logger.INFO);
+            Logger.Write("ProgramNpsApy", "main", 0, "==================== Nps APY version :" + prg_version + " Run Start " + string.Join(' ', args), Logger.INFO);
             Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
 
             bool runResult;
