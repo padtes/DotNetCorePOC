@@ -31,7 +31,7 @@
 		"data_row_type": "pd",
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
-		"unique_column":"prod_id",
+		"unique_column":"tx_id",
 		"courier_col":"x_daily_serno",
 		"single_spaced":"_name|address",
 		"zz_courier_seq_length":"5",
@@ -48,6 +48,7 @@
 		  "p006_courier_id":"courier_id",
 		  "p009_acknowledgement_number": "ack_number",
 		  "p008_pran" : "prod_id",
+		  "p045_subscriber_bar_code":"tx_id",
 		  "p054_apy_flag":"apy_flag"
 	  }	
 	]

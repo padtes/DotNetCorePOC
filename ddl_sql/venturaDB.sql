@@ -62,6 +62,7 @@ CREATE TABLE ventura.filedetails
 	fileinfo_id INTEGER,
 	-- doc_id 
 	prod_id varchar(40), 
+	tx_id varchar(50),
 	-- docdate
 	courier_id varchar(10),
 	json_data jsonb,
@@ -75,6 +76,8 @@ CREATE TABLE ventura.filedetails
 	CONSTRAINT filedetails_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
+
+-- alter table ventura.filedetails add tx_id varchar(50)
 
 CREATE TABLE ventura.filedetail_actions
 (
