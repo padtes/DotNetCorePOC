@@ -13,7 +13,7 @@ namespace NpsApy
 {
     class ProgramNpsApy
     {
-        private static string prg_version = "v1.00.0 Change Date:2021-Oct-19";
+        private static string prg_version = "v1.00.1 Change Date:2021-Nov-19";
         static void Main(string[] args)
         {
             //TestSomething();
@@ -96,12 +96,12 @@ namespace NpsApy
             if (runResult == false)
             {
                 Logger.Write("ProgramNpsApy", "main", 0, "** ** ** ** Run Failed ** ** ** ** " + paramsMsg, Logger.ERROR);
-                Console.WriteLine("Run Failed " + paramsMsg);
+                //Console.WriteLine("Run Failed " + paramsMsg);
             }
             else
             {
                 Logger.Write("ProgramNpsApy", "main", 0, "!! !! Run Success !! " + paramsMsg, Logger.INFO);
-                Console.WriteLine("Run Success " + paramsMsg);
+                //Console.WriteLine("Run Success " + paramsMsg);
             }
 
         }
@@ -147,7 +147,7 @@ namespace NpsApy
                     string cmdName = m.Groups[1].Value.Trim().ToLower();
                     string cmdVal = m.Groups[2].Value.Trim().ToLower();
                     cmdArgs.Add(cmdName, cmdVal);
-                    Console.WriteLine(m.Groups[1].Value + "::" + m.Groups[2].Value);
+                    //Console.WriteLine(m.Groups[1].Value + "::" + m.Groups[2].Value);
                 }
             }
 

@@ -144,7 +144,7 @@ namespace DataProcessor
             string apyOutDir, liteOutDir;
             CreateWorkDir(dateAsDir, out apyOutDir, out liteOutDir, out curWorkDir);
 
-            Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
+            //Console.WriteLine($"{apyOutDir} - {liteOutDir} - {curWorkDir}");
 
             //assuming input will be directly under yyyymmdd / npsLite_apy directory 
             string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
