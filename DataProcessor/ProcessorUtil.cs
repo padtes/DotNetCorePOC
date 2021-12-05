@@ -15,7 +15,14 @@ namespace DataProcessor
             , out string systemConfigDir, out string inputRootDir, out string workDir)
         {
             string bizType = ConstantBag.SYSTEM_PARAM;
+            return LoadSystemParamByBiz(pgConnection, pgSchema, logProgName, moduleName, bizType, jobId
+                , out systemConfigDir, out inputRootDir, out workDir);
 
+        }
+
+            public static Dictionary<string, string> LoadSystemParamByBiz(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizType, int jobId
+            , out string systemConfigDir, out string inputRootDir, out string workDir)
+        {
             Dictionary<string, string> paramsDict = null;
 
             //read details based on date from system param table

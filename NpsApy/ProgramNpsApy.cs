@@ -8,12 +8,13 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Diagnostics;
+using PanProcessor;
 
 namespace NpsApy
 {
     class ProgramNpsApy
     {
-        private static string prg_version = "v1.00.1 Change Date:2021-Nov-19";
+        private static string prg_version = "v1.01.0 Change Date:2021-Dec-4. PAN";
         static void Main(string[] args)
         {
             //TestSomething();
@@ -24,12 +25,13 @@ namespace NpsApy
             {
                 Console.WriteLine("version :" + prg_version);
                 Console.WriteLine("enter command as following:");
-                Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All] -op=[Read|Write|Report|updstat] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
+                Console.WriteLine("ProgramNpsApy -modulename=[Lite|Reg|All|PAN] -op=[Read|Write|Report|updstat] -file=[resp|status|..] -runFor=[All|directory name yyyymmdd] -courier=[OPTIONAL courier code(s) as csv For WRITE]");
                 Console.WriteLine("for ex. NOTE the DASH");
                 Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=Read -runfor=20210726");
                 Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=write -file=letter -runfor=20210726");
+                Console.WriteLine("ProgramNpsApy -moduleName=PAN -op=Read -runfor=20211204");
                 Console.WriteLine("ProgramNpsApy -v");
-                Console.WriteLine("---- special case ----");
+                //Console.WriteLine("---- special case ----");
                 //Console.WriteLine("ProgramNpsApy -moduleName=Lite -op=UNLOCK  : this will unlock Courier Counter lock");
                 return;
             }
@@ -50,7 +52,7 @@ namespace NpsApy
             string paramsMsg = string.Join(' ', args);
 
             //get runtime parameter
-            string modType;    //valid values ALL | LITE | REG 
+            string modType;    //valid values ALL | LITE | REG | PAN
             string operation; //Op == Operation: READ or WRITE or REPORT -   All == READ as well as WRITE
             string runFor;    //default - no param - scan base directory and process all
             string fileType;    //default - no param - write file : RESP = Response or STATUS or ...
@@ -63,6 +65,27 @@ namespace NpsApy
             Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
 
             bool runResult;
+            if (modType == "PAN")
+                runResult = Mediator.ProcessPAN(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
+            else
+                runResult = ProcessNpsApy(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
+
+            if (runResult == false)
+            {
+                Logger.Write("ProgramNpsApy", "main", 0, "** ** ** ** Run Failed ** ** ** ** " + paramsMsg, Logger.ERROR);
+                //Console.WriteLine("Run Failed " + paramsMsg);
+            }
+            else
+            {
+                Logger.Write("ProgramNpsApy", "main", 0, "!! !! Run Success !! " + paramsMsg, Logger.INFO);
+                //Console.WriteLine("Run Success " + paramsMsg);
+            }
+
+        }
+ 
+        private static bool ProcessNpsApy(string pgConnection, string pgSchema, string operation, string modType, string runFor, string courierCSV, string fileType, string deleteDir)
+        {
+            bool runResult;
             if (operation == "unlock")
             {
                 bool ok = DbUtil.Unlock(pgConnection, pgSchema);
@@ -71,7 +94,7 @@ namespace NpsApy
                 else
                     Console.WriteLine("Unlock FAILED, check exceptions");
 
-                return;
+                return true;
             }
             if (operation == "updstat" || operation == "super_update")
             {
@@ -92,18 +115,7 @@ namespace NpsApy
                 DbUtil.Unlock(pgConnection, pgSchema);
                 runResult = ProcessData(pgSchema, pgConnection, modType, operation, runFor, courierCSV, fileType, deleteDir);
             }
-
-            if (runResult == false)
-            {
-                Logger.Write("ProgramNpsApy", "main", 0, "** ** ** ** Run Failed ** ** ** ** " + paramsMsg, Logger.ERROR);
-                //Console.WriteLine("Run Failed " + paramsMsg);
-            }
-            else
-            {
-                Logger.Write("ProgramNpsApy", "main", 0, "!! !! Run Success !! " + paramsMsg, Logger.INFO);
-                //Console.WriteLine("Run Success " + paramsMsg);
-            }
-
+            return runResult;
         }
 
         private static bool ProcessData(string pgSchema, string pgConnection, string modType, string operation, string runFor, string courierCcsv, string fileType, string deleteDir)
@@ -197,6 +209,7 @@ namespace NpsApy
             logFileName = configuration["logFileName"];
             if (string.IsNullOrEmpty(logFileName))
                 throw new Exception("logFileNm Not in appSettings.json. ABORTING");
+            Logger.SetLogFileName(logFileName);
 
             pgSchema = configuration["pgSchema"];
             pgConnection = configuration["pgConnection"];

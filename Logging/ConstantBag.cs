@@ -12,6 +12,7 @@
         //Modules
         public const string MODULE_LITE = "lite";
         public const string MODULE_REG = "reg";
+        public const string MODULE_PAN = "pan";
 
         //db actions
         public const string IGNORED = "IGNORE";
@@ -30,6 +31,11 @@
         public const string LITE_OUT_PTC_NPS = "lite_ptc_nps";
         public const string LITE_OUT_AWB_APY = "lite_awb_apy";
         public const string LITE_OUT_AWB_NPS = "lite_awb_nps";
+
+        //pan business
+        public const string PAN_INDIV = "pan_ind";
+        public const string PAN_CORP = "pan_corp";
+        public const string PAN_EKYC = "pan_ekyc";
 
         //card types 
         public const string APY_FLAG_DB_COL_NAME = "apy_flag";
@@ -85,6 +91,12 @@
         public const string PARAM_PRINTER_CODE3 = "printer_code3";
         public const string PARAM_COURIER_KVCSV = "courier_awb_kvcsv";
         public const string PARAM_PRINTED_OK_CODE = "printed_ok_code";
+
+        public const string PARAM_PAN_OUTPUT_PARENT_DIR = "pan_output_par";
+        public const string PARAM_PAN_OUTPUT_DIR = "pan_output";
+        public const string PARAM_PAN_IMAGE_LIMIT = "pan_photo_max_per_dir";
+        public const string PARAM_PAN_FILE_GROUP = "pan_file_group_csv"; //what all grouping
+
 
         //input file definition descriptors
         public const string FD_SYSTEM_PARAM = "system";
