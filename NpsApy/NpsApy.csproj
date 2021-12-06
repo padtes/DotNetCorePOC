@@ -18,6 +18,7 @@
     <ProjectReference Include="..\DbOps\DbOps.csproj" />
     <ProjectReference Include="..\Logging\Logging.csproj" />
     <ProjectReference Include="..\NpsScriban\NpsScriban.csproj" />
+    <ProjectReference Include="..\PanProcessor\PanProcessor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

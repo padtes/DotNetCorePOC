@@ -94,8 +94,7 @@
 
         public const string PARAM_PAN_OUTPUT_PARENT_DIR = "pan_output_par";
         public const string PARAM_PAN_OUTPUT_DIR = "pan_output";
-        public const string PARAM_PAN_IMAGE_LIMIT = "pan_photo_max_per_dir";
-        public const string PARAM_PAN_FILE_GROUP = "pan_file_group_csv"; //what all grouping
+        public const string PARAM_PAN_FILE_GROUP = "pan_filegroup_csv"; //what all grouping
 
 
         //input file definition descriptors

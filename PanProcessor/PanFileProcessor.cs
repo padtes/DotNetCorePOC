@@ -105,14 +105,17 @@ namespace PanProcessor
 
                 SaveToDb(dateDirectories[i], fTypeMaster, validPrimFiles, validOtherFiles, reprocess, deleteDir);
 
-                //to do Log error files
-                errFiles.Clear(); validPrimFiles.Clear(); validOtherFiles.Clear();
             }
+        }
+
+        private void SaveToDb(string v, FileTypeMaster fTypeMaster, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess, string deleteDir)
+        {
+            //throw new NotImplementedException();
         }
 
         private void CollectFilesPanDir(string dateAsDir, List<string> errFiles, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess, out string curWorkDir)
         {
-            Logger.WriteInfo(logProgName, "CollectFilesNpsLiteApyDir", jobId, $"Directory started: {dateAsDir}");
+            Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"Directory started: {dateAsDir}");
             string panOutDir;
             CreateWorkDir(dateAsDir, out panOutDir, out curWorkDir);
 
@@ -125,16 +128,20 @@ namespace PanProcessor
             //   if business type = Individual then PRI*.txt + PRI([0-9]{8}).txt + PRI{{BATCH}}_Hindi.txt + PRI{{BATCH}}_dpr.txt , etc, etc
             string[] tmpFileGrs = panFileGroupsCsv.Split(',');
 
-            string inpFilesDir = dateAsDir + "\\" + paramsDict[ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR];
+            string inpFilesDir = dateAsDir; // for now [assumed 2021/12/05] all files are in single dir    + "\\" + paramsDict[ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR];
 
             foreach (string bizFileGr in tmpFileGrs)
             {
                 string[] tmpGroup = bizFileGr.Split('+');
                 if (tmpGroup.Length < 3)
                 {
-                    throw new Exception($"invalid File group{bizFileGr}");
+                    throw new Exception($"invalid File group {bizFileGr}");
                 }
 
+                for (int i = 0; i < tmpGroup.Length; i++)
+                {
+                    tmpGroup[i] = tmpGroup[i].Trim();
+                }
                 //get files as per dir command pattern For dir RRIeKYC*.txt or RRI*.txt
                 string[] curFileList = Directory.GetFiles(inpFilesDir, tmpGroup[0]);
                 string fnamePattern = tmpGroup[1];
@@ -142,41 +149,120 @@ namespace PanProcessor
 
                 foreach (string fn in curFileList)
                 {
-                    if (rgx.IsMatch(fn))  //this is good main file
+                    CollectInTmpList(errFiles, validPrimFiles, validOtherFiles, inpFilesDir, tmpGroup, fnamePattern, rgx, fn);
+                }
+                int indx = 0;
+                for (indx = 0; indx < validPrimFiles.Count; indx++)
+                {
+                    string aFile = validPrimFiles[indx];
+                    string fName = Path.GetFileName(aFile);
+
+                    SaveFileHdrRec(reprocess, inpFilesDir, indx, aFile, fName);
+                }
+                for (int j = 0; j < validOtherFiles.Count; j++, indx++)
+                {
+                    string aFile = validOtherFiles[j];
+                    string fName = Path.GetFileName(aFile);
+
+                    SaveFileHdrRec(reprocess, inpFilesDir, indx, aFile, fName);
+                }
+
+                foreach (var misDep in errFiles)
+                {
+                    Logger.Write(logProgName, "ProcessInput", jobId, $"Skipping Primary File missing related: {misDep}", Logger.WARNING);
+                }
+                errFiles.Clear(); validPrimFiles.Clear(); validOtherFiles.Clear();
+
+                Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"group DONE: {dateAsDir} -- {bizFileGr}");
+            }
+            Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"Directory DONE: {dateAsDir}");
+        }
+
+        private void SaveFileHdrRec(bool reprocess, string inpFilesDir, int indx, string aFile, string fName)
+        {
+            if (string.IsNullOrEmpty(inpFilesDir))
+            {
+                throw new ArgumentException($"'{nameof(inpFilesDir)}' cannot be null or empty.", nameof(inpFilesDir));
+            }
+
+            if (string.IsNullOrEmpty(aFile))
+            {
+                throw new ArgumentException($"'{nameof(aFile)}' cannot be null or empty.", nameof(aFile));
+            }
+
+            if (string.IsNullOrEmpty(fName))
+            {
+                throw new ArgumentException($"'{nameof(fName)}' cannot be null or empty.", nameof(fName));
+            }
+
+            FileInfoStruct fInfo = new FileInfoStruct()
+            {
+                fname = fName,
+                fpath = inpFilesDir,
+                isDeleted = false,
+                bizType = fileType,
+                moduleName = GetModuleName(),
+                direction = ConstantBag.DIRECTION_IN,
+                addedDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
+                addedBy = ConstantBag.BATCH_USER,
+                updateDate = DateTime.Now, //.ToString("yyyy/MM/dd HH:mm:ss"),
+                updatedBy = ConstantBag.BATCH_USER,
+                inpRecStatus = ConstantBag.FILE_LC_STEP_TODO,
+                inpRecStatusDtUTC = DateTime.UtcNow,
+                // TO BE DONE  --need to save a record NpgSql odd
+                importedFrom = "TBD",
+                courierSname = "",
+                courierMode = "",
+                nprodRecords = 0,
+                archiveAfter = 0,
+                archivePath = "TBD",
+                purgeAfter = 0,
+                addedfromIP = "localhost",
+                updatedFromIP = "localhost"
+            };
+
+            DbUtil.UpsertFileInfo(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, indx, reprocess, fInfo, out string actionTaken);
+
+            Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"file #{indx} - {actionTaken} : {aFile}");
+        }
+
+        private static void CollectInTmpList(List<string> errFiles, List<string> validPrimFiles, List<string> validOtherFiles, string inpFilesDir, string[] tmpGroup, string fnamePattern, Regex rgx, string fn)
+        {
+            string fName = Path.GetFileName(fn);
+
+            if (rgx.IsMatch(fName))  //this is good main file
+            {
+                bool relatedFileErr = false;
+                var matches = Regex.Matches(fName, fnamePattern);
+                string batchId = "";
+                foreach (Match mt in matches)
+                {
+                    batchId = mt.Groups[1].Value;
+                }
+                if (batchId == "")
+                {
+                    errFiles.Add(fn);
+                }
+                else
+                {
+                    List<string> tmpOtherFiles = new List<string>();
+                    for (int iGr = 2; iGr < tmpGroup.Length; iGr++)  //get rest of the files related to the main 
                     {
-                        bool relatedFileErr = false;
-                        var matches = Regex.Matches(fn, fnamePattern);
-                        string batchId = "";
-                        foreach (Match mt in matches)
-                        {
-                            batchId = mt.Groups[1].Value;
-                        }
-                        if (batchId == "")
-                        {
-                            errFiles.Add(fn);
-                        }
+                        string relNam = tmpGroup[iGr].Replace("{{BATCH}}", batchId);
+                        string[] curOthFileList = Directory.GetFiles(inpFilesDir, relNam);
+                        if (curOthFileList.Length == 1)
+                            tmpOtherFiles.Add(curOthFileList[0]);
                         else
-                        {
-                            List<string> tmpOtherFiles = new List<string>();
-                            for (int iGr = 2; iGr < tmpGroup.Length; iGr++)  //get rest of the files related to the main 
-                            {
-                                string relNam = tmpGroup[iGr].Replace("{{BATCH}}", batchId);
-                                string[] curOthFileList = Directory.GetFiles(inpFilesDir, relNam);
-                                if (curOthFileList.Length == 1)
-                                    tmpOtherFiles.Add(curOthFileList[0]);
-                                else
-                                    relatedFileErr = true;
-                            }
-                            if (relatedFileErr)
-                            {
-                                errFiles.Add(fn);
-                            }
-                            else
-                            {
-                                validPrimFiles.Add(fn);
-                                validOtherFiles.AddRange(tmpOtherFiles);
-                            }
-                        }
+                            relatedFileErr = true;
+                    }
+                    if (relatedFileErr)
+                    {
+                        errFiles.Add(fn);
+                    }
+                    else
+                    {
+                        validPrimFiles.Add(fn);
+                        validOtherFiles.AddRange(tmpOtherFiles);
                     }
                 }
             }
@@ -207,7 +293,8 @@ namespace PanProcessor
         }
         protected override void LoadModuleParam(string runFor, string courierCsv)
         {
-            staticParamList = new List<string>() { ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR, ConstantBag.PARAM_PAN_OUTPUT_DIR, ConstantBag.PARAM_PAN_IMAGE_LIMIT };
+            staticParamList = new List<string>() { ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR, ConstantBag.PARAM_PAN_OUTPUT_DIR
+                , ConstantBag.PARAM_IMAGE_LIMIT, ConstantBag.PARAM_PAN_FILE_GROUP };
 
             //read details based on date from system param table
             paramsDict = ProcessorUtil.LoadSystemParamByBiz(pgConnection, pgSchema, logProgName, GetModuleName(), this.fileType, jobId

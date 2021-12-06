@@ -65,7 +65,7 @@ namespace NpsApy
             Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
 
             bool runResult;
-            if (modType == "PAN")
+            if (modType == "pan")
                 runResult = Mediator.ProcessPAN(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
             else
                 runResult = ProcessNpsApy(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
@@ -184,9 +184,9 @@ namespace NpsApy
                 fileType = cmdArgs["file"];
             }
 
-            if (!(moduleName == "all" || moduleName == "lite" || moduleName == "reg"))
+            if (!(moduleName == "all" || moduleName == "lite" || moduleName == "reg" || moduleName == "pan"))
             {
-                throw new Exception("Invalid value for ModuleName. Must be ALL | LITE | REG");
+                throw new Exception("Invalid value for ModuleName. Must be ALL | LITE | REG | PAN");
             }
             if (!(operation == "all" || operation == "read" || operation == "write" || operation == "report" 
                 || operation == "unlock" || operation == "updstat"))

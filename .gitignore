@@ -54,3 +54,6 @@ dkms.conf
 /WriteExcel/obj
 /WriteExcel/bin/Debug/netcoreapp3.1
 /ddl_sql/Word_files_apy/Word_work_dir
+/ddl_sql/db_bak_20210731
+/ddl_sql/trash
+/PanProcessor/obj
