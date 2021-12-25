@@ -323,6 +323,28 @@ namespace DbOps
             }
         }
 
+        public static void GetFileInfoListPAN(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, List<FileInfoStructPAN> listFiles, string dateAsDir, string[] inpRecStatus)
+        {
+            string tmp = String.Join("','", inpRecStatus);
+            string sql = $"select id, fname, fpath, module_name, biztype, pan_parent, pan_group_ind from {pgSchema}.fileinfo where isdeleted='0' and inp_rec_status in ('{tmp}') and fpath ='{MyEscape(dateAsDir)}'";
+            DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
+            if (ds.Tables.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    listFiles.Add(new FileInfoStructPAN()
+                    {
+                        id = Convert.ToInt32(dr["id"]),
+                        fname =Convert.ToString(dr["fname"]),
+                        fpath= Convert.ToString(dr["fpath"]),
+                        moduleName = Convert.ToString(dr["module_name"]),
+                        bizType = Convert.ToString(dr["biztype"]),
+                        ParentId = Convert.ToInt32(dr["pan_parent"]),
+                        LocalIndex= Convert.ToInt32(dr["pan_group_ind"])
+                    });
+                }
+            }
+        }
         public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string colSelection, string waitingAction, string doneAction, string workdirYmd, string wherePart, string orderBy, out string sql)
         {
@@ -430,12 +452,22 @@ namespace DbOps
 
         private static string InsertFileInfo(string pgConnection, string pgSchema, FileInfoStruct theFile, ref string sql)
         {
+            string PanExtCol = "";
+            string PanExtVal = "";
+            FileInfoStructPAN panExtFI = null;
+            if (theFile is FileInfoStructPAN)
+            {
+                panExtFI =(FileInfoStructPAN)theFile;
+                PanExtCol = ",pan_parent, pan_group_ind";
+                PanExtVal = ",@pan_parent, @pan_group_ind";
+            }
+
             sql = $"insert into {pgSchema}.fileinfo (fname, fpath, fsize, biztype, module_name, direction, importedfrom, courier_sname, courier_mode, " +
                 "nprodrecords, archivepath, archiveafter, purgeafter, addeddate, addedby, addedfromip, updatedate, " +
-                "updatedby, updatedfromip, isdeleted, inp_rec_status, inp_rec_status_ts_utc) " +
+                "updatedby, updatedfromip, isdeleted, inp_rec_status, inp_rec_status_ts_utc" + PanExtCol + ") " +
                 $"values (@fname, @fpath, @fsize, @biztype, @module_name, @direction, @importedfrom, @courier_sname, @courier_mode, " +
                 "@nprodrecords, @archivepath, @archiveafter, @purgeafter, @addeddate, @addedby, @addedfromip, @updatedate, " +
-                "@updatedby, @updatedfromip, @isdeleted, @inp_rec_status, @inp_rec_status_ts_utc" +
+                "@updatedby, @updatedfromip, @isdeleted, @inp_rec_status, @inp_rec_status_ts_utc" + PanExtVal +
                 $") RETURNING id";
 
             using (NpgsqlConnection conn = new NpgsqlConnection(pgConnection))
@@ -464,6 +496,11 @@ namespace DbOps
                     cmd.Parameters.AddWithValue("@isdeleted", theFile.isDeleted);
                     cmd.Parameters.AddWithValue("@inp_rec_status", theFile.inpRecStatus);
                     cmd.Parameters.AddWithValue("@inp_rec_status_ts_utc", theFile.inpRecStatusDtUTC);
+                    if (panExtFI != null)
+                    {
+                        cmd.Parameters.AddWithValue("@pan_parent", panExtFI.ParentId);
+                        cmd.Parameters.AddWithValue("@pan_group_ind", panExtFI.LocalIndex);
+                    }
 
                     conn.Open();
                     var res = cmd.ExecuteScalar();

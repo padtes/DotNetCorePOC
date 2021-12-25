@@ -51,7 +51,9 @@
 
         //file life cycle steps
         public const string FILE_LC_STEP_TODO = "TO-DO";
+        public const string FILE_LC_STEP_TODO_PAN = "TO-DO-P";
         public const string FILE_LC_WIP = "WIP";  //work in progress
+        public const string FILE_LC_WIP_PAN = "WIP-P";  //work in progress
         public const string FILE_LC_STEP_TO_DB = "DB_DONE";
         public const string FILE_LC_STEP_ERR1 = "ERROR_1";
         public const string FILE_LC_STEP_WARN_DUP = "WARN_DUP";

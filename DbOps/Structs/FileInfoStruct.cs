@@ -35,6 +35,11 @@ namespace DbOps.Structs
         //meta
     }
 
+    public class FileInfoStructPAN : FileInfoStruct
+    {
+        public int ParentId { get; set; }
+        public int LocalIndex { get; set; }
+    }
     public class FileTypeMaster
     {
         public int id { get; set; }

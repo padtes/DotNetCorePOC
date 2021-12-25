@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataProcessor", "..\DataPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NpsScriban", "..\NpsScriban\NpsScriban.csproj", "{1AB55C7F-22F8-4984-BD14-2A2A7C5D5E4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteExcel", "..\WriteExcel\WriteExcel.csproj", "{3C3A6675-5B2B-44B7-A25C-7596923F0555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteExcel", "..\WriteExcel\WriteExcel.csproj", "{3C3A6675-5B2B-44B7-A25C-7596923F0555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PanProcessor", "..\PanProcessor\PanProcessor.csproj", "{26561D2D-9974-40F8-914C-823BF1459636}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{3C3A6675-5B2B-44B7-A25C-7596923F0555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C3A6675-5B2B-44B7-A25C-7596923F0555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C3A6675-5B2B-44B7-A25C-7596923F0555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26561D2D-9974-40F8-914C-823BF1459636}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26561D2D-9974-40F8-914C-823BF1459636}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26561D2D-9974-40F8-914C-823BF1459636}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26561D2D-9974-40F8-914C-823BF1459636}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,48 @@
+alter table ventura.fileinfo
+ add column pan_parent int
+,add column pan_group_ind int;
+ 
+
+insert into ventura.system_param (biztype, module_name,params_json, start_ts_utc)
+values ('pan_ind', 'pan'
+,'{"inputdir":"c:\\zunk\\PAN\\input", "pan_output_par":"pan", "pan_output":"pan_indv", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
+, "workdir":"c:\\zunk\\pan\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
+, "pan_filegroup_csv":"PRI*.txt + PRI([0-9]{8}).txt|PRI_MAIN + PRI{{BATCH}}_Hindi.txt|PRI_HIN + PRI{{BATCH}}_dpr.txt|PRI_DPR,PCI*.txt + PCI([0-9]{8}).txt|PCI_MAIN + PCI{{BATCH}}_Hindi.txt|PCI_HIN,PLI*.txt + PLI([0-9]{8}).txt|PLI_MAIN + PLI{{BATCH}}_Hindi.txt|PLI_HIN,RRI*.txt + RRI([0-9]{8}).txt|RRI_MAIN + RRI{{BATCH}}_Hindi.txt|RRI_HIN + RRI{{BATCH}}_dpr.txt|RRI_DPR,RCI*.txt + RCI([0-9]{8}).txt|RCI_MAIN + RCI{{BATCH}}_Hindi.txt|RCI_HIN,RLI*.txt + RLI([0-9]{8}).txt|RLI_MAIN + RLI{{BATCH}}_Hindi.txt|RLI_HIN"
+, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD", "printed_ok_code":"PTD"}', '2021/01/01')
+
+insert into ventura.system_param (biztype, module_name,params_json, start_ts_utc)
+values ('pan_corp', 'pan'
+,'{"inputdir":"c:\\zunk\\PAN\\input", "pan_output_par":"pan", "pan_output":"pan_corp", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
+, "workdir":"c:\\zunk\\pan\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
+, "pan_filegroup_csv":"PRC*.txt + PRC([0-9]{8}).txt|PRC_MAIN + PRC{{BATCH}}_Hindi.txt|PRC_HIN + PRC{{BATCH}}_dpr.txt|PRC_DPR,PCC*.txt + PCC([0-9]{8}).txt|PCC_MAIN + PCC{{BATCH}}_Hindi.txt|PCC_HIN,PLC*.txt + PLC([0-9]{8}).txt|PLC_MAIN + PLC{{BATCH}}_Hindi.txt|PLC_HIN,RRC*.txt + RRC([0-9]{8}).txt|RRC_MAIN + RRC{{BATCH}}_Hindi.txt|RRC_HIN + RRC{{BATCH}}_dpr.txt|RRC_DPR,RCC*.txt + RCC([0-9]{8}).txt|RCC_MAIN + RCC{{BATCH}}_Hindi.txt|RCC_HIN,RLC*.txt + RLC([0-9]{8}).txt|RLC_MAIN + RLC{{BATCH}}_Hindi.txt|RLC_HIN"
+, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD", "printed_ok_code":"PTD"}', '2021/01/01')
+
+insert into ventura.system_param (biztype, module_name,params_json, start_ts_utc)
+values ('pan_ekyc', 'pan'
+,'{"inputdir":"c:\\zunk\\PAN\\input", "pan_output_par":"pan", "pan_output":"pan_ekyc", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
+, "workdir":"c:\\zunk\\pan\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
+, "pan_filegroup_csv":"PRIeKYC*.txt + PRIeKYC([0-9]{8}).txt|PRIeKYC_MAIN + PRIeKYC{{BATCH}}_Hindi.txt|PRIeKYC_HIN,PCIeKYC*.txt + PCIeKYC([0-9]{8}).txt|PCIeKYC_MAIN + PCIeKYC{{BATCH}}_Hindi.txt|PCIeKYC_HIN,PLIeKYC*.txt + PLIeKYC([0-9]{8}).txt|PLIeKYC_MAIN + PLIeKYC{{BATCH}}_Hindi.txt|PLIeKYC_HIN,RRIeKYC*.txt + RRIeKYC([0-9]{8}).txt|RRIeKYC_MAIN + RRIeKYC{{BATCH}}_Hindi.txt|RRIeKYC_HIN,RCIeKYC*.txt + RCIeKYC([0-9]{8}).txt|RCIeKYC_MAIN + RCIeKYC{{BATCH}}_Hindi.txt|RCIeKYC_HIN,RLIeKYC*.txt + RLIeKYC([0-9]{8}).txt|RLIeKYC_MAIN + RLIeKYC{{BATCH}}_Hindi.txt|RLIeKYC_HIN"
+, "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD", "printed_ok_code":"PTD"}', '2021/01/01')
+
+insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ind', 'pan', 'pan_indv_input.json');
+insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_corp', 'pan', 'pan_corp_input.json');
+insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ekyc', 'pan', 'pan_ekyc_input.json');
+
+--- 3 files c:\users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\pan_indv_input.json
+
+
+
+
+PRI*.txt + PRI([0-9]{8}).txt + PRI{{BATCH}}_Hindi.txt + PRI{{BATCH}}_dpr.txt,PCI*.txt + PCI([0-9]{8}).txt + PCI{{BATCH}}_Hindi.txt,PLI*.txt + PLI([0-9]{8}).txt + PLI{{BATCH}}_Hindi.txt,RRI*.txt + RRI([0-9]{8}).txt + RRI{{BATCH}}_Hindi.txt + RRI{{BATCH}}_dpr.txt,RCI*.txt + RCI([0-9]{8}).txt + RCI{{BATCH}}_Hindi.txt,RLI*.txt + RLI([0-9]{8}).txt + RLI{{BATCH}}_Hindi.txt
+
+PRC*.txt + PRC([0-9]{8}).txt + PRC{{BATCH}}_Hindi.txt + PRC{{BATCH}}_dpr.txt,PCC*.txt + PCC([0-9]{8}).txt + PCC{{BATCH}}_Hindi.txt,PLC*.txt + PLC([0-9]{8}).txt + PLC{{BATCH}}_Hindi.txt,RRC*.txt + RRC([0-9]{8}).txt + RRC{{BATCH}}_Hindi.txt + RRC{{BATCH}}_dpr.txt,RCC*.txt + RCC([0-9]{8}).txt + RCC{{BATCH}}_Hindi.txt,RLC*.txt + RLC([0-9]{8}).txt + RLC{{BATCH}}_Hindi.txt
+
+PRIeKYC*.txt + PRIeKYC([0-9]{8}).txt + PRIeKYC{{BATCH}}_Hindi.txt + PRIeKYC{{BATCH}}_dpr.txt,PCIeKYC*.txt + PCIeKYC([0-9]{8}).txt + PCIeKYC{{BATCH}}_Hindi.txt,PLIeKYC*.txt + PLIeKYC([0-9]{8}).txt + PLIeKYC{{BATCH}}_Hindi.txt,RRI*.txt + RRIeKYC([0-9]{8}).txt + RRIeKYC{{BATCH}}_Hindi.txt + RRIeKYC{{BATCH}}_dpr.txt,RCIeKYC*.txt + RCIeKYC([0-9]{8}).txt + RCIeKYC{{BATCH}}_Hindi.txt,RLIeKYC*.txt + RLIeKYC([0-9]{8}).txt + RLIeKYC{{BATCH}}_Hindi.txt
+PRIeKYC*.txt + PRIeKYC([0-9]{8}).txt + PRIeKYC{{BATCH}}_Hindi.txt ,PCIeKYC*.txt + PCIeKYC([0-9]{8}).txt + PCIeKYC{{BATCH}}_Hindi.txt,PLIeKYC*.txt + PLIeKYC([0-9]{8}).txt + PLIeKYC{{BATCH}}_Hindi.txt,RRI*.txt + RRIeKYC([0-9]{8}).txt + RRIeKYC{{BATCH}}_Hindi.txt ,RCIeKYC*.txt + RCIeKYC([0-9]{8}).txt + RCIeKYC{{BATCH}}_Hindi.txt,RLIeKYC*.txt + RLIeKYC([0-9]{8}).txt + RLIeKYC{{BATCH}}_Hindi.txt
+
+PRI*.txt + PRI([0-9]{8}).txt 
++ PRI{{BATCH}}_Hindi.txt 
++ PRI{{BATCH}}_dpr.txt
+
+
+c:\zunk\PAN\input\20211204
