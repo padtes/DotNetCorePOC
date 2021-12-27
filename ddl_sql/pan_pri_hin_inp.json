@@ -1,0 +1,53 @@
+{
+	"comments_on_usage": {
+		"0" : "this is to document the JSON",
+		"1" : "Hindi File Format From NSDL e-Gov To Printer (PAN card) Version 2.13",
+		"2" : "This is Single format file, all rows got same format",
+		"2.1" : "For Single format file, in file def - use @@ as file section type FD_SINGLE_FORM_ROWTYPE", 
+		"3" : "unique_column_value - default same as unique_column if the column is configured in the database section or derived e.g. tx_id",
+		"3.1" : "unique_column_value- otherwise is in file_def e.g. n0020_some_name or faster file_def row | index | column name for ex. nd|1|n0020_some_name"
+	}
+	,"system":{
+		"file_type" : "PRI_HIN",
+		"delimt":"^",
+		"index_of_row_type" : "0",
+		"file_header_row_type": "not_applicable",
+		"data_row_type": "not_applicable",
+		"data_table_name":"filedetails",
+		"data_table_json_col":"json_data_hindi",
+		"unique_column":"tx_id",
+		"unique_column_value":"@@|0|b001_document_id",
+		"courier_col":"@@",
+		"is_secondary_file":"true",
+		"is_single_format_file":"true"
+	}
+	,"database":[]
+	,"json_skip":[]
+	,"save_as_file":[]
+	,"mapped_columns":[]
+	,"script_columns":[]
+	,"sequence_columns":[]
+	,"file_def" : {
+		"@@":{
+			"10":"b001_document_id",
+			"20":"b002_hindi_last_name",
+			"30":"b003_hindi_first_name",
+			"40":"b004_hindi_mid_name",
+			"50":"b005_hindi_office_nm",
+			"60":"b006_hindi_addr_flat",
+			"70":"b007_hindi_addr_building",
+			"80":"b008_hindi_addr_street",
+			"90":"b009_hindi_addr_taluka",
+			"100":"b010_hindi_addr_district",
+			"110":"b011_hindi _uid_addr1",
+			"120":"b012_hindi_uid_addr2",
+			"130":"b013_hindi_uid_addr3",
+			"140":"b014_hindi_uid_addr4",
+			"150":"b015_hindi_uid_addr5",
+			"160":"b016_hindi_uid_addr6",
+			"170":"b017_hindi_uid_addr7",
+			"180":"b018_hindi_uid_addr8",
+			"190":"b019_hindi_uid_po"
+		}
+	}
+}

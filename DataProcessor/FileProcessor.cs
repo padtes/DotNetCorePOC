@@ -91,6 +91,10 @@ namespace DataProcessor
 
         public abstract string GetBizTypeImageDirName(InputRecordAbs inputRecord);
 
+        public virtual string GetBizTypeImageDirParent() 
+        {
+            return paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
+        }
         #region JUNK
         //--input file definition json
         //--letter template, letter tags mapping json

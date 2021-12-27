@@ -1,0 +1,42 @@
+{
+	"comments_on_usage": {
+		"0" : "this is to document the JSON",
+		"1" : "DPR File Format From NSDL e-Gov To Printer (PAN card) Version 2.13",
+		"2" : "This is multi format file; but has only 1 file section -bh- and no header" 
+	}
+	,"system":{
+		"file_type" : "PRI_DPR",
+		"delimt":"^",
+		"index_of_row_type" : "1",
+		"file_header_row_type": "@@",
+		"data_row_type": "bh",
+		"data_table_name":"filedetails",
+		"data_table_json_col":"json_data_dpr",
+		"unique_column":"tx_id",
+		"unique_column_value":"bh|0|b011_document_id",
+		"courier_col":"@@",
+		"is_secondary_file":"true",
+		"is_single_format_file":"false"
+	}
+	,"database":[]
+	,"json_skip":[]
+	,"save_as_file":[]
+	,"mapped_columns":[]
+	,"script_columns":[]	
+	,"sequence_columns":[]
+	, "file_def" : {
+		"bh":{
+			"10":"b001_line_number",
+			"20":"b002_file_section_type",
+			"30":"b003_last_name",
+			"40":"b004_first_name",
+			"50":"b005_mid_name",
+			"60":"b006_fath_moth_last_name",
+			"70":"b007_fath_moth_first_name",
+			"80":"b008_fath_moth_mid_name",
+			"90":"b009_dob_ddmmyyyy_slash",
+			"100":"b010_allotment_dt_yyyymmdd_dash",
+			"110":"b011_document_id"
+		}
+	}
+} 

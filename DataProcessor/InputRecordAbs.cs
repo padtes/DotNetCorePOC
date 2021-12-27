@@ -29,7 +29,7 @@ namespace DataProcessor
                 }
             }
         }
-        public string GetColumnValue(string theColName)
+        public virtual string GetColumnValue(string theColName)
         {
             string valToCheck = "";
             foreach (var dbColVal in DbColsWithVals)
@@ -40,7 +40,6 @@ namespace DataProcessor
                     break;
                 }
             }
-
             return valToCheck;
         }
 

@@ -64,6 +64,9 @@ namespace DbOps.Structs
         [JsonProperty("actual_file_name")]
 
         public string ActualFileName { get; set; }
+        [JsonProperty("decode")]
+        public string Decode { get; set; }
+
     }
 
     public class SaveAsFile
@@ -71,7 +74,12 @@ namespace DbOps.Structs
         [JsonProperty("row_type")]
         public string RowType { get; set; }
 
+        [JsonProperty("decode")]
+        public string DecodeBase64 { get; set; }
+
         [JsonProperty("columns")]
         public List<SaveAsFileColumn> Columns { get; set; }
+
+
     }
 }

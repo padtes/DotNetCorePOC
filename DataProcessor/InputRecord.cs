@@ -64,13 +64,69 @@ namespace DataProcessor
 
         public string GenerateRecFind(string pgSchema, SystemParamInput inpSysParam)
         {
-            string valToCheck = GetColumnValue(inpSysParam.UniqueColumn);
+            string valToCheck = GetColumnValue(inpSysParam.UniqueValue);
             valToCheck = valToCheck.Replace("'", "''");
 
-            String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumn} = '{valToCheck}'";
+            String sql = $"select id from {pgSchema}.{inpSysParam.DataTableName} where {inpSysParam.UniqueColumnNm} = '{valToCheck}'";
             return sql;
         }
 
+        public override string GetColumnValue(string theColName)
+        {
+            string colVal =  base.GetColumnValue(theColName);
+            if (colVal != "")
+                return colVal;
+
+            if (allDerivedColVal.ContainsKey(theColName))
+                return allDerivedColVal[theColName];
+
+            string[] theColSpec = theColName.Split('|');
+            bool recFound = false;
+            if (theColSpec.Length == 3) //what row type, what indx what column nm
+            {
+                if (JsonByRowType.ContainsKey(theColSpec[0]))
+                {
+                    var rowsOfGivenRowType = JsonByRowType[theColSpec[0]];
+                    int indx = int.Parse(theColSpec[1]);
+                    if (rowsOfGivenRowType.JsonColsWithVals.Count >= indx + 1)
+                    {
+                        var jColValues = rowsOfGivenRowType.JsonColsWithVals[indx];
+                        foreach (KeyValuePair<string, string> kvPair in jColValues.JsonColValPairs)
+                        {
+                            if (kvPair.Key == theColSpec[2])
+                            {
+                                colVal = kvPair.Value;
+                                recFound = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (theColSpec.Length != 3 && recFound == false)
+            {
+                foreach(string rowTp in JsonByRowType.Keys)
+                {
+                    var rowsOfGivenRowType = JsonByRowType[rowTp];
+                    foreach (var jColValues in rowsOfGivenRowType.JsonColsWithVals)
+                    {
+                        foreach(KeyValuePair<string, string> kvPair in jColValues.JsonColValPairs)
+                        {
+                            if(kvPair.Key == theColName)
+                            {
+                                colVal = kvPair.Value;
+                                recFound = true;
+                            }
+                        }
+                        if (recFound)
+                            break;
+                    }
+                    if (recFound)
+                        break;
+                }
+            }
+
+            return colVal;
+        }
         public string GenerateInsert(string pgConnection, string pgSchema, string logProgName, string moduleName
             , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr)
         {
@@ -117,9 +173,9 @@ namespace DataProcessor
             StringBuilder sb1 = new StringBuilder();
             sb1.Append("update ").Append(pgSchema).Append('.').Append(dataTableName);
             if (hasFiles)
-                sb1.Append("SET files_saved = '" + FILE_SAVE_PLACEHOLDER + "'");
+                sb1.Append(" SET files_saved = '" + FILE_SAVE_PLACEHOLDER + "'");
             else
-                sb1.Append("SET files_saved = files_saved");  //so that append Comma works
+                sb1.Append(" SET files_saved = files_saved");  //so that append Comma works
 
             if (inputHdr != null)
             {
@@ -129,7 +185,7 @@ namespace DataProcessor
             AppendDbMapForUpd(sb1, DbColsWithVals);
             sb1.Append(',');
             sb1.Append(jsonColName);
-            sb1.Append('\'');
+            sb1.Append("='");
             bool first = true;
             StringBuilder jStr = new StringBuilder();
 
@@ -253,6 +309,9 @@ namespace DataProcessor
 
         private void AddToJsonFromScriban(string logProgName, StringBuilder jStr, bool hasNoOtherRows, string sysPath, JsonInputFileDef jDef, string almostWholeJson)
         {
+            if (jDef.scrpitedColDefnn == null || jDef.scrpitedColDefnn.ScriptColList == null)
+                return;
+
             bool first = hasNoOtherRows;
             foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
             {
@@ -285,14 +344,19 @@ namespace DataProcessor
         {
             string cardType = ConstantBag.CARD_NA;
 
-            foreach (var item in DbColsWithVals)
+            if (moduleName == ConstantBag.MODULE_PAN)
+                cardType = ConstantBag.CARD_PAN;
+            else
             {
-                if (item.Key == ConstantBag.APY_FLAG_DB_COL_NAME)
+                foreach (var item in DbColsWithVals)
                 {
-                    if (item.Value == "1" || item.Value.ToUpper() == "Y")
-                        cardType = ConstantBag.CARD_APY;
-                    else
-                        cardType = ConstantBag.CARD_LITE;
+                    if (item.Key == ConstantBag.APY_FLAG_DB_COL_NAME)
+                    {
+                        if (item.Value == "1" || item.Value.ToUpper() == "Y")
+                            cardType = ConstantBag.CARD_APY;
+                        else
+                            cardType = ConstantBag.CARD_LITE;
+                    }
                 }
             }
 
@@ -493,6 +557,7 @@ namespace DataProcessor
                 {
                     SaveAsFileColumn tmpCol = new SaveAsFileColumn()
                     {
+                        Decode = fileCol.Decode,
                         ColName = fileCol.ColName,
                         Dir = fileCol.Dir,
                         SubDir = fileCol.SubDir,

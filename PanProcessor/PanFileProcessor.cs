@@ -21,7 +21,20 @@ namespace PanProcessor
 
         public override string GetBizTypeImageDirName(InputRecordAbs inputRecord)
         {
-            throw new NotImplementedException();
+            if (inputRecord == null || inputRecord is InputHeader)
+            {
+                return "";
+            }
+
+            //if (string.IsNullOrEmpty(flag) == false && inputRecord.GetColumnValue("apy_flag").ToLower() != "y")
+            return paramsDict[ConstantBag.PARAM_PAN_OUTPUT_DIR];
+
+            //return "";
+        }
+
+        public override string GetBizTypeImageDirParent()
+        {
+            return paramsDict[ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR];
         }
 
         public override string GetModuleName()
@@ -96,8 +109,8 @@ namespace PanProcessor
             bool reprocess = (runFor != "all");
 
             List<string> errFiles = new List<string>();
-            List<string> validPrimFiles = new List<string>();
-            List<string> validOtherFiles = new List<string>();
+            //List<string> validPrimFiles = new List<string>();
+            //List<string> validOtherFiles = new List<string>();
 
             //for each sub directory  -- this can go in parallel, not worth it - mostly 1 date at a time
             for (int i = 0; i < dateDirectories.Count; i++)
@@ -105,14 +118,14 @@ namespace PanProcessor
                 // collect file names to process - make entry in File Header table with status = "TO DO"
                 //to do use fileTypeMaster - to see file name pattern to read files
                 List<PanFilesGr> panFilesGroups = new List<PanFilesGr>();
-                CollectFilesPanDir(dateDirectories[i], errFiles, validPrimFiles, validOtherFiles, reprocess, panFilesGroups, out curWorkDir);
+                CollectFilesPanDir(dateDirectories[i], errFiles, reprocess, panFilesGroups, out curWorkDir);
 
-                SaveToDb(dateDirectories[i], validPrimFiles, validOtherFiles, reprocess, panFilesGroups, deleteDir);
+                SaveToDb(dateDirectories[i], reprocess, deleteDir);
 
             }
         }
 
-        private void SaveToDb(string dateAsDir, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess, List<PanFilesGr> panFilesGroups, string deleteDir)
+        private void SaveToDb(string dateAsDir, bool reprocess, string deleteDir)
         {
             List<FileInfoStructPAN> listFiles = new List<FileInfoStructPAN>();
             //read File Header table with status = "TO DO" OR in any Work in Progress from last failed job
@@ -194,7 +207,7 @@ namespace PanProcessor
             }
         }
 
-        private void CollectFilesPanDir(string dateAsDir, List<string> errFiles, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess
+        private void CollectFilesPanDir(string dateAsDir, List<string> errFiles, bool reprocess
             , List<PanFilesGr> panFilesGroups, out string curWorkDir)
         {
             Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"Directory started: {dateAsDir}");
@@ -239,7 +252,7 @@ namespace PanProcessor
 
                 foreach (string fullNm in curFileList)
                 {
-                    CollectInTmpList(errFiles, validPrimFiles, validOtherFiles, inpFilesDir, tmpGroup, fnamePattern, mainFilePatBzType[1]
+                    CollectInTmpList(errFiles, inpFilesDir, tmpGroup, fnamePattern, mainFilePatBzType[1]
                         , rgx, fullNm, panFilesGroups);
                 }
                 int indx = 0;
@@ -278,7 +291,7 @@ namespace PanProcessor
                 {
                     Logger.Write(logProgName, "ProcessInput", jobId, $"Skipping Primary File missing related: {misDep}", Logger.WARNING);
                 }
-                errFiles.Clear(); validPrimFiles.Clear(); validOtherFiles.Clear();
+                errFiles.Clear(); //validPrimFiles.Clear(); validOtherFiles.Clear();
 
                 Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"group DONE: {dateAsDir} -- {bizFileGr}");
             }
@@ -337,7 +350,7 @@ namespace PanProcessor
             return fInfo.id;
         }
 
-        private static void CollectInTmpList(List<string> errFiles, List<string> validPrimFiles, List<string> validOtherFiles, string inpFilesDir
+        private static void CollectInTmpList(List<string> errFiles, string inpFilesDir
             , string[] tmpGroup, string fnamePattern, string mainBizType, Regex rgx, string fullNm, List<PanFilesGr> panFilesGroups)
         {
             string fName = Path.GetFileName(fullNm);
@@ -391,8 +404,8 @@ namespace PanProcessor
                     }
                     else
                     {
-                        validPrimFiles.Add(fullNm);
-                        validOtherFiles.AddRange(tmpOtherFiles);
+                        //validPrimFiles.Add(fullNm);
+                        //validOtherFiles.AddRange(tmpOtherFiles);
                         panFilesGroups.Add(panFilesGr);
                     }
                 }

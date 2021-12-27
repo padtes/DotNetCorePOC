@@ -1,3 +1,18 @@
+insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type) values 
+	('1','couriers','daily master of all couriers-PAN', 'daily', '0', 'pan');
+
+**get id of above insert- use below
+
+insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type,start_num, end_num, next_num, step) values
+	('1','PST','daily master PST','daily', '**115','pan','1001','9999','1001','1')
+
+**get id of above insert- use below
+
+insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type,start_num, end_num, next_num, step) values
+	('1','TRC','daily master TRC','daily', '**115','pan','13001','19999','13001','1')
+
+
+
 alter table ventura.fileinfo
  add column pan_parent int
 ,add column pan_group_ind int;

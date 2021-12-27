@@ -42,6 +42,8 @@
         public const string CARD_NA = "";
         public const string CARD_APY = "apy";
         public const string CARD_LITE = "lite";
+        public const string CARD_PAN = "pan";
+
         // public const string CARD_REG = "REG";  // these can be decided later
        
         //file directions
@@ -108,7 +110,8 @@
         public const string FD_DATA_ROW_TYPE = "data_row_type";
         public const string FD_DATA_TABLE_NAME = "data_table_name";
         public const string FD_DATA_TABLE_JSON_COL = "data_table_json_col";
-        public const string FD_UNIQUE_COLUMN = "unique_column";
+        public const string FD_UNIQUE_COLUMN_NM = "unique_column";
+        public const string FD_UNIQUE_COLUMN_VAL = "unique_column_value";
         public const string FD_COURIER_COL = "courier_col";
         public const string FD_SAVE_DIR_ORDERED = "file_save_dirs_psv";
         public const string FD_IS_SECONDARY = "is_secondary_file";

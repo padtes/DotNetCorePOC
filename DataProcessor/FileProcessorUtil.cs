@@ -67,10 +67,10 @@ namespace DataProcessor
                             , ref curRec, ref saveOk, jDef, lineNo, inputFilePathName
                             , paramsDict, dateAsDir, ref hasDup);
                     }
-                    if (curRec != null)
+                    if (curRec != null && jDef.inpSysParam.IsSingleFormatFile == false)
                     {
                         //save the current rec - last record
-                        if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFilePathName, startRowNo, lineNo
+                        if (UpsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFilePathName, startRowNo, lineNo
                             , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup) == false)
                             saveOk = false;
                     }
@@ -130,7 +130,7 @@ namespace DataProcessor
             {
                 if (curRec != null)
                 {
-                    if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
+                    if (UpsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
                         , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup) == false)
                     {
                         //to do : create error reporting
@@ -284,6 +284,40 @@ namespace DataProcessor
 
         }
 
+        private static bool UpsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
+        , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
+        , InputHeader inputHdr, InputRecord curRec
+        , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
+        {
+            if (jDef.inpSysParam.IsSecondaryFile)
+            {
+                string pgConnection = fileProcessor.GetConnection();
+                string pgSchema = fileProcessor.GetSchema();
+                string yMdDirName = new DirectoryInfo(dateAsDir).Name;
+
+                SystemParamInput inpSysParam = jDef.inpSysParam;
+                string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
+
+                bool recFound = DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int updId);
+
+                if (recFound)
+                {
+                    return UpdateCurrRec(pgConnection, pgSchema, yMdDirName, updId,
+                                fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, inputLineNo
+                                , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup);
+                }
+                else
+                {
+                    Logger.Write(logProgName, "UpsertCurrRec", 0, $"Failed to find primary rec. Line {inputLineNo} of file {inputFile}", Logger.ERROR);
+                    return false;
+                }
+            }
+            else
+            {
+                return InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, inputLineNo
+                        , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup);
+            }
+        }
         private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
             , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
             , InputHeader inputHdr, InputRecord curRec
@@ -366,6 +400,9 @@ namespace DataProcessor
             , Dictionary<string, string> paramsDict, InputRecord curRec
             , string dateAsDir, string courierSName, string courierSeq, SystemParamInput inpSysParam)
         {
+            string derivedFN = "";
+            //string[] dbugByt;
+            byte[] bytes;
             try
             {
                 string yMdDirName = new DirectoryInfo(dateAsDir).Name;
@@ -382,15 +419,15 @@ namespace DataProcessor
                 int.TryParse(paramsDict[ConstantBag.PARAM_IMAGE_LIMIT], out maxFilesPerSub);
                 int.TryParse(paramsDict[ConstantBag.PARAM_SUBDIR_APROX_LIMIT], out maxDirExpexcted);
 
-                foreach (var fileToWrite in curRec.saveAsFiles)
+                foreach (SaveAsFileColumn fileToWrite in curRec.saveAsFiles)
                 {
                     //document id as file name 
-                    string derivedFN = SubstituteColValues(fileToWrite.FileName, curRec);
+                    derivedFN = SubstituteColValues(fileToWrite.FileName, curRec);
 
                     string fullFilePath = paramsDict[ConstantBag.PARAM_WORK_DIR]
                         + "\\" + yMdDirName // "yyyymmdd" 
-                        + "\\" + paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR]
-                        + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
+                        + "\\" + fileProcessor.GetBizTypeImageDirParent()
+                        + "\\" + bizDir                      // module + bizType based dir = ("output_apy or output_lite") 
                         + "\\" + courierSName + "_" + yMdDirName
                         + "\\" + fileToWrite.Dir;  //Photo | Sign
 
@@ -415,10 +452,25 @@ namespace DataProcessor
                         Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " CANNOT CONVERT to jpg :" + fullFilePathNm, Logger.WARNING);
                         return false;
                     }
-                    var bytes = Enumerable.Range(0, hex.Length)
-                             .Where(x => x % 2 == 0)
-                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                             .ToArray();
+
+                    //dbugByt = Enumerable.Range(0, hex.Length)
+                    //         .Where(x => x % 2 == 0)
+                    //         .Select(x => hex.Substring(x, 2))
+                    //         .ToArray();
+
+                    hex = hex.Replace(' ', '0');
+
+                    if (fileToWrite.Decode == "base64")  //to do - define a constant
+                    {
+                        bytes = Convert.FromBase64String(FixBase64ForImage(hex));
+                    }
+                    else
+                    {
+                        bytes = Enumerable.Range(0, hex.Length)
+                                 .Where(x => x % 2 == 0)
+                                 .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                                 .ToArray();
+                    }
 
                     if (File.Exists(fullFilePathNm))
                     {
@@ -433,10 +485,27 @@ namespace DataProcessor
             catch (Exception ex)
             {
                 Logger.Write(logProgName, "WriteFiles", jobId, fileProcessor.GetModuleName() + ", row:" + startRowNo + " courier:" + courierSName + " see error below", Logger.ERROR);
+                if (derivedFN != "")
+                    Logger.Write(logProgName, "WriteFiles", jobId, "err file nm:" + derivedFN, Logger.ERROR);
+
                 Logger.WriteEx(logProgName, "WriteFiles", jobId, ex);
                 return false;
             }
             return true;
+        }
+
+        //private static void Base64ToQrImage(string imageText)
+        //{
+        //    Byte[] bitmapData = Convert.FromBase64String(FixBase64ForImage(imageText));
+        //    System.IO.MemoryStream streamBitmap = new System.IO.MemoryStream(bitmapData);
+        //    Bitmap bitImage = new Bitmap((Bitmap)Image.FromStream(streamBitmap));
+
+        //}
+        private static string FixBase64ForImage(string Image)
+        {
+            StringBuilder sbText = new StringBuilder(Image, Image.Length);
+            sbText.Replace("\r\n", String.Empty); sbText.Replace(" ", String.Empty);
+            return sbText.ToString();
         }
 
         private static string SubstituteColValues(string fileName, InputRecord curRec)
@@ -447,10 +516,27 @@ namespace DataProcessor
             foreach (Match m in matches)
             {
                 string colNm = m.Groups[1].ToString();
+                string tmp = "";
                 if (curRec.allDerivedColVal.ContainsKey(colNm) == false)
-                    throw new Exception(" output image file name pattern contains column not in input rec " + fileName);
+                {
+                    bool foundVal = false;
 
-                string tmp = curRec.allDerivedColVal[colNm].Trim();
+                    foreach (KeyValuePair<string, string> aCol in curRec.DbColsWithVals)
+                    {
+                        if (aCol.Key == colNm)
+                        {
+                            foundVal = true;
+                            tmp = aCol.Value;
+                            break;
+                        }
+                    }
+                    if (foundVal == false)
+                        throw new Exception(" output image file name pattern contains column not in input rec " + fileName);
+                }
+                else
+                {
+                    tmp = curRec.allDerivedColVal[colNm].Trim();
+                }
                 derivedFN = derivedFN.Replace(ConstantBag.TAG_START + colNm + ConstantBag.TAG_END, tmp);
             }
 
@@ -641,14 +727,18 @@ namespace DataProcessor
             inpSysParam.DataRowType = ((string)sysParamSect[ConstantBag.FD_DATA_ROW_TYPE]).ToLower();
             inpSysParam.DataTableName = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_NAME]).ToLower();
             inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
-            inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();
+            inpSysParam.UniqueColumnNm = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN_NM]).ToLower();
             inpSysParam.CourierCol = ((string)sysParamSect[ConstantBag.FD_COURIER_COL]).ToLower();
+
+            inpSysParam.UniqueValue = inpSysParam.UniqueColumnNm;
+            if (sysParamSect[ConstantBag.FD_UNIQUE_COLUMN_VAL] != null)
+                inpSysParam.UniqueValue = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN_VAL]).ToLower();
 
             inpSysParam.FileSaveDirsOrdered = "";
             if (sysParamSect[ConstantBag.FD_SAVE_DIR_ORDERED] != null)
                 inpSysParam.FileSaveDirsOrdered = ((string)sysParamSect[ConstantBag.FD_SAVE_DIR_ORDERED]).ToLower();
 
-            inpSysParam.IsSecondaryFile = (sysParamSect[ConstantBag.FD_IS_SECONDARY] != null) 
+            inpSysParam.IsSecondaryFile = (sysParamSect[ConstantBag.FD_IS_SECONDARY] != null)
                 && ((string)sysParamSect[ConstantBag.FD_IS_SECONDARY]).ToLower() == "true";
 
             inpSysParam.IsSingleFormatFile = (sysParamSect[ConstantBag.FD_IS_SINGLE_FORMAT] != null)
