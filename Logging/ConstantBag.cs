@@ -110,6 +110,12 @@
         public const string FD_DATA_TABLE_JSON_COL = "data_table_json_col";
         public const string FD_UNIQUE_COLUMN = "unique_column";
         public const string FD_COURIER_COL = "courier_col";
+        public const string FD_SAVE_DIR_ORDERED = "file_save_dirs_psv";
+        public const string FD_IS_SECONDARY = "is_secondary_file";
+        public const string FD_IS_SINGLE_FORMAT = "is_single_format_file";
+        public const string FD_SINGLE_FORM_ROWTYPE = "@@";  //this is placeholder for row-type such as FH / PD /BH etc that multi format files have
+        public const string FILLER = "@@";  //this is placeholder when some column/logic is not applicable But json def stays consistent
+
         // 3 flags - card print | letter | PTC entry
         // introduce batch concept
 

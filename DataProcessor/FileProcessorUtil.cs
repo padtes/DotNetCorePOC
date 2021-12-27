@@ -102,6 +102,12 @@ namespace DataProcessor
             , int lineNo, string inputFile
             , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
         {
+            if (jDef.inpSysParam.IsSingleFormatFile)
+            {
+                return ProcessDataRowSingle(fileProcessor, fileInfoStr, jobId, ref startRowNo, cells, inputHdr
+                    , ref curRec, ref saveOk, jDef, lineNo, inputFile
+                    , paramsDict, dateAsDir, ref hasDup);
+            }
             string rowType = cells[jDef.inpSysParam.RowTypeIndex].ToLower();
 
             if (rowType == jDef.inpSysParam.FileHeaderRowType)
@@ -152,6 +158,132 @@ namespace DataProcessor
             return true;
         }
 
+        private static bool ProcessDataRowSingle(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId, ref int startRowNo, string[] cells, InputHeader inputHdr
+            , ref InputRecord curRec, ref bool saveOk
+            , JsonInputFileDef jDef
+            , int lineNo, string inputFile
+            , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
+        {
+            string rowType = ConstantBag.FD_SINGLE_FORM_ROWTYPE;
+
+            curRec = new InputRecord();
+            startRowNo = lineNo;
+
+            if (curRec.HandleRow(jDef.fileDefDict[rowType], jDef.dbMap, jDef.jsonSkip, jDef.saveAsFileDefnn, rowType, cells) == false)
+            {
+                Logger.Write(logProgName, "SaveInputToDbSingle", 0, $"Failed to parse data at line {lineNo} of file {inputFile}", Logger.ERROR);
+                //to do : create error reporting
+                saveOk = false;
+                return false;
+            }
+
+            string pgConnection = fileProcessor.GetConnection();
+            string pgSchema = fileProcessor.GetSchema();
+
+            string yMdDirName = new DirectoryInfo(dateAsDir).Name;
+
+            SystemParamInput inpSysParam = jDef.inpSysParam;
+            string selSql = curRec.GenerateRecFind(pgSchema, inpSysParam);
+
+            bool recFound = DbUtil.IsRecFound(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, startRowNo, selSql, true, out int updId);
+            bool updOk = true;
+
+            if (jDef.inpSysParam.IsSecondaryFile)
+            {
+                if (recFound)
+                {
+                    updOk = UpdateCurrRec(pgConnection, pgSchema, yMdDirName, updId,
+                        fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
+                      , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup);
+                }
+                else
+                {
+                    Logger.Write(logProgName, "SaveInputToDbSingle", 0, $"Failed to find primary rec. Line {lineNo} of file {inputFile}", Logger.ERROR);
+                    saveOk = false;
+                    return false;
+                }
+            }
+            else //not tested
+            {
+                if (recFound)
+                {
+                    updOk = UpdateCurrRec(pgConnection, pgSchema, yMdDirName, updId,
+                        fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
+                      , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup);
+                }
+                else
+                if (InsertCurrRec(fileProcessor, fileInfoStr, jobId, jDef, inputFile, startRowNo, lineNo
+                    , inputHdr, curRec, paramsDict, dateAsDir, ref hasDup) == false)
+                {
+                    //to do : create error reporting
+                    saveOk = false;
+                    return false;
+                }
+            }
+            if (updOk == false)
+            {
+                Logger.Write(logProgName, "SaveInputToDbSingle", 0, $"Failed to update rec. Line {lineNo} of file {inputFile}", Logger.ERROR);
+                saveOk = false;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool UpdateCurrRec(string pgConnection, string pgSchema, string yMdDirName, int updId,
+            FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
+            , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
+            , InputHeader inputHdr, InputRecord curRec
+            , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
+        {
+
+            string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
+
+            curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName
+                , sysPath, inputFile, inputHdr);
+
+            string courierSeq = "", courierSName = "";
+            if (jDef.inpSysParam.CourierCol != ConstantBag.FILLER)
+            {
+                GetCourierVal(pgConnection, pgSchema, curRec, jDef.inpSysParam, ref courierSeq, ref courierSName);
+                if (courierSName == "")
+                {
+                    throw new Exception("Courier Short name not found:" + jDef.inpSysParam.CourierCol);
+                }
+            }
+
+            bool hasFiles = jDef.saveAsFileDefnn != null && jDef.saveAsFileDefnn.GetTotFileCount() > 0;
+            string updSql = curRec.GenerateUpdate(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr, updId, hasFiles);
+
+            if (hasFiles)
+            {
+                bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, startRowNo
+                    , paramsDict, curRec
+                    , dateAsDir, courierSName, courierSeq, jDef.inpSysParam);
+                if (filesOk == false)
+                {
+                    Logger.Write(logProgName, "InsertCurrRec", 0, $"Skipped insert- could not create files {fileProcessor.GetModuleName()} : {jobId} : rows={startRowNo}-{inputLineNo} " +
+                        $": date={dateAsDir} file:{inputFile}", Logger.ERROR);
+                    //to do error handling
+                    return false; //---------------- No more processing
+                }
+
+                updSql = curRec.ReplaceFileSaveJsonSql(updSql, startRowNo, jDef);//TO DO - read orig file_saved_json
+            }
+
+            try
+            {
+                DbUtil.ExecuteNonSql(pgConnection, logProgName, fileProcessor.GetModuleName(), jobId, inputLineNo, updSql);
+                return true;
+            }
+            catch
+            {
+                return false;  //---------------- No more processing
+            }
+
+        }
+
         private static bool InsertCurrRec(FileProcessor fileProcessor, FileInfoStruct fileInfoStr, int jobId
             , JsonInputFileDef jDef, string inputFile, int startRowNo, int inputLineNo
             , InputHeader inputHdr, InputRecord curRec
@@ -199,7 +331,7 @@ namespace DataProcessor
                 return false; //---------------- No more processing
             }
 
-            insSql = curRec.ReplaceFileSaveJsonSql(insSql, startRowNo);
+            insSql = curRec.ReplaceFileSaveJsonSql(insSql, startRowNo, jDef);
 
             try
             {
@@ -367,19 +499,20 @@ namespace DataProcessor
         private static void LoadScriptedColList(JObject oParams, ScriptedColDef scriptedColDefnn, Dictionary<string, string> paramsDict)
         {
             var paramSect = (JArray)oParams["script_columns"];
-            if (paramSect != null)
+            if (paramSect == null)
+                return; // no script columns
+
+            List<ScriptCol> tmpColumns = paramSect.ToObject<List<ScriptCol>>();
+            scriptedColDefnn.ScriptColList = tmpColumns;
+            int i = scriptedColDefnn.ScriptColList.Count - 1;
+            while (i >= 0)
             {
-                List<ScriptCol> tmpColumns = paramSect.ToObject<List<ScriptCol>>();
-                scriptedColDefnn.ScriptColList = tmpColumns;
-                int i = scriptedColDefnn.ScriptColList.Count - 1;
-                while (i >= 0)
-                {
-                    ScriptCol scrCol = scriptedColDefnn.ScriptColList[i];
-                    if (scrCol.DestCol.StartsWith("#"))  //commented column
-                        scriptedColDefnn.ScriptColList.RemoveAt(i);
-                    i--;
-                }
+                ScriptCol scrCol = scriptedColDefnn.ScriptColList[i];
+                if (scrCol.DestCol.StartsWith("#"))  //commented column
+                    scriptedColDefnn.ScriptColList.RemoveAt(i);
+                i--;
             }
+
             //validate
             string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
             foreach (ScriptCol scrCol in scriptedColDefnn.ScriptColList)
@@ -510,6 +643,16 @@ namespace DataProcessor
             inpSysParam.DataTableJsonCol = ((string)sysParamSect[ConstantBag.FD_DATA_TABLE_JSON_COL]).ToLower();
             inpSysParam.UniqueColumn = ((string)sysParamSect[ConstantBag.FD_UNIQUE_COLUMN]).ToLower();
             inpSysParam.CourierCol = ((string)sysParamSect[ConstantBag.FD_COURIER_COL]).ToLower();
+
+            inpSysParam.FileSaveDirsOrdered = "";
+            if (sysParamSect[ConstantBag.FD_SAVE_DIR_ORDERED] != null)
+                inpSysParam.FileSaveDirsOrdered = ((string)sysParamSect[ConstantBag.FD_SAVE_DIR_ORDERED]).ToLower();
+
+            inpSysParam.IsSecondaryFile = (sysParamSect[ConstantBag.FD_IS_SECONDARY] != null) 
+                && ((string)sysParamSect[ConstantBag.FD_IS_SECONDARY]).ToLower() == "true";
+
+            inpSysParam.IsSingleFormatFile = (sysParamSect[ConstantBag.FD_IS_SINGLE_FORMAT] != null)
+                && ((string)sysParamSect[ConstantBag.FD_IS_SINGLE_FORMAT]).ToLower() == "true";
         }
 
         #endregion

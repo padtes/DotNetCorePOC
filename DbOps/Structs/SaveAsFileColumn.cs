@@ -14,6 +14,16 @@ namespace DbOps.Structs
             SaveAsFile = new List<SaveAsFile>();
         }
 
+        public int GetTotFileCount() 
+        {
+            int cnt = 0;
+            foreach (var item in this.SaveAsFile)
+            {
+                cnt += item.Columns.Count;
+            }
+            return cnt;
+        }
+
         public SaveAsFile GetFileDetailsByRow(string rowType)
         {
             SaveAsFile retSAF = null;

@@ -7,13 +7,14 @@ using NpsScriban;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace DataProcessor
 {
     public class InputRecord : InputRecordAbs
     {
-        private const string FILE_SAVE_PLACEHOLDER = "###FILESAVE###";
+        public const string FILE_SAVE_PLACEHOLDER = "###FILESAVE###";
         private Dictionary<string, string> tmpCourrAWB = new Dictionary<string, string>();
 
         public Dictionary<string, JsonArrOfColsWithVals> JsonByRowType = new Dictionary<string, JsonArrOfColsWithVals>();
@@ -102,6 +103,45 @@ namespace DataProcessor
             sb2.Append(jStr.Replace("'", "''"));
             sb2.Append('\'');
             sb1.Append(") values (").Append(sb2).Append(')');
+
+            return sb1.ToString();
+        }
+
+
+        public string GenerateUpdate(string pgConnection, string pgSchema, string logProgName, string moduleName
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr, int updId, bool hasFiles)
+        {
+            string dataTableName = jDef.inpSysParam.DataTableName;
+            string jsonColName = jDef.inpSysParam.DataTableJsonCol;
+
+            StringBuilder sb1 = new StringBuilder();
+            sb1.Append("update ").Append(pgSchema).Append('.').Append(dataTableName);
+            if (hasFiles)
+                sb1.Append("SET files_saved = '" + FILE_SAVE_PLACEHOLDER + "'");
+            else
+                sb1.Append("SET files_saved = files_saved");  //so that append Comma works
+
+            if (inputHdr != null)
+            {
+                AppendDbMapForUpd(sb1, inputHdr.DbColsWithVals);
+            }
+
+            AppendDbMapForUpd(sb1, DbColsWithVals);
+            sb1.Append(',');
+            sb1.Append(jsonColName);
+            sb1.Append('\'');
+            bool first = true;
+            StringBuilder jStr = new StringBuilder();
+
+            first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
+
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
+            //done mapped columns
+            jStr.Append('}');
+
+            sb1.Append(jStr.Replace("'", "''"));
+            sb1.Append('\'');
+            sb1.Append(" where id=").Append(updId);
 
             return sb1.ToString();
         }
@@ -336,7 +376,7 @@ namespace DataProcessor
             return false;
         }
 
-        public string ReplaceFileSaveJsonSql(string insSql, int startRowNo)
+        public string ReplaceFileSaveJsonSql(string insSql, int startRowNo, JsonInputFileDef jDef)
         {
             string jsonSer;
             //get json if files were saved
@@ -353,20 +393,50 @@ namespace DataProcessor
             }
             if (hasSaved)
             {
-                if (this.saveAsFiles.Count == 2)  //make sure phot is always 1st, sign second
+                var saFD = jDef.saveAsFileDefnn;
+                int imgCount = saFD.GetTotFileCount();
+
+                if (this.saveAsFiles.Count == imgCount)
                 {
-                    var tmp1 = this.saveAsFiles[0];
-                    var tmp2 = this.saveAsFiles[1];
-                    if (tmp1.Dir.ToLower() != "photo") //to do use constant or parameterize
+                    if (imgCount == 2)  //make sure photo is always 1st, sign second
                     {
-                        saveAsFiles.Clear();
-                        saveAsFiles.Add(tmp2);
-                        saveAsFiles.Add(tmp1);
+                        var tmp1 = this.saveAsFiles[0];
+                        var tmp2 = this.saveAsFiles[1];
+                        if (tmp1.Dir.ToLower() != "photo") //to do use parameter in older config file
+                        {
+                            saveAsFiles.Clear();
+                            saveAsFiles.Add(tmp2);
+                            saveAsFiles.Add(tmp1);
+                        }
+                    }
+                    else
+                    {
+                        string[] dirSaveOrder = jDef.inpSysParam.FileSaveDirsOrdered.Split('|');
+                        if (imgCount == dirSaveOrder.Length) //photo Sign QR
+                        {
+                            List<SaveAsFileColumn> tmpFiles = new List<SaveAsFileColumn>();
+                            for (int i = 0; i < dirSaveOrder.Length; i++)
+                            {
+                                var fileRec = this.saveAsFiles.Where(p => p.Dir.ToLower() == dirSaveOrder[i]).FirstOrDefault();
+                                if (fileRec == null)
+                                {
+                                    Logger.Write("Input Record", "ReplaceFileSaveJsonSql", 0, $"Config Err or Missing file for {dirSaveOrder[i]} StartRow#" + startRowNo, Logger.ERROR);
+                                    throw new Exception("Config Err or Missing file for {dirSaveOrder[i]} StartRow#" + startRowNo);
+                                }
+                                tmpFiles.Add(fileRec);
+                            }
+                            saveAsFiles.Clear();
+                            saveAsFiles.AddRange(tmpFiles);
+                        }
+                        else
+                        {
+                            Logger.Write("Input Record", "ReplaceFileSaveJsonSql", 0, $"Config Err or Missing or Extra image files {dirSaveOrder.Length} != {imgCount} StartRow#" + startRowNo, Logger.ERROR);
+                        }
                     }
                 }
                 else
                 {
-                    Logger.Write("Input Record", "ReplaceFileSaveJsonSql", 0, "Missing or Extra image files Hard to find Photo /Sign StartRow#" + startRowNo, Logger.ERROR);
+                    Logger.Write("Input Record", "ReplaceFileSaveJsonSql", 0, $"Missing or Extra image files {saveAsFiles.Count} != {imgCount} Hard to find Photo /Sign StartRow#" + startRowNo, Logger.ERROR);
                 }
                 jsonSer = JsonConvert.SerializeObject(this.saveAsFiles);
                 jsonSer = jsonSer.Replace("'", "''");
@@ -390,6 +460,15 @@ namespace DataProcessor
                 sb1.Append(dbColVal.Key);
                 sb2.Append('\'').Append(dbColVal.Value.Replace("'", "''")).Append('\'');
 
+            }
+        }
+        private void AppendDbMapForUpd(StringBuilder sb1, List<KeyValuePair<string, string>> aDbColsWithVals)
+        {
+            foreach (var dbColVal in aDbColsWithVals)
+            {
+                sb1.Append(',');
+                sb1.Append(dbColVal.Key);
+                sb1.Append("='").Append(dbColVal.Value.Replace("'", "''")).Append('\'');
             }
         }
 
@@ -437,7 +516,7 @@ namespace DataProcessor
                 bool hasVal = GetInputVal(col.RowType, col.Index0, col.SourceCol, out srcVal);
                 if (hasVal == false)
                 {
-                    Logger.WriteInfo("Lite Input", "GetMappedColValues", 0,"col map not found " + col.RowType + "-" + col.Index0 + "-" + col.SourceCol);
+                    Logger.WriteInfo("Lite Input", "GetMappedColValues", 0, "col map not found " + col.RowType + "-" + col.Index0 + "-" + col.SourceCol);
                     continue;
                 }
 

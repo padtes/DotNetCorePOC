@@ -71,24 +71,26 @@ namespace PanProcessor
                 }
             }
 
-            FileTypeMaster fTypeMaster = DbUtil.GetFileTypeMaster(pgConnection, pgSchema, GetModuleName(), fileType, jobId);
+            #region oldCode2
+            //FileTypeMaster fTypeMaster = DbUtil.GetFileTypeMaster(pgConnection, pgSchema, GetModuleName(), fileType, jobId);
 
-            if (fTypeMaster == null)
-            {
-                Logger.Write(logProgName, "ProcessInput", 0
-                    , $"NO FileTypeMaster for {fileType} module:{GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}"
-                    , Logger.ERROR);
+            //if (fTypeMaster == null)
+            //{
+            //    Logger.Write(logProgName, "ProcessInput", 0
+            //        , $"NO FileTypeMaster for {fileType} module:{GetModuleName()} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}"
+            //        , Logger.ERROR);
 
-                return; //----------------------------
-            }
-            string jsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
-            if (File.Exists(jsonFName) == false)
-            {
-                Logger.Write(logProgName, "ProcessInput", 0
-                    , $"FILE NOT FOUND: {jsonFName}. Aborting. Check Filemaster  {fileType} for file name"
-                    , Logger.ERROR);
-                return; //----------------------------
-            }
+            //    return; //----------------------------
+            //}
+            //string jsonFName = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            //if (File.Exists(jsonFName) == false)
+            //{
+            //    Logger.Write(logProgName, "ProcessInput", 0
+            //        , $"FILE NOT FOUND: {jsonFName}. Aborting. Check Filemaster  {fileType} for file name"
+            //        , Logger.ERROR);
+            //    return; //----------------------------
+            //}
+            #endregion
 
             string curWorkDir;
             bool reprocess = (runFor != "all");
@@ -105,19 +107,19 @@ namespace PanProcessor
                 List<PanFilesGr> panFilesGroups = new List<PanFilesGr>();
                 CollectFilesPanDir(dateDirectories[i], errFiles, validPrimFiles, validOtherFiles, reprocess, panFilesGroups, out curWorkDir);
 
-                SaveToDb(dateDirectories[i], fTypeMaster, validPrimFiles, validOtherFiles, reprocess, panFilesGroups, deleteDir);
+                SaveToDb(dateDirectories[i], validPrimFiles, validOtherFiles, reprocess, panFilesGroups, deleteDir);
 
             }
         }
 
-        private void SaveToDb(string dateAsDir, FileTypeMaster fTypeMaster, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess, List<PanFilesGr> panFilesGroups, string deleteDir)
+        private void SaveToDb(string dateAsDir, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess, List<PanFilesGr> panFilesGroups, string deleteDir)
         {
             List<FileInfoStructPAN> listFiles = new List<FileInfoStructPAN>();
             //read File Header table with status = "TO DO" OR in any Work in Progress from last failed job
             string[] statusToWork = new[] { ConstantBag.FILE_LC_STEP_TODO_PAN, ConstantBag.FILE_LC_WIP_PAN };
 
             //assuming input will be directly under yyyymmdd directory 
-            string inpFilesDir = GetProcInputDir(dateAsDir); 
+            string inpFilesDir = GetProcInputDir(dateAsDir);
 
             DbUtil.GetFileInfoListPAN(pgConnection, pgSchema, logProgName, GetModuleName(), jobId, listFiles, inpFilesDir, statusToWork);
 
@@ -130,7 +132,14 @@ namespace PanProcessor
 
                 foreach (FileInfoStruct inFile in sortedFileList)
                 {
-                    //TO DO ProcessLiteApyFile(inFile, fTypeMaster, dateAsDir, deleteDir);
+                    FileTypeMaster fTypeMaster = DbUtil.GetFileTypeMaster(pgConnection, pgSchema, GetModuleName(), inFile.bizType, jobId);
+                    if (fTypeMaster == null)
+                    {
+                        Logger.Write(logProgName, "SaveToDbLoop",jobId, $"FileTypeMaster not defined for {GetModuleName()} {inFile.bizType}", Logger.ERROR);
+                        throw new Exception($"FileTypeMaster not defined for {GetModuleName()} {inFile.bizType}");
+                    }
+
+                    ProcessPanFile(inFile, fTypeMaster, dateAsDir, deleteDir);
                 }
             }
             catch (Exception ex)
@@ -139,6 +148,50 @@ namespace PanProcessor
             }
             Logger.StartFileLog();
 
+        }
+
+        private void ProcessPanFile(FileInfoStruct inpFileInfo, FileTypeMaster fTypeMaster, string dateAsDir, string deleteDir)
+        {
+            string tmpSql = "";
+            //update header as WIP - dateTime of status update
+            inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_WIP_PAN;
+            DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+
+            //paramsDict
+            string tmpFName = Path.Combine(inpFileInfo.fpath, inpFileInfo.fname);
+            string tmpJsonFName = Path.Combine(paramsDict[ConstantBag.PARAM_SYS_DIR], fTypeMaster.fileDefJsonFName);
+            bool hasDup = false;
+            //Save from txt file to data table
+            ////save photos and signatures
+            bool suc = FileProcessorUtil.SaveInputToDB(this, inpFileInfo, jobId, tmpFName, tmpJsonFName, paramsDict, dateAsDir, ref hasDup);
+
+            if (suc)
+            {
+                if (hasDup)
+                    inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_WARN_DUP;
+                else
+                    inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_TO_DB;
+                DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+
+                //delete file from input dir ???
+                //TO DO
+                FileInfo f1 = new FileInfo(dateAsDir);
+
+                string deleteDirDt = Path.Combine(deleteDir, f1.Name);
+                if (Directory.Exists(deleteDirDt) == false)
+                    Directory.CreateDirectory(deleteDirDt);
+
+                string delFile = Path.Combine(deleteDirDt, inpFileInfo.fname);
+                if (File.Exists(delFile))
+                    File.Delete(delFile);
+
+                File.Move(tmpFName, delFile);
+            }
+            else
+            {
+                inpFileInfo.inpRecStatus = ConstantBag.FILE_LC_STEP_ERR1;
+                DbUtil.UpdateFileInfoStatus(pgConnection, pgSchema, inpFileInfo, ref tmpSql);
+            }
         }
 
         private void CollectFilesPanDir(string dateAsDir, List<string> errFiles, List<string> validPrimFiles, List<string> validOtherFiles, bool reprocess
@@ -159,7 +212,7 @@ namespace PanProcessor
             //   if business type = Individual then PRI*.txt + PRI([0-9]{8}).txt|PRI_MAIN + PRI{{BATCH}}_Hindi.txt|PRI_HIN + PRI{{BATCH}}_dpr.txt|PRI_DPR, etc, etc
             string[] tmpFileGrs = panFileGroupsCsv.Split(',');
 
-            string inpFilesDir = GetProcInputDir(dateAsDir); 
+            string inpFilesDir = GetProcInputDir(dateAsDir);
 
             foreach (string bizFileGr in tmpFileGrs)
             {
@@ -175,7 +228,7 @@ namespace PanProcessor
                 }
                 //get files as per dir command pattern For dir RRIeKYC*.txt or RRI*.txt
                 string[] curFileList = Directory.GetFiles(inpFilesDir, tmpGroup[0]);
-                string[] mainFilePatBzType = tmpGroup[1].Split('|'); 
+                string[] mainFilePatBzType = tmpGroup[1].Split('|');
                 if (mainFilePatBzType.Length < 2)
                 {
                     throw new Exception($"invalid File group Main Bz {tmpGroup[1]}, needs | BizType");
@@ -232,7 +285,7 @@ namespace PanProcessor
             Logger.WriteInfo(logProgName, "CollectFilesPanDir", jobId, $"Directory DONE: {dateAsDir}");
         }
 
-        private int SaveFileHdrRec(bool reprocess, string inpFilesDir, int indx, string aFile, string fName, int parId, int localIndx,string bizType)
+        private int SaveFileHdrRec(bool reprocess, string inpFilesDir, int indx, string aFile, string fName, int parId, int localIndx, string bizType)
         {
             if (string.IsNullOrEmpty(inpFilesDir))
             {
@@ -291,11 +344,12 @@ namespace PanProcessor
 
             if (rgx.IsMatch(fName))  //this is good main file
             {
-                PanFilesGr panFilesGr = new PanFilesGr() {
+                PanFilesGr panFilesGr = new PanFilesGr()
+                {
                     MainFileFullPath = fullNm,
                     MainFileName = fName,
                     MainBizType = mainBizType
-                }; 
+                };
 
                 bool relatedFileErr = false;
                 var matches = Regex.Matches(fName, fnamePattern);
@@ -345,7 +399,7 @@ namespace PanProcessor
             }
         }
 
-        private string GetProcInputDir(string dateAsPath) 
+        private string GetProcInputDir(string dateAsPath)
         {
             return dateAsPath; // for now [assumed 2021/12/05] all files are in single dir    + "\\" + paramsDict[ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR];
 

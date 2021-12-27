@@ -1,7 +1,55 @@
 alter table ventura.fileinfo
  add column pan_parent int
 ,add column pan_group_ind int;
+
+alter table ventura.filedetails add column json_data_hindi jsonb
+,add column json_data_dpr jsonb
  
+alter table ventura.states add column hindi_name varchar(100);
+alter table ventura.states add column int_code smallint;
+
+update ventura.states set int_code = to_number(code, '99');
+
+update ventura.states set hindi_name ='अंडमान और निकोबार द्वीप' where code = '01'; 
+update ventura.states set hindi_name ='आंध्र प्रदेश' where int_code = '2';
+update ventura.states set hindi_name ='अरूणाचल प्रदेश' where int_code = '3';
+update ventura.states set hindi_name ='असम' where int_code = '4';
+update ventura.states set hindi_name ='बिहार' where int_code = '5';
+update ventura.states set hindi_name ='चंडीगढ़' where int_code = '6';
+update ventura.states set hindi_name ='दादरा और नगर हवेली' where int_code = '7';
+update ventura.states set hindi_name ='दमन और दीव' where int_code = '8';
+update ventura.states set hindi_name ='दिल्ली' where int_code = '9';
+update ventura.states set hindi_name ='गोवा' where int_code = '10';
+update ventura.states set hindi_name ='गुजरात' where int_code = '11';
+update ventura.states set hindi_name ='हरियाणा' where int_code = '12';
+update ventura.states set hindi_name ='हिमाचल प्रदेश' where int_code = '13';
+update ventura.states set hindi_name ='जम्मू और कश्मीर' where int_code = '14';
+update ventura.states set hindi_name ='कर्नाटक' where int_code = '15';
+update ventura.states set hindi_name ='केरल' where int_code = '16';
+update ventura.states set hindi_name ='लक्षद्वीप' where int_code = '17';
+update ventura.states set hindi_name ='मध्य प्रदेश' where int_code = '18';
+update ventura.states set hindi_name ='महाराष्ट्र' where int_code = '19';
+update ventura.states set hindi_name ='मणिपुर' where int_code = '20';
+update ventura.states set hindi_name ='मेघालय' where int_code = '21';
+update ventura.states set hindi_name ='मिजोरम' where int_code = '22';
+update ventura.states set hindi_name ='नगालैंड' where int_code = '23';
+update ventura.states set hindi_name ='उड़ीसा' where int_code = '24';
+update ventura.states set hindi_name ='पांडिचेरी' where int_code = '25';
+update ventura.states set hindi_name ='पंजाब' where int_code = '26';
+update ventura.states set hindi_name ='राजस्थान' where int_code = '27';
+update ventura.states set hindi_name ='सिक्किम' where int_code = '28';
+update ventura.states set hindi_name ='तमिलनाडु' where int_code = '29';
+update ventura.states set hindi_name ='त्रिपुरा' where int_code = '30';
+update ventura.states set hindi_name ='उत्तर प्रदेश' where int_code = '31';
+update ventura.states set hindi_name ='पश्चिम बंगाल' where int_code = '32';
+update ventura.states set hindi_name ='छत्तीसगढ़' where int_code = '33';
+update ventura.states set hindi_name ='उत्तराखंड' where int_code = '34';
+update ventura.states set hindi_name ='झारखंड' where int_code = '35';
+
+insert into ventura.states (isactive, code, int_code, name, hindi_name, country_code) values
+ ('1','36','36','TELANGANA','तेलंगाना','IN')
+,('1','37','37','LADAKH','लद्दाख','IN')
+
 
 insert into ventura.system_param (biztype, module_name,params_json, start_ts_utc)
 values ('pan_ind', 'pan'
@@ -24,9 +72,53 @@ values ('pan_ekyc', 'pan'
 , "pan_filegroup_csv":"PRIeKYC*.txt + PRIeKYC([0-9]{8}).txt|PRIeKYC_MAIN + PRIeKYC{{BATCH}}_Hindi.txt|PRIeKYC_HIN,PCIeKYC*.txt + PCIeKYC([0-9]{8}).txt|PCIeKYC_MAIN + PCIeKYC{{BATCH}}_Hindi.txt|PCIeKYC_HIN,PLIeKYC*.txt + PLIeKYC([0-9]{8}).txt|PLIeKYC_MAIN + PLIeKYC{{BATCH}}_Hindi.txt|PLIeKYC_HIN,RRIeKYC*.txt + RRIeKYC([0-9]{8}).txt|RRIeKYC_MAIN + RRIeKYC{{BATCH}}_Hindi.txt|RRIeKYC_HIN,RCIeKYC*.txt + RCIeKYC([0-9]{8}).txt|RCIeKYC_MAIN + RCIeKYC{{BATCH}}_Hindi.txt|RCIeKYC_HIN,RLIeKYC*.txt + RLIeKYC([0-9]{8}).txt|RLIeKYC_MAIN + RLIeKYC{{BATCH}}_Hindi.txt|RLIeKYC_HIN"
 , "printer_code3":"XYZ", "printer_code2":"51", "courier_awb_kvcsv":"PST=SPD", "printed_ok_code":"PTD"}', '2021/01/01')
 
-insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ind', 'pan', 'pan_indv_input.json');
-insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_corp', 'pan', 'pan_corp_input.json');
-insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ekyc', 'pan', 'pan_ekyc_input.json');
+-- insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ind', 'pan', 'pan_indv_input.json');
+-- insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_corp', 'pan', 'pan_corp_input.json');
+-- insert into ventura.filetypemaster(isactive, biztype, module_name, file_def_json_fname) values ('1', 'pan_ekyc', 'pan', 'pan_ekyc_input.json');
+
+insert into ventura.filetypemaster(isactive, module_name, biztype, file_def_json_fname) values 
+ ('1','pan','PRI_MAIN','pan_pri_main_inp.json')
+,('1','pan','PRI_HIN','pan_pri_hin_inp.json')
+,('1','pan','PRI_DPR','pan_pri_dpr_inp.json')
+,('1','pan','PCI_MAIN','pan_pci_main_inp.json')
+,('1','pan','PCI_HIN','pan_pci_hin_inp.json')
+,('1','pan','PLI_MAIN','pan_pli_main_inp.json')
+,('1','pan','PLI_HIN','pan_pli_hin_inp.json')
+,('1','pan','RRI_MAIN','pan_rri_main_inp.json')
+,('1','pan','RRI_HIN','pan_rri_hin_inp.json')
+,('1','pan','RRI_DPR','pan_rri_dpr_inp.json')
+,('1','pan','RCI_MAIN','pan_rci_main_inp.json')
+,('1','pan','RCI_HIN','pan_rci_hin_inp.json')
+,('1','pan','RLI_MAIN','pan_rli_main_inp.json')
+,('1','pan','RLI_HIN','pan_rli_hin_inp.json')
+,('1','pan','PRC_MAIN','pan_prc_main_inp.json')
+,('1','pan','PRC_HIN','pan_prc_hin_inp.json')
+,('1','pan','PRC_DPR','pan_prc_dpr_inp.json')
+,('1','pan','PCC_MAIN','pan_pcc_main_inp.json')
+,('1','pan','PCC_HIN','pan_pcc_hin_inp.json')
+,('1','pan','PLC_MAIN','pan_plc_main_inp.json')
+,('1','pan','PLC_HIN','pan_plc_hin_inp.json')
+,('1','pan','RRC_MAIN','pan_rrc_main_inp.json')
+,('1','pan','RRC_HIN','pan_rrc_hin_inp.json')
+,('1','pan','RRC_DPR','pan_rrc_dpr_inp.json')
+,('1','pan','RCC_MAIN','pan_rcc_main_inp.json')
+,('1','pan','RCC_HIN','pan_rcc_hin_inp.json')
+,('1','pan','RLC_MAIN','pan_rlc_main_inp.json')
+,('1','pan','RLC_HIN','pan_rlc_hin_inp.json')
+,('1','pan','PRIeKYC_MAIN','pan_priekyc_main_inp.json')
+,('1','pan','PRIeKYC_HIN','pan_priekyc_hin_inp.json')
+,('1','pan','PCIeKYC_MAIN','pan_pciekyc_main_inp.json')
+,('1','pan','PCIeKYC_HIN','pan_pciekyc_hin_inp.json')
+,('1','pan','PLIeKYC_MAIN','pan_pliekyc_main_inp.json')
+,('1','pan','PLIeKYC_HIN','pan_pliekyc_hin_inp.json')
+,('1','pan','RRIeKYC_MAIN','pan_rriekyc_main_inp.json')
+,('1','pan','RRIeKYC_HIN','pan_rriekyc_hin_inp.json')
+,('1','pan','RCIeKYC_MAIN','pan_rciekyc_main_inp.json')
+,('1','pan','RCIeKYC_HIN','pan_rciekyc_hin_inp.json')
+,('1','pan','RLIeKYC_MAIN','pan_rliekyc_main_inp.json')
+,('1','pan','RLIeKYC_HIN','pan_rliekyc_hin_inp.json')
+
+
 
 --- 3 files c:\users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\pan_indv_input.json
 

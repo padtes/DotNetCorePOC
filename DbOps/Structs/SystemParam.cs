@@ -15,6 +15,9 @@ namespace DbOps.Structs
         public string DataTableJsonCol { get; set; }
         public string UniqueColumn { get; set; }
         public string CourierCol { get; set; }
-    }
 
+        public string FileSaveDirsOrdered { get; set; }
+        public bool IsSecondaryFile { get; set; }
+        public bool IsSingleFormatFile { get; set; }
+    }
 }
