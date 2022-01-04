@@ -54,3 +54,9 @@ dkms.conf
 /WriteExcel/obj
 /WriteExcel/bin/Debug/netcoreapp3.1
 /ddl_sql/Word_files_apy/Word_work_dir
+/PanProcessor/obj/Debug/netcoreapp3.1
+/PanProcessor/obj/project.nuget.cache
+/PAN_Annexures_12122021
+/PAN_Annexures_12122021.zip
+/DeletePRAN/obj
+/DeletePRAN/bin/Debug/net5.0
