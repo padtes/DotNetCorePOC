@@ -128,7 +128,8 @@ namespace DataProcessor
             return colVal;
         }
         public string GenerateInsert(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr)
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr
+            , bool isMultifileJson, string multifilePrefix)
         {
             string dataTableName = jDef.inpSysParam.DataTableName;
             string jsonColName = jDef.inpSysParam.DataTableJsonCol;
@@ -149,12 +150,17 @@ namespace DataProcessor
             //string jStr = JsonConvert.SerializeObject(JsonByRowType);
             bool first = true;
             StringBuilder jStr = new StringBuilder();
+            if (isMultifileJson)  //Like PAN where there are multiple files that contribute to JSON column
+                jStr.Append("{" + ConstantBag.JROOT + ":{\"" + multifilePrefix + "\":");
 
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
             GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
             //done mapped columns
             jStr.Append('}');
+
+            if (isMultifileJson)  //Like PAN where there are multiple files that contribute to JSON column
+                jStr.Append("}}");
 
             sb2.Append(jStr.Replace("'", "''"));
             sb2.Append('\'');
@@ -165,7 +171,8 @@ namespace DataProcessor
 
 
         public string GenerateUpdate(string pgConnection, string pgSchema, string logProgName, string moduleName
-            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr, int updId, bool hasFiles)
+            , string sysPath, JsonInputFileDef jDef, int jobId, int startRowNo, int fileinfoId, string inputFile, InputHeader inputHdr, int updId, bool hasFiles
+            , bool isMultifileJson, string multifilePrefix)
         {
             string dataTableName = jDef.inpSysParam.DataTableName;
             string jsonColName = jDef.inpSysParam.DataTableJsonCol;
@@ -189,11 +196,17 @@ namespace DataProcessor
             bool first = true;
             StringBuilder jStr = new StringBuilder();
 
+            if (isMultifileJson) //Like PAN where there are multiple files that contribute to JSON column
+                jStr.Append("jsonb_set(" + jsonColName + ",'" + ConstantBag.JROOT + "," + multifilePrefix + "}', '");
+            
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
             GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
             //done mapped columns
             jStr.Append('}');
+
+            if (isMultifileJson) 
+                jStr.Append("', true)");
 
             sb1.Append(jStr.Replace("'", "''"));
             sb1.Append('\'');

@@ -254,7 +254,8 @@ namespace DataProcessor
 
             bool hasFiles = jDef.saveAsFileDefnn != null && jDef.saveAsFileDefnn.GetTotFileCount() > 0;
             string updSql = curRec.GenerateUpdate(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
-                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr, updId, hasFiles);
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr, updId, hasFiles
+                , fileProcessor.IsMultifileJson(), fileInfoStr.GetMultifilePrefix());
 
             if (hasFiles)
             {
@@ -352,7 +353,8 @@ namespace DataProcessor
             }
 
             string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
-                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr);
+                , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr
+                , fileProcessor.IsMultifileJson(), fileInfoStr.GetMultifilePrefix());
 
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, startRowNo
                 , paramsDict, curRec

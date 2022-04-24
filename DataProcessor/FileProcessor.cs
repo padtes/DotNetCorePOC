@@ -95,6 +95,8 @@ namespace DataProcessor
         {
             return paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
         }
+        public abstract bool IsMultifileJson();
+
         #region JUNK
         //--input file definition json
         //--letter template, letter tags mapping json

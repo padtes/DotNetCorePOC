@@ -32,6 +32,13 @@ namespace DbOps.Structs
         public bool isDeleted { get; set; }
         public string inpRecStatus { get; set; }
         public DateTime inpRecStatusDtUTC { get; set; }
+
+        public string GetMultifilePrefix()
+        {
+            if (string.IsNullOrEmpty(bizType))
+                return "anybiz";
+            return bizType;
+        }
         //meta
     }
 
