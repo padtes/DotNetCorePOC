@@ -11,7 +11,7 @@
 		"file_header_row_type": "@@",
 		"data_row_type": "bh",
 		"data_table_name":"filedetails",
-		"data_table_json_col":"json_data_dpr",
+		"data_table_json_col":"json_data",
 		"unique_column":"tx_id",
 		"unique_column_value":"bh|0|b011_document_id",
 		"courier_col":"@@",

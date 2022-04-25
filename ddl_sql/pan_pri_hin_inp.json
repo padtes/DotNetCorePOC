@@ -14,7 +14,7 @@
 		"file_header_row_type": "not_applicable",
 		"data_row_type": "not_applicable",
 		"data_table_name":"filedetails",
-		"data_table_json_col":"json_data_hindi",
+		"data_table_json_col":"json_data",
 		"unique_column":"tx_id",
 		"unique_column_value":"@@|0|b001_document_id",
 		"courier_col":"@@",

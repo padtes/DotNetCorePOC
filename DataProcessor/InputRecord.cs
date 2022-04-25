@@ -151,7 +151,7 @@ namespace DataProcessor
             bool first = true;
             StringBuilder jStr = new StringBuilder();
             if (isMultifileJson)  //Like PAN where there are multiple files that contribute to JSON column
-                jStr.Append("{" + ConstantBag.JROOT + ":{\"" + multifilePrefix + "\":");
+                jStr.Append("{\"" + ConstantBag.JROOT + "\":{\"" + multifilePrefix + "\":");
 
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
@@ -192,24 +192,28 @@ namespace DataProcessor
             AppendDbMapForUpd(sb1, DbColsWithVals);
             sb1.Append(',');
             sb1.Append(jsonColName);
-            sb1.Append("='");
+            sb1.Append("=");
             bool first = true;
             StringBuilder jStr = new StringBuilder();
 
             if (isMultifileJson) //Like PAN where there are multiple files that contribute to JSON column
-                jStr.Append("jsonb_set(" + jsonColName + ",'" + ConstantBag.JROOT + "," + multifilePrefix + "}', '");
-            
+                sb1.Append("jsonb_set(" + jsonColName + ",'{" + ConstantBag.JROOT + "," + multifilePrefix + "}', '");
+            else
+                sb1.Append("'");
+
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
             GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
             //done mapped columns
             jStr.Append('}');
 
-            if (isMultifileJson) 
-                jStr.Append("', true)");
-
             sb1.Append(jStr.Replace("'", "''"));
-            sb1.Append('\'');
+
+            if (isMultifileJson)
+                sb1.Append("', true)");
+            else
+                sb1.Append('\'');
+
             sb1.Append(" where id=").Append(updId);
 
             return sb1.ToString();

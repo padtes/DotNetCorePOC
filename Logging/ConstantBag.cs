@@ -6,7 +6,7 @@
         public const string BATCH_USER = "batch";
         public const string SYSTEM_PARAM = "system";
         public const string SEQ_GENERIC = "generic";
-        public const string JROOT = "\"root\"";
+        public const string JROOT = "root";
 
         //public const string LITE_OUT_PARAM = "lite_out";
 
