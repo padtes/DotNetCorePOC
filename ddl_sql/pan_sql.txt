@@ -1,3 +1,7 @@
+https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-upsert/
+https://stackoverflow.com/questions/30101603/merging-concatenating-jsonb-columns-in-query
+
+
 insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type) values 
 	('1','couriers','daily master of all couriers-PAN', 'daily', '0', 'pan');
 
