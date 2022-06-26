@@ -1,5 +1,6 @@
 ﻿
 using CommonUtil;
+using DataProcessor;
 
 namespace PanProcessor
 {
@@ -30,9 +31,10 @@ namespace PanProcessor
             else
             if (operation == "write")
             {
-                //PanFileProcessor processor = new PanFileProcessor(pgConnection, pgSchema, operation, fileType);
-
-                //runResult = processor.ProcessModule(operation, runFor, courierCSV, fileType, deleteDir);
+                 
+                PanFileProcessor PanProcessor = new PanFileProcessor(pgConnection, pgSchema, operation, fileType);
+                ReportProcessor reportProcessor = PanProcessor.GetReportProcessor();
+                reportProcessor.ProcessOutput(runFor, courierCSV);
             }
             //TO DO handle unknown operation
 

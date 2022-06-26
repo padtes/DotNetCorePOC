@@ -44,7 +44,12 @@ namespace PanProcessor
 
         public override ReportProcessor GetReportProcessor()
         {
-            throw new NotImplementedException();
+            if (fileType == ConstantBag.PAN_OUT_CARD_INDV || fileType == ConstantBag.PAN_OUT_CARD_CORP || fileType == ConstantBag.PAN_OUT_CARD_EKYC)
+            {
+                return new ReportProcessorPan(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
+            }
+
+            throw new ArgumentException("unknown fileType for operation WRITE/report");
         }
 
         public override void ProcessInput(string runFor, string deleteDir)

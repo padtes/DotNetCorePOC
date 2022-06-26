@@ -37,6 +37,15 @@
         public const string PAN_INDIV = "pan_ind";
         public const string PAN_CORP = "pan_corp";
         public const string PAN_EKYC = "pan_ekyc";
+        //public const string PAN_OUT_RESPONSE_INDV = "pan_resp_ind";
+        //public const string PAN_OUT_RESPONSE_CORP = "pan_resp_corp";
+        //public const string PAN_OUT_RESPONSE_EKYC = "pan_resp_ekyc";
+        public const string PAN_OUT_CARD_INDV = "pan_card_ind";
+        public const string PAN_OUT_CARD_CORP = "pan_card_corp";
+        public const string PAN_OUT_CARD_EKYC = "pan_card_ekyc";
+        public const string PARAM_OUTPUT_DIR_PAN_INDV = "output_pan_ind";
+        public const string PARAM_OUTPUT_DIR_PAN_CORP = "output_pan_corp";
+        public const string PARAM_OUTPUT_DIR_PAN_EKYC = "output_pan_ekyc";
 
         //card types 
         public const string APY_FLAG_DB_COL_NAME = "apy_flag";
