@@ -148,7 +148,7 @@ namespace DataProcessor
         private void ProcessNpsApyAWB(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
         {
             string bizTypeToWrite = isApy ? ConstantBag.LITE_OUT_AWB_APY : ConstantBag.LITE_OUT_AWB_NPS;
-            FileTypeMaster fTypeMaster = GetFTypeMaster(bizTypeToWrite);
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizTypeToWrite, "writeAwbReport");
             if (fTypeMaster == null)
                 return;
 
@@ -232,7 +232,7 @@ namespace DataProcessor
              */
 
             string bizType = ConstantBag.LITE_OUT_STATUS;
-            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType, "writeStatusReport");
             if (fTypeMaster == null)
                 return;
 
@@ -262,7 +262,7 @@ namespace DataProcessor
         private void ProcessNpsApyPTC(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
         {
             string bizType = isApy ? ConstantBag.LITE_OUT_PTC_APY : ConstantBag.LITE_OUT_PTC_NPS;
-            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType, "ProcessNpsApyPTC");
             if (fTypeMaster == null)
                 return;
 
@@ -351,7 +351,7 @@ namespace DataProcessor
         private void ProcessNpsApyCard(string bizTypeToRead, string workdirYmd, string bizDir, bool isApy, string courierCsv)
         {
             string bizType = isApy ? ConstantBag.LITE_OUT_CARD_APY : ConstantBag.LITE_OUT_CARD_NPS;
-            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType);
+            FileTypeMaster fTypeMaster = GetFTypeMaster(bizType, "ProcessNpsApyCard");
             if (fTypeMaster == null)
                 return;
 
@@ -439,21 +439,7 @@ namespace DataProcessor
         {
             string waitingAction, doneAction;
             SetupActions(bizTypeToWrite, out waitingAction, out doneAction);
-            StringBuilder colSelectionSb = new StringBuilder();
-            SqlHelper.GetSelectColumns(csvConfig.Detail, csvConfig.System, progParams, paramsDict, colSelectionSb);
-
-            DataSet ds = DbUtil.GetFileDetailList(pgConnection, pgSchema, GetProgName(), moduleName, bizTypeToRead, jobId
-            , colSelectionSb.ToString(), waitingAction, doneAction, workdirYmd, wherePart, csvConfig.System.DataOrderby, out string sql);
-
-            if (ds == null || ds.Tables.Count < 1)
-            {
-                Logger.Write(GetProgName(), "GetReportDS", 0, "No Table returned check sql", Logger.WARNING);
-                Logger.Write(GetProgName(), "GetReportDS", 0, "sql:" + sql, Logger.WARNING);
-
-                return null;
-            }
-
-            return ds;
+            return GetReportDSByActions(pgConnection, pgSchema, moduleName, bizTypeToRead, jobId, csvConfig, progParams, workdirYmd, wherePart, waitingAction, doneAction);
         }
 
         protected virtual void SetupActions(string bizTypeToWrite, out string waitingAction, out string doneAction)

@@ -53,13 +53,13 @@ namespace DataProcessor
         public string GetSchema() { return pgSchema; }
         public string GetConnection() { return pgConnection; }
 
-        public FileTypeMaster GetFTypeMaster(string bizType)
+        public FileTypeMaster GetFTypeMaster(string bizType, string step = "ProcessNpsApyLiteOutputImmResp")
         {
             FileTypeMaster fTypeMaster = DbUtil.GetFileTypeMaster(pgConnection, pgSchema, moduleName, bizType, JobId);
 
             if (fTypeMaster == null)
             {
-                Logger.Write(GetProgName(), "ProcessNpsApyLiteOutputImmResp", 0
+                Logger.Write(GetProgName(), step, 0
                     , $"NO FileTypeMaster for {bizType} module:{moduleName} parameters: system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}"
                     , Logger.ERROR);
 
@@ -69,7 +69,7 @@ namespace DataProcessor
             string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
             if (File.Exists(jsonCsvDef) == false)
             {
-                Logger.Write(GetProgName(), "ProcessNpsApyLiteOutputImmResp", 0
+                Logger.Write(GetProgName(), step, 0
                     , $"FILE NOT FOUND: {jsonCsvDef}. Aborting. Check Filemaster  {bizType} for file name"
                     , Logger.ERROR);
                 return null; //----------------------------
@@ -77,6 +77,25 @@ namespace DataProcessor
 
             return fTypeMaster;
         }
+        protected DataSet GetReportDSByActions(string pgConnection, string pgSchema, string moduleName, string bizTypeToRead, int jobId, RootJsonParamCSV csvConfig, string[] progParams, string workdirYmd, string wherePart, string waitingAction, string doneAction)
+        {
+            StringBuilder colSelectionSb = new StringBuilder();
+            SqlHelper.GetSelectColumns(csvConfig.Detail, csvConfig.System, progParams, paramsDict, colSelectionSb);
+
+            DataSet ds = DbUtil.GetFileDetailList(pgConnection, pgSchema, GetProgName(), moduleName, bizTypeToRead, jobId
+            , colSelectionSb.ToString(), waitingAction, doneAction, workdirYmd, wherePart, csvConfig.System.DataOrderby, out string sql);
+
+            if (ds == null || ds.Tables.Count < 1)
+            {
+                Logger.Write(GetProgName(), "GetReportDS", 0, "No Table returned check sql", Logger.WARNING);
+                Logger.Write(GetProgName(), "GetReportDS", 0, "sql:" + sql, Logger.WARNING);
+
+                return null;
+            }
+
+            return ds;
+        }
+
 
     }
 

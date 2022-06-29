@@ -667,6 +667,19 @@ namespace DbOps
             if (addedWhere != "")
                 wherePart += addedWhere;
 
+            GetCouriers(pgConnection, pgSchema, logProgName, moduleName, bizTypeToRead, jobId
+            , workdirYmd, waitingAction, doneAction
+            , courierList, courierCsv, wherePart, out sql);
+        }
+
+        public static void GetCouriers(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
+            , string workdirYmd, string waitingAction, string doneAction
+            , List<string> courierList, string courierCsv, string addedWhere, out string sql)
+        {
+            string wherePart = "";
+            if (addedWhere != "")
+                wherePart += addedWhere;
+
             string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
             if (string.IsNullOrEmpty(courierCsv)==false)
             {

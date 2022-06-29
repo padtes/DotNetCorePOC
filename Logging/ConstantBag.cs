@@ -34,6 +34,7 @@
         public const string LITE_OUT_AWB_NPS = "lite_awb_nps";
 
         //pan business
+        public const string PAN_IN = "pan_inp";
         public const string PAN_INDIV = "pan_ind";
         public const string PAN_CORP = "pan_corp";
         public const string PAN_EKYC = "pan_ekyc";
@@ -46,6 +47,8 @@
         public const string PARAM_OUTPUT_DIR_PAN_INDV = "output_pan_ind";
         public const string PARAM_OUTPUT_DIR_PAN_CORP = "output_pan_corp";
         public const string PARAM_OUTPUT_DIR_PAN_EKYC = "output_pan_ekyc";
+
+        public const string PAN_STEP_CARD_OUT = "PAN_CARD_OUT"; //Card done
 
         //card types 
         public const string APY_FLAG_DB_COL_NAME = "apy_flag";
