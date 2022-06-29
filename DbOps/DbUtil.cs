@@ -286,7 +286,7 @@ namespace DbOps
 
                 DataSet ds = GetDataSet(pgConnection, logProgName + "_GetParamsJsonStr", moduleName, jobId, sql);
 
-                if (ds.Tables.Count > 0)
+                if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     string sysParam = Convert.ToString(ds.Tables[0].Rows[0][0]);
                     return sysParam;
