@@ -26,6 +26,10 @@ namespace DataProcessor
         {
             return csvConfig;
         }
+        public void SetCsvConfig(RootJsonParamCSV val)
+        {
+            this.csvConfig = val;
+        }
 
         public CsvReportUtil(string connection, string schema, string moduleNm, string bizTypeNm, int jobIdparam, string jsonDef, string outDirNm)
         {
@@ -35,13 +39,14 @@ namespace DataProcessor
             bizType = bizTypeNm;
             jobId = jobIdparam;
 
-            csvConfig = LoadJsonParamFile(jsonDef);
+            if (jsonDef != string.Empty)
+                csvConfig = LoadJsonParamFile(jsonDef);
             outDir = outDirNm;
             if (outDir.EndsWith("/") == false)
                 outDir = outDir + "/";
         }
 
-        private RootJsonParamCSV LoadJsonParamFile(string jsonParamFilePath)
+        public static RootJsonParamCSV LoadJsonParamFile(string jsonParamFilePath)
         {
             try
             {

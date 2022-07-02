@@ -326,7 +326,8 @@ namespace DbOps
         public static void GetFileInfoListPAN(string pgConnection, string pgSchema, string logProgName, string moduleName, int jobId, List<FileInfoStructPAN> listFiles, string dateAsDir, string[] inpRecStatus)
         {
             string tmp = String.Join("','", inpRecStatus);
-            string sql = $"select id, fname, fpath, module_name, biztype, pan_parent, pan_group_ind from {pgSchema}.fileinfo where isdeleted='0' and inp_rec_status in ('{tmp}') and fpath ='{MyEscape(dateAsDir)}'";
+            string sql = $"select id, fname, fpath, module_name, biztype, pan_parent, pan_group_ind from {pgSchema}.fileinfo " +
+                $" where isdeleted='0' and inp_rec_status in ('{tmp}') and fpath ='{MyEscape(dateAsDir)}' and module_name = '{moduleName}'";
             DataSet ds = GetDataSet(pgConnection, logProgName, moduleName, jobId, sql);
             if (ds.Tables.Count > 0)
             {
@@ -348,11 +349,13 @@ namespace DbOps
         public static DataSet GetFileDetailList(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string colSelection, string waitingAction, string doneAction, string workdirYmd, string wherePart, string orderBy, out string sql)
         {
+            string bzList = GetDbCsvfromCsv(bizTypeToRead);
+
             sql = $"select {colSelection} from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
-                $" and fileinfo.biztype = '{bizTypeToRead}'" +
+                $" and fileinfo.biztype in ('{bzList}')" +
                 $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
                 $" and not exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
@@ -680,18 +683,18 @@ namespace DbOps
             if (addedWhere != "")
                 wherePart += addedWhere;
 
-            string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
             if (string.IsNullOrEmpty(courierCsv)==false)
             {
-                wherePart += " and courier_id in ('" +string.Join("','", whCouriers) + "')";
+                string[] whCouriers = courierCsv.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+                wherePart += " and courier_id in ('" + string.Join("','", whCouriers) + "')";
             }
-
-            sql = "select distinct courier_id"+
+            string bzList = GetDbCsvfromCsv(bizTypeToRead);
+            sql = "select distinct courier_id" +
                 $" from {pgSchema}.filedetails" +
                 $" join {pgSchema}.fileinfo on fileinfo.id = filedetails.fileinfo_id" +
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
-                $" and fileinfo.biztype = '{bizTypeToRead}'" +
+                $" and fileinfo.biztype in ( '{bzList}' )" +
                 $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
                 wherePart;
 
@@ -718,6 +721,19 @@ namespace DbOps
                 }
             }
         }
+
+        private static string GetDbCsvfromCsv(string bizTypeToRead)
+        {
+            string bzList = bizTypeToRead;
+            if (bizTypeToRead.IndexOf(",") > 0)
+            {
+                string[] whBzs = bizTypeToRead.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+                bzList = string.Join("','", whBzs);
+            }
+
+            return bzList;
+        }
+
         public static DataSet GetLetterCourier(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizTypeToRead, int jobId
             , string workdirYmd, string waitingAction, string doneAction
             , string courierId, bool isApy, string colSelection, string orderBy, out string sql)

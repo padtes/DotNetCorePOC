@@ -18,6 +18,17 @@ namespace DbOps.Structs
         [JsonProperty("data_table_json_col")]
         public string DataTableJsonCol { get; set; }
 
+        [JsonProperty("json_root")]
+        public string JsonRoot { get; set; }
+        public string JsonRootQual {
+            get {
+                if (string.IsNullOrEmpty(JsonRoot) || string.IsNullOrWhiteSpace(JsonRoot))
+                    return "";
+                else
+                    return $"'{JsonRoot}'->";
+            }
+        }
+
         [JsonProperty("data_where")]
         public string DataWhere { get; set; }
 
@@ -103,6 +114,10 @@ namespace DbOps.Structs
 
         [JsonProperty("escape_qualifier")]
         public string EscQualifier { get; set; }
+
+        [JsonProperty("biz_type_list")]
+        public string BizTypeList { get; set; }
+
     }
 
     public class RootJsonParamCSV

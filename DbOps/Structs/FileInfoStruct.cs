@@ -33,12 +33,6 @@ namespace DbOps.Structs
         public string inpRecStatus { get; set; }
         public DateTime inpRecStatusDtUTC { get; set; }
 
-        public string GetMultifilePrefix()
-        {
-            if (string.IsNullOrEmpty(bizType))
-                return "anybiz";
-            return bizType;
-        }
         //meta
     }
 

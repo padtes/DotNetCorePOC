@@ -1,4 +1,6 @@
-﻿namespace CommonUtil
+﻿using System.Collections.Generic;
+
+namespace CommonUtil
 {
     public class ConstantBag
     {
@@ -7,7 +9,7 @@
         public const string SYSTEM_PARAM = "system";
         public const string SEQ_GENERIC = "generic";
         public const string JROOT = "root";
-
+        public const string ALL = "all";
         //public const string LITE_OUT_PARAM = "lite_out";
 
         //Modules
@@ -38,6 +40,55 @@
         public const string PAN_INDIV = "pan_ind";
         public const string PAN_CORP = "pan_corp";
         public const string PAN_EKYC = "pan_ekyc";
+
+        /* PAN
+            a b c 
+            . . I = Individual
+            . . C = Corp
+
+            . R . = Original
+            . C . = Change Address
+            . L . = Change Name
+
+            P . . = Primary First-time print
+            R . . = Reprint
+        + eKYC as
+            EkycPRI - new
+                EkycPCI - change 
+                EkycPLI - change 
+            --- reprint --
+                EkycRRI - new
+                EkycRCI - change 
+                EkycRLI - change
+         */
+        //public const string PAN_MAIN = "_MAIN";
+        //public const string PAN_PR_INDIV = "PRI"; //First time Original Individual
+        //public const string PAN_PC_INDIV = "PCI"; //First time with Address Change Individual
+        //public const string PAN_PL_INDIV = "PLI"; //First time with Name Change Individual
+        //public const string PAN_RR_INDIV = "RRI"; //Reprint Original Individual
+        //public const string PAN_RC_INDIV = "RCI"; //Reprint with Address Change Individual
+        //public const string PAN_RL_INDIV = "RLI"; //Reprint with Name Change Individual
+
+        //public static readonly List<string> PAN_VALID_SUB_INDIV = new List<string>() { "PRI", "PCI", "PLI", "RRI", "RCI", "RLI" };
+
+        //public const string PAN_PR_CORP = "PRC"; //First time Original Corporate
+        //public const string PAN_PC_CORP = "PCC"; //First time with Address Change Corporate
+        //public const string PAN_PL_CORP = "PLC"; //First time with Name Change Corporate
+        //public const string PAN_RR_CORP = "RRC"; //Reprint Original Corporate
+        //public const string PAN_RC_CORP = "RCC"; //Reprint with Address Change Corporate
+        //public const string PAN_RL_CORP = "RLC"; //Reprint with Name Change Corporate
+
+        //public static readonly List<string> PAN_VALID_SUB_CORP = new List<string>() { "PRC", "PCC", "PLC", "RRC", "RCC", "RLC" };
+
+        //public const string PAN_PR_EKYC = "PRIEKYC"; //First time Original Corporate
+        //public const string PAN_PC_EKYC = "PCIEKYC"; //First time with Address Change Corporate
+        //public const string PAN_PL_EKYC = "PLIEKYC"; //First time with Name Change Corporate
+        //public const string PAN_RR_EKYC = "RRIEKYC"; //Reprint Original Corporate
+        //public const string PAN_RC_EKYC = "RCIEKYC"; //Reprint with Address Change Corporate
+        //public const string PAN_RL_EKYC = "RLIEKYC"; //Reprint with Name Change Corporate
+
+        //public static readonly List<string> PAN_VALID_SUB_EKYC = new List<string>() { "PRIEKYC", "PCIEKYC", "PLIEKYC", "RRIEKYC", "RCIEKYC", "RLIEKYC" };
+
         //public const string PAN_OUT_RESPONSE_INDV = "pan_resp_ind";
         //public const string PAN_OUT_RESPONSE_CORP = "pan_resp_corp";
         //public const string PAN_OUT_RESPONSE_EKYC = "pan_resp_ekyc";
@@ -129,6 +180,7 @@
         public const string FD_SAVE_DIR_ORDERED = "file_save_dirs_psv";
         public const string FD_IS_SECONDARY = "is_secondary_file";
         public const string FD_IS_SINGLE_FORMAT = "is_single_format_file";
+        public const string FD_REC_TO_JSON_PAIRS_CSV = "rec_to_json_map_pairs";
         public const string FD_SINGLE_FORM_ROWTYPE = "@@";  //this is placeholder for row-type such as FH / PD /BH etc that multi format files have
         public const string FILLER = "@@";  //this is placeholder when some column/logic is not applicable But json def stays consistent
 

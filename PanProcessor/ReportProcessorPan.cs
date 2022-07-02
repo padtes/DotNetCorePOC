@@ -12,8 +12,8 @@ namespace PanProcessor
 {
     class ReportProcessorPan : ReportProcessor
     {
-        public ReportProcessorPan(string connectionStr, string schemaName, string module, string opName, string fileType)
-            : base(connectionStr, schemaName, module, opName, fileType)
+        public ReportProcessorPan(string connectionStr, string schemaName, string module, string opName, string fileType, string fileSubType)
+            : base(connectionStr, schemaName, module, opName, fileType, fileSubType)
         {
         }
 
@@ -62,20 +62,25 @@ namespace PanProcessor
                 workDir / ddmmyyyy / pan / indiv / courier_name_ddmmyy / <card file>
                 workDir / ddmmyyyy / pan / corp / courier_name_ddmmyy / <card file>
              */
-            string bizTypeToRead = ConstantBag.PAN_IN;
 
             string bizDir = paramsDict[GetOutputDirParamNameBizType()];
 
-            ProcessPanCard(bizTypeToRead, runFor, bizDir, courierCsv);
+            ProcessPanCard(runFor, bizDir, courierCsv);
 
         }
 
-        private void ProcessPanCard(string bizTypeToRead, string workdirYmd, string bizDir, string courierCsv)
+        private void ProcessPanCard(string workdirYmd, string bizDir, string courierCsv)
         {
             string bizType = fileType;
             FileTypeMaster fTypeMaster = GetFTypeMaster(bizType, "ProcessPanCard");
             if (fTypeMaster == null)
                 return;
+
+            RootJsonParamCSV jsonDefOfReport = LoadJsonFileReportParam(fTypeMaster);
+
+            string bizTypeToRead = fileSubType;
+            if (fileSubType == ConstantBag.ALL)
+                bizTypeToRead = jsonDefOfReport.System.BizTypeList;
 
             SetupActions(bizType, out string waitingAction, out string doneAction);
 
@@ -100,13 +105,27 @@ namespace PanProcessor
             + "\\" + bizDir // module + bizType based dir = ("output_apy or output_lite") 
             ;
 
-            string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
-            CsvReportUtil csvRep = new CsvReportUtil(GetConnection(), GetSchema(), moduleName, bizTypeToRead, JobId, jsonCsvDef, outputDir);
+            CsvReportUtil csvRep = new CsvReportUtil(GetConnection(), GetSchema(), moduleName, bizTypeNm: "", JobId, jsonDef: string.Empty, outputDir);
+            csvRep.SetCsvConfig(jsonDefOfReport);
 
             foreach (string courierId in courierList)
             {
                 ProcessPanCardCourier(csvRep, bizTypeToRead, bizType, fTypeMaster, workdirYmd, bizDir, courierId);
             }
+        }
+
+        private RootJsonParamCSV LoadJsonFileReportParam(FileTypeMaster fTypeMaster)
+        {
+            string jsonCsvDef = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\" + fTypeMaster.fileDefJsonFName;
+            RootJsonParamCSV jsonDefOfReport = CsvReportUtil.LoadJsonParamFile(jsonCsvDef);
+            if (string.IsNullOrEmpty(jsonDefOfReport.System.BizTypeList))
+            {
+                string erMsg = "Missing biz_type_list in system section of " + jsonCsvDef;
+                Logger.Write(GetProgName(), "ProcessPanCard", 0, erMsg, Logger.ERROR);
+                throw new Exception(erMsg);
+            }
+
+            return jsonDefOfReport;
         }
 
         private void ProcessPanCardCourier(CsvReportUtil csvRep, string bizTypeToRead, string bizTypeToWrite, FileTypeMaster fTypeMaster, string workdirYmd, string bizDir, string courierId)

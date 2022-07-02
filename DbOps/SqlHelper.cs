@@ -74,7 +74,7 @@ namespace DbOps
                     retStr  = GetSqlSnippet(progParams, phCol, sysParam);
                     break;
                 case "JSON":
-                    retStr = sysParam.DataTableJsonCol + "->"+ phCol.DbValue;
+                    retStr = sysParam.DataTableJsonCol + "->" + sysParam.JsonRootQual + phCol.DbValue;
                     break;
                 case "PARAM":
                     retStr = GetParamValue(progParams, phCol);

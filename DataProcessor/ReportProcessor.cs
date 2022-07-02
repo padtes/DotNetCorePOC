@@ -17,6 +17,7 @@ namespace DataProcessor
         protected string moduleName;
         protected string operation;
         protected string fileType;
+        protected string fileSubType;
         public int JobId { get; set; }
 
         protected string systemConfigDir;
@@ -32,6 +33,17 @@ namespace DataProcessor
             moduleName = module;
             operation = opName;
             fileType = fileTypeNm;
+            fileSubType = ConstantBag.ALL;
+        }
+
+        public ReportProcessor(string connectionStr, string schemaName, string module, string opName, string fileTypeNm, string fileSubTypeNm)
+        {
+            pgConnection = connectionStr;
+            pgSchema = schemaName;
+            moduleName = module;
+            operation = opName;
+            fileType = fileTypeNm;
+            fileSubType = fileSubTypeNm;
         }
         public abstract string GetProgName();
         public abstract string GetBizType();

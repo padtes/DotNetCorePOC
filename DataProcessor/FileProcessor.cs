@@ -16,6 +16,7 @@ namespace DataProcessor
         protected string pgSchema;
         protected string operation;
         protected string fileType;
+        protected string fileSubType;
         public int jobId { get; set; }
 
         protected string systemConfigDir;
@@ -30,6 +31,16 @@ namespace DataProcessor
             pgSchema = schemaName;
             operation = operationName;
             fileType = fileTypeNm;
+            fileSubType = ConstantBag.ALL;
+        }
+
+        public FileProcessor(string connectionStr, string schemaName, string operationName, string fileTypeNm, string fileSubTypeNm)
+        {
+            pgConnection = connectionStr;
+            pgSchema = schemaName;
+            operation = operationName;
+            fileType = fileTypeNm;
+            fileSubType = fileSubTypeNm;
         }
 
         public string GetSchema() { return pgSchema; }
@@ -46,7 +57,7 @@ namespace DataProcessor
             return fp; 
         }
 
-        public virtual bool ProcessModule(string operation, string runFor, string courierCsv, string fileType, string deleteDir)
+        public virtual bool ProcessModule(string operation, string runFor, string courierCsv, string fileType, string fileSubType, string deleteDir)
         {
             Logger.WriteInfo(logProgName, "ProcessModule", 0
                 , $"START {GetModuleName()} op:{operation} parameters: {runFor} system dir {systemConfigDir}, i/p dir: {inputRootDir},  work dir {workDir}, {(courierCsv == "" ? "" : " courier:" + courierCsv)}");
@@ -95,8 +106,7 @@ namespace DataProcessor
         {
             return paramsDict[ConstantBag.PARAM_OUTPUT_PARENT_DIR];
         }
-        public abstract bool IsMultifileJson();
-
+        
         #region JUNK
         //--input file definition json
         //--letter template, letter tags mapping json

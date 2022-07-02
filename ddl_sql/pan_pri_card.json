@@ -1,0 +1,39 @@
+{
+	"comments_on_usage_csv": {
+		"0": "this is to document the JSON",
+		"1": "mandatory: system section: generic parameters about file and process",
+		"2": "header is for first summary row. For structure- refer below",
+		"3": "detail is for the multiple detail rows 1 per subscriber record",
+		"4": "refer other files..."
+	}
+	,"system":{
+		"file_type" : "pan_pri_card",
+		"write_type": "csv",
+		"delimt":",",
+		"number_of_blanks":"24",
+		"text_qualifier":"\"",
+		"escape_qualifier":"\\\"",
+		"data_table_name":"filedetails",
+		"data_table_json_col":"json_data",
+		"json_root":"root",
+		"data_where":"",
+		"data_order":"json_data->'root'->'pri_main'->'xx'->'x_daily_serno'",
+		"where_cols": [
+		]
+	}
+	,"header":[
+		{"col":"0","tag":"PACKAGE_ID","src_type":"const","db_value":"PACKAGE_ID", "print_yn":"y"},
+		{"col":"6","tag":"DATE_OF_BIRTH","src_type":"const","db_value":"DATE_OF_BIRTH", "print_yn":"y"},
+		{"col":"10","tag":"DOCUMENT_ID","src_type":"const","db_value":"DOCUMENT_ID", "print_yn":"y"},
+	]
+	,"detail":[
+		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
+		,{"col":"1", "print_yn":"y", "tag":"PACKAGE_ID","src_type":"json","db_value":"'xx'->>'x_package_id'", "alias":"package_id"}
+		,{"col":"6", "print_yn":"y", "tag":"db date of birth","src_type":"json","db_value":"'pri_main'->'bh'->0->>'b013_dob_ddmmyyyy_slash'", "alias":"db_date_of_birth"}
+
+		,{"col":"11", "print_yn":"y", "tag":"Subscirber Barcode", "src_type":"json" ,"db_value":"'pri_main'->'bh'->0->>'b028_document_id'", "alias" :"sub_barcode"}
+
+		,{"col":"#12", "print_yn":"y", "tag":"AWB_NO", "src_type":"#json" ,"db_value":"'xx'->>'x_awb'", "alias" :"x_awb"}
+
+	]
+}

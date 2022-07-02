@@ -23,7 +23,6 @@ namespace DataProcessor
             public static Dictionary<string, string> LoadSystemParamByBiz(string pgConnection, string pgSchema, string logProgName, string moduleName, string bizType, int jobId
             , out string systemConfigDir, out string inputRootDir, out string workDir)
         {
-            Dictionary<string, string> paramsDict = null;
 
             //read details based on date from system param table
             string sysParamStr = DbUtil.GetParamsJsonStr(pgConnection, pgSchema, logProgName, moduleName, bizType, jobId);
@@ -32,6 +31,8 @@ namespace DataProcessor
                 Logger.Write(logProgName, "LoadParam.1", 0, moduleName + "_" + bizType + " record not in system_param table", Logger.ERROR);
                 throw new Exception(moduleName + "_" + bizType + " record not in system_param table");
             }
+
+            Dictionary<string, string> paramsDict;
             try
             {
                 paramsDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(sysParamStr);

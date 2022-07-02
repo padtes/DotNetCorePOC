@@ -15,8 +15,13 @@ namespace PanProcessor
     {
         private const string logProgName = "FileProcPAN";
 
-        public PanFileProcessor(string connectionStr, string schemaName, string operationName, string fileTypeNm) : base(connectionStr, schemaName, operationName, fileTypeNm)
+        public PanFileProcessor(string connectionStr, string schemaName, string operationName, string fileTypeNm, string fileSubTypeNm) 
+            : base(connectionStr, schemaName, operationName, fileTypeNm, fileSubTypeNm)
         {
+            if (operationName == "write" && string.IsNullOrEmpty(fileSubTypeNm))
+            {
+                Logger.Write(logProgName, "init", 0, "Pan operation Write must have fileSubType",Logger.ERROR);
+            }
         }
 
         public override string GetBizTypeImageDirName(InputRecordAbs inputRecord)
@@ -46,7 +51,7 @@ namespace PanProcessor
         {
             if (fileType == ConstantBag.PAN_OUT_CARD_INDV || fileType == ConstantBag.PAN_OUT_CARD_CORP || fileType == ConstantBag.PAN_OUT_CARD_EKYC)
             {
-                return new ReportProcessorPan(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
+                return new ReportProcessorPan(GetConnection(), GetSchema(), GetModuleName(), operation, fileType, fileSubType);
             }
 
             throw new ArgumentException("unknown fileType for operation WRITE/report");
@@ -446,6 +451,7 @@ namespace PanProcessor
                                      //if (Directory.Exists(curWorkDir) == false)
                                      //    Directory.CreateDirectory(curWorkDir);
         }
+
         protected override void LoadModuleParam(string runFor, string courierCsv)
         {
             staticParamList = new List<string>() { ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR, ConstantBag.PARAM_PAN_OUTPUT_DIR
@@ -456,11 +462,6 @@ namespace PanProcessor
                 , out systemConfigDir, out inputRootDir, out workDir);
 
             ProcessorUtil.ValidateStaticParam(GetModuleName(), fileType, logProgName, paramsDict, staticParamList);  //fileType is set to Pan_indiv / pan_corp or Pan_eKYC
-        }
-
-        public override bool IsMultifileJson()
-        {
-            return true;
         }
     }
 }

@@ -1,0 +1,154 @@
+-moduleName=PAN -op=read -file=all -runfor=20211204
+
+-moduleName=PAN -op=write -file=pan_card_ind -runfor=20211204
+
+{
+  "root": {
+    "pri_hin": {
+      "@@": [
+        {
+          "b001_document_id": "3004970210174251D1",
+          "b019_hindi_uid_po": "",
+          "b004_hindi_mid_name": "",
+          "b002_hindi_last_name": "रंजना",
+          "b005_hindi_office_nm": "",
+          "b006_hindi_addr_flat": "नं 16",
+          "b012_hindi_uid_addr2": "",
+          "b013_hindi_uid_addr3": "",
+          "b014_hindi_uid_addr4": "",
+          "b015_hindi_uid_addr5": "",
+          "b016_hindi_uid_addr6": "",
+          "b017_hindi_uid_addr7": "",
+          "b018_hindi_uid_addr8": "",
+          "b003_hindi_first_name": "मुनुसामी",
+          "b011_hindi _uid_addr1": "",
+          "b008_hindi_addr_street": "",
+          "b009_hindi_addr_taluka": "जाफ़र्कान्पेत अशोक नगर",
+          "b007_hindi_addr_building": "अप्पादुरई स्ट्रीट",
+          "b010_hindi_addr_district": "चेन्नई"
+        }
+      ],
+      "fh": {
+        "xinpfile": "PRI52075501_Hindi.txt"
+      },
+      "xx": {}
+    },
+    "pri_main": {
+      "bh": [
+        {
+          "b005_pan": "FDLPR1876N",
+          "b099_hash": "000000004277022",
+          "b023_phone": "9381013492",
+          "b035_old_pan": "",
+          "b009_mid_name": "",
+          "b021_addr_pin": "600083",
+          "b022_std_code": "0",
+          "b053_addr_uid": "",
+          "b058_city_uid": "",
+          "b007_last_name": "RANJANA",
+          "b014_office_nm": "",
+          "b015_addr_flat": "NO 16",
+          "b024_area_code": "CHE",
+          "b003_bat_ser_no": "1",
+          "b008_first_name": "MUNUSAMY",
+          "b025_range_code": "116",
+          "b026_photo_flag": "Y",
+          "b030_courier_id": "TRC",
+          "b001_line_number": "2",
+          "b017_addr_street": "",
+          "b018_addr_taluka": "JAFFARKANPET ASHOK NAGAR",
+          "b028_document_id": "3004970210174251D1",
+          "b032_old_ack_num": "null",
+          "b004_printing_num": "210221147383",
+          "b006_name_to_print": "RANJANA M",
+          "b016_addr_building": "APPADURAI STREET",
+          "b019_addr_district": "CHENNAI",
+          "b031_delivery_mode": "C",
+          "b027_signature_flag": "Y",
+          "b054_addr_house_uid": "",
+          "b020_addr_state_code": "29",
+          "b036_other_office_nm": "",
+          "b043_addr_pin_other1": "0",
+          "b050_addr_pin_other2": "600083",
+          "b055_addr_street_uid": "",
+          "b061_post_office_uid": "",
+          "b037_addr_flat_other1": "",
+          "b038_addr_name_other1": "",
+          "b039_addr_road_other1": "",
+          "b044_addr_flat_other2": "NO 16",
+          "b045_addr_name_other2": "",
+          "b046_addr_road_other2": "APPADURAI STREET",
+          "b059_sub_district_uid": "",
+          "b002_file_section_type": "BH",
+          "b056_addr_location_uid": "",
+          "b057_addr_landmark_uid": "",
+          "b060_addr_district_uid": "",
+          "b012_fath_moth_mid_name": "",
+          "b013_dob_ddmmyyyy_slash": "10/03/2004",
+          "b040_addr_taluka_other1": "",
+          "b047_addr_taluka_other2": "JAFFARKANPET ASHOK NAGAR",
+          "b010_fath_moth_last_name": "MUNUSAMY",
+          "b029_printer_instruction": "PCCO",
+          "b051_remarks_instruction": "",
+          "b011_fath_moth_first_name": "",
+          "b034_ward_circle_to_print": "NON CORPORATE WARD 10(3) CHENNAI",
+          "b041_addr_district_other1": "",
+          "b048_addr_district_other2": "CHENNAI",
+          "b033_acknowledgement_number": "030049702101742",
+          "b042_addr_state_code_other1": "",
+          "b049_addr_state_code_other2": "29",
+          "b052_name_to_print_flag_char": "F"
+        }
+      ],
+      "fh": {
+        "xinpfile": "PRI52075501.txt",
+        "h099_hash": "000000000081394",
+        "h003_file_type": "PRI",
+        "h007_tot_signs": "2",
+        "h006_tot_photos": "2",
+        "h010_printer_id": "VEC",
+        "h001_line_number": "1",
+        "h005_tot_batches": "2",
+        "h011_file_seq_no": "520755",
+        "h008_tot_qr_codes": "2",
+        "h002_file_section_type": "FH",
+        "h004_reg_or_correction": "R",
+        "h009_date_file_send_ddmmyyyy": "12102020"
+      },
+      "ph": [
+        {
+          "p099_hash": "000003168867818",
+          "p003_bat_ser_no": "1",
+          "p005_photo_size": "10494",
+          "p001_line_number": "3",
+          "p004_printing_num": "210221147383",
+          "p002_file_section_type": "PH"
+        }
+      ],
+      "qh": [
+        {
+          "q099_hash": "000000866313640",
+          "q005_qr_size": "1680",
+          "q003_bat_ser_no": "1",
+          "q001_line_number": "5",
+          "q004_printing_num": "210221147383",
+          "q002_file_section_type": "QH"
+        }
+      ],
+      "sh": [
+        {
+          "s099_hash": "000000967144915",
+          "s005_sign_size": "2914",
+          "s003_bat_ser_no": "1",
+          "s001_line_number": "4",
+          "s004_printing_num": "210221147383",
+          "s002_file_section_type": "SH"
+        }
+      ],
+      "xx": {
+        "x_daily_serno": "013005",
+        "x_b020_addr_state": "तमिलनाडु"
+      }
+    }
+  }
+}

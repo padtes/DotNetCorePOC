@@ -58,7 +58,7 @@ namespace NpsApy
             string fileType;    //default - no param - write file : RESP = Response or STATUS or ...
             string courierCSV;
 
-            ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV, out fileType);
+            ParseCommandArgs(args, out modType, out operation, out runFor, out courierCSV, out fileType, out string fileSubTpe);
 
             Logger.Write("ProgramNpsApy", "main", 0, "==================== ================= ", Logger.INFO);
             Logger.Write("ProgramNpsApy", "main", 0, "==================== Nps APY version :" + prg_version + " Run Start " + string.Join(' ', args), Logger.INFO);
@@ -66,7 +66,7 @@ namespace NpsApy
 
             bool runResult;
             if (modType == "pan")
-                runResult = Mediator.ProcessPAN(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
+                runResult = Mediator.ProcessPAN(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, fileSubTpe, deleteDir);
             else
                 runResult = ProcessNpsApy(pgConnection, pgSchema, operation, modType, runFor, courierCSV, fileType, deleteDir);
 
@@ -126,19 +126,20 @@ namespace NpsApy
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_LITE, pgConnection, pgSchema, operation, fileType);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, deleteDir);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, ConstantBag.ALL, deleteDir);
             }
 
             if (modType == "reg" || modType == "all") //NPS Lite + APY
             {
                 FileProcessor processor = FileProcessor.GetProcessorInstance(ConstantBag.MODULE_REG, pgConnection, pgSchema, operation, fileType);
 
-                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, deleteDir);
+                run = processor.ProcessModule(operation, runFor, courierCcsv, fileType, ConstantBag.ALL, deleteDir);
             }
             return run;
         }
 
-        private static void ParseCommandArgs(string[] args, out string moduleName, out string operation, out string runFor, out string courierCSV, out string fileType)
+        private static void ParseCommandArgs(string[] args, out string moduleName, out string operation, out string runFor, out string courierCSV
+            , out string fileType, out string fileSubType)
         {
             //enter command as ProgramNpsApy -bizType=Lite -op=Read -runFor=ALL -courier=ABC,PQR 
 
@@ -147,6 +148,7 @@ namespace NpsApy
             runFor = "all";
             courierCSV = "";
             fileType = "";
+            fileSubType = string.Empty;
 
             Regex cmdRegEx = new Regex(@"-(?<name>.+?)=(?<val>.+)");
             Dictionary<string, string> cmdArgs = new Dictionary<string, string>();
@@ -183,6 +185,10 @@ namespace NpsApy
             {
                 fileType = cmdArgs["file"];
             }
+            if (cmdArgs.ContainsKey("subfile"))
+            {
+                fileSubType = cmdArgs["subfile"];
+            }
 
             if (!(moduleName == "all" || moduleName == "lite" || moduleName == "reg" || moduleName == "pan"))
             {
@@ -193,6 +199,13 @@ namespace NpsApy
             {
                 throw new Exception("Invalid value for op. Must be ALL | READ | WRITE | REPORT | UNLOCK | UPDSTAT");
             }
+            if (moduleName == "pan" && operation == "write" && string.IsNullOrEmpty(fileSubType))
+                    throw new Exception("subFile value missing for PAN write");
+
+            if (string.IsNullOrEmpty(fileSubType))
+                fileSubType = ConstantBag.ALL;
+            else
+                fileSubType = fileSubType.ToUpper();
             //
             //having second thoughts for "runfor"...may be not needed
             //
