@@ -33,6 +33,11 @@ namespace DataProcessor
         {
             throw new System.NotImplementedException();
         }
+
+        public override bool IsMultifileJson()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 }

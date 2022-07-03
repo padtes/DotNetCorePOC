@@ -34,7 +34,8 @@ namespace DataProcessor
                 else
                 {
                     jDef = new JsonInputFileDef();
-                    LoadJsonParamFile(fileProcessor.GetConnection(), fileProcessor.GetSchema(), jsonParamFilePath, jDef, paramsDict);
+                    LoadJsonParamFile(fileProcessor.GetConnection(), fileProcessor.GetSchema(), fileProcessor.IsMultifileJson(),
+                        jsonParamFilePath, jDef, paramsDict);
                     //fileProcessor.ValidateParams(jDef);
                     jsonCache[jsonParamFilePath] = jDef;
                 }
@@ -253,13 +254,12 @@ namespace DataProcessor
                 }
             }
 
-            bool isMultifileJson = !jDef.inpSysParam.IsSingleFormatFile;
             string recJsonTag = jDef.inpSysParam.GetJsonTagForRecordType(fileInfoStr.bizType);
 
             bool hasFiles = jDef.saveAsFileDefnn != null && jDef.saveAsFileDefnn.GetTotFileCount() > 0;
             string updSql = curRec.GenerateUpdate(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
                 , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr, updId, hasFiles
-                , isMultifileJson, recJsonTag);
+                , fileProcessor.IsMultifileJson(), recJsonTag);
 
             if (hasFiles)
             {
@@ -356,12 +356,11 @@ namespace DataProcessor
                 throw new Exception("Courier Short name not found:" + inpSysParam.CourierCol);
             }
 
-            bool isMultifileJson = !jDef.inpSysParam.IsSingleFormatFile;
             string recJsonTag = jDef.inpSysParam.GetJsonTagForRecordType(fileInfoStr.bizType);
 
             string insSql = curRec.GenerateInsert(pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName()
                 , sysPath, jDef, jobId, startRowNo, fileInfoStr.id, inputFile, inputHdr
-                , isMultifileJson, recJsonTag);
+                , fileProcessor.IsMultifileJson(), recJsonTag);
 
             bool filesOk = WriteImageFiles(pgConnection, pgSchema, fileProcessor, jobId, startRowNo
                 , paramsDict, curRec
@@ -554,13 +553,14 @@ namespace DataProcessor
 
         #region LoadParams
 
-        public static void LoadJsonParamFile(string pgConnection, string pgSchema, string jsonParamFilePath, JsonInputFileDef jDef, Dictionary<string, string> paramsDict)
+        public static void LoadJsonParamFile(string pgConnection, string pgSchema, bool needsRecToJsonPair
+            , string jsonParamFilePath, JsonInputFileDef jDef, Dictionary<string, string> paramsDict)
         {
             StreamReader sr = new StreamReader(jsonParamFilePath);
             string fileAsStr = sr.ReadToEnd();
 
             var oParams = JObject.Parse(fileAsStr);
-            SetupSystemParams(oParams, jDef.inpSysParam);
+            SetupSystemParams(oParams, jDef.inpSysParam, needsRecToJsonPair);
             LoadDbMapFromJson(oParams, jDef.dbMap);
             LoadSkipColumnsFromJson(oParams, jDef.jsonSkip);
             LoadInputFileDef(oParams, jDef.fileDefDict);
@@ -724,7 +724,7 @@ namespace DataProcessor
             }
         }
 
-        private static void SetupSystemParams(JObject oParams, SystemParamInput inpSysParam)
+        private static void SetupSystemParams(JObject oParams, SystemParamInput inpSysParam, bool needsRecToJsonPair)
         {
             JObject sysParamSect = (JObject)oParams[ConstantBag.FD_SYSTEM_PARAM];
 
@@ -754,7 +754,7 @@ namespace DataProcessor
                     (sysParamSect[ConstantBag.FD_IS_SINGLE_FORMAT] != null)
                 && ((string)sysParamSect[ConstantBag.FD_IS_SINGLE_FORMAT]).ToLower() == "false"
                 );
-            if (inpSysParam.IsSingleFormatFile == false)
+            if (needsRecToJsonPair)
             {
                 if (sysParamSect[ConstantBag.FD_REC_TO_JSON_PAIRS_CSV] == null)
                     throw new Exception("Missing system param " + ConstantBag.FD_REC_TO_JSON_PAIRS_CSV);

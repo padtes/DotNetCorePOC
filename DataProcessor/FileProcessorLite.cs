@@ -295,6 +295,11 @@ namespace DataProcessor
             }
             return new ReportProcessorLite(GetConnection(), GetSchema(), GetModuleName(), operation, fileType);
         }
+
+        public override bool IsMultifileJson()
+        {
+            return false;
+        }
     }
 
 }

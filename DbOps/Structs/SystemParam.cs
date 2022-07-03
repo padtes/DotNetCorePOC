@@ -25,7 +25,7 @@ namespace DbOps.Structs
         private string _multiFileRecToJsonCsv;
         public string MultiFileRecToJsonPairsCsv {
             get { return _multiFileRecToJsonCsv; }
-            set { 
+            set {
                 _multiFileRecToJsonCsv = value;
                 MultiFileRecToJsonMap = new Dictionary<string, string>();
                 var pairs = _multiFileRecToJsonCsv.Split(",");
@@ -48,6 +48,8 @@ namespace DbOps.Structs
         }
         public string GetJsonTagForRecordType(string recType)
         {
+            if (MultiFileRecToJsonMap == null)
+                return recType;
             if (MultiFileRecToJsonMap.ContainsKey(recType))
                 return MultiFileRecToJsonMap[recType];
             return recType;

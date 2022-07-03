@@ -16,7 +16,8 @@
 		"courier_col":"x_daily_serno",
 		"file_save_dirs_psv":"photo|sign|qr",
 		"is_secondary_file":"false",
-		"is_single_format_file":"false"
+		"is_single_format_file":"false",
+		"rec_to_json_map_pairs":"PRI_MAIN=main"
 	}
 	,"database":[
 		{

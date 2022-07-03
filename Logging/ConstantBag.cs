@@ -69,8 +69,6 @@ namespace CommonUtil
         //public const string PAN_RC_INDIV = "RCI"; //Reprint with Address Change Individual
         //public const string PAN_RL_INDIV = "RLI"; //Reprint with Name Change Individual
 
-        //public static readonly List<string> PAN_VALID_SUB_INDIV = new List<string>() { "PRI", "PCI", "PLI", "RRI", "RCI", "RLI" };
-
         //public const string PAN_PR_CORP = "PRC"; //First time Original Corporate
         //public const string PAN_PC_CORP = "PCC"; //First time with Address Change Corporate
         //public const string PAN_PL_CORP = "PLC"; //First time with Name Change Corporate

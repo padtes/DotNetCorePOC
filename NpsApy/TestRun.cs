@@ -153,7 +153,7 @@ namespace NpsApy
             JsonInputFileDef jDef = new JsonInputFileDef();
             string pgConnection = "Server=localhost; Port=5433; Database=postgres; User Id=userventura; Password=simpleuser; ";
 
-            FileProcessorUtil.LoadJsonParamFile(pgConnection, "ventura", jsonParamFilePath, jDef, paramsDict);
+            FileProcessorUtil.LoadJsonParamFile(pgConnection, "ventura", false, jsonParamFilePath, jDef, paramsDict);
 
             Console.WriteLine("Great Success");
         }

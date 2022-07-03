@@ -19,7 +19,8 @@
 		"unique_column_value":"@@|0|b001_document_id",
 		"courier_col":"@@",
 		"is_secondary_file":"true",
-		"is_single_format_file":"true"
+		"is_single_format_file":"true",
+		"rec_to_json_map_pairs":"PRI_HIN=hin"
 	}
 	,"database":[]
 	,"json_skip":[]

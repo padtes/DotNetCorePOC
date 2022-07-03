@@ -463,5 +463,10 @@ namespace PanProcessor
 
             ProcessorUtil.ValidateStaticParam(GetModuleName(), fileType, logProgName, paramsDict, staticParamList);  //fileType is set to Pan_indiv / pan_corp or Pan_eKYC
         }
+
+        public override bool IsMultifileJson()
+        {
+            return true;
+        }
     }
 }
