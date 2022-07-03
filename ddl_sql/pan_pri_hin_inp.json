@@ -12,7 +12,7 @@
 		"delimt":"^",
 		"index_of_row_type" : "0",
 		"file_header_row_type": "not_applicable",
-		"data_row_type": "not_applicable",
+		"data_row_type": "@@",
 		"data_table_name":"filedetails",
 		"data_table_json_col":"json_data",
 		"unique_column":"tx_id",

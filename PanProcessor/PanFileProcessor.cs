@@ -201,6 +201,9 @@ namespace PanProcessor
                 FileInfo f1 = new FileInfo(dateAsDir);
 
                 string deleteDirDt = Path.Combine(deleteDir, f1.Name);
+                if (deleteDir.IndexOf(ConstantBag.MODULE_PAN) < 0)
+                    deleteDirDt = Path.Combine(deleteDir, ConstantBag.MODULE_PAN, f1.Name);
+
                 if (Directory.Exists(deleteDirDt) == false)
                     Directory.CreateDirectory(deleteDirDt);
 

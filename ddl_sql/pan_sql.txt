@@ -140,9 +140,9 @@ insert into ventura.filetypemaster(isactive, module_name, biztype, file_def_json
 
 insert into ventura.system_param(biztype, module_name, start_ts_utc, params_json)
 values ('system', 'pan', '2011-06-01',
-  '{"inputdir":"c:\\zunk\\lite\\input", "output_par":"pan", "output_pan_corp":"corp", "output_pan_ekyc":"ekyc"
+  '{"inputdir":"c:\\zunk\\pan\\input", "output_par":"pan", "output_pan_corp":"corp", "output_pan_ekyc":"ekyc"
 	, "output_pan_ind":"indv", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
-, "workdir":"c:\\zunk\\lite\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\padtes\\DotNetCorePOC\\ddl_sql"
+, "workdir":"c:\\zunk\\pan\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\DotNetCorePOC\\ddl_sql"
 , "printer_code3":"PPP", "printer_code2":"44", "courier_awb_kvcsv":"PST=SPD"
 , "printed_ok_code":"PTD"}'
 	   );

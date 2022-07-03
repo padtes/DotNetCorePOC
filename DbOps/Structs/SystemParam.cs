@@ -49,7 +49,7 @@ namespace DbOps.Structs
         }
         public string GetJsonTagForRecordType(string recType)
         {
-            if (recType == ConstantBag.FD_SINGLE_FORM_ROWTYPE)
+            if (recType == ConstantBag.FD_SINGLE_FORM_ROWTYPE)  //not likely but might help
                 return ConstantBag.FD_SINGLE_FORM_ROWTYPE_DB;
 
             if (MultiFileRecToJsonMap == null)

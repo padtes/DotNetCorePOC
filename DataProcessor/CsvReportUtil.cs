@@ -48,6 +48,8 @@ namespace DataProcessor
 
         public static RootJsonParamCSV LoadJsonParamFile(string jsonParamFilePath)
         {
+            Logger.Write(logProgramName, "LoadJsonParamFile", 0, "Reading CSV report params:" + jsonParamFilePath, Logger.INFO);
+
             try
             {
                 StreamReader sr = new StreamReader(jsonParamFilePath);

@@ -166,7 +166,9 @@ namespace DataProcessor
             , int lineNo, string inputFile
             , Dictionary<string, string> paramsDict, string dateAsDir, ref bool hasDup)
         {
-            string rowType = ConstantBag.FD_SINGLE_FORM_ROWTYPE;
+            string rowType = jDef.inpSysParam.DataRowType; 
+            if (string.IsNullOrEmpty(rowType))
+                rowType = ConstantBag.FD_SINGLE_FORM_ROWTYPE;  //not likely but might help
 
             curRec = new InputRecord();
             startRowNo = lineNo;
@@ -588,6 +590,14 @@ namespace DataProcessor
             {
                 List<SequenceCol> tmpColumns = paramSect.ToObject<List<SequenceCol>>();
                 sequenceColDefnn.SequenceColList = tmpColumns;
+                int i = sequenceColDefnn.SequenceColList.Count - 1;
+                while (i >= 0)
+                {
+                    SequenceCol scrCol = sequenceColDefnn.SequenceColList[i];
+                    if (scrCol.DestCol.StartsWith("#"))  //commented column
+                        sequenceColDefnn.SequenceColList.RemoveAt(i);
+                    i--;
+                }
             }
         }
 

@@ -14,6 +14,7 @@
 		"data_table_json_col":"json_data",
 		"unique_column":"tx_id",
 		"courier_col":"x_daily_serno",
+		"single_spaced":"_name|address",
 		"file_save_dirs_psv":"photo|sign|qr",
 		"is_secondary_file":"false",
 		"is_single_format_file":"false",
@@ -80,9 +81,11 @@
 	   , "map_table":"states","map_key_col":"int_code", "map_val_col":"hindi_name", "where" : "isactive='1' and code <> '99'"
 	  }	
 	]
-	,"script_columns":[]
+	,"script_columns":[
+		{"dest_col":"#x_sub_full_name1", "script_file":"","script":"{{- model.pd[0].p010_first_name | string.append ' ' | string.append model.pd[0].p012_middle_name | string.append ' '  | string.append model.pd[0].p011_last_name_surname -}}"}
+	]
 	,"sequence_columns":[
-		{"row_type" : "bh", "index_0":"0", "source_col":"b030_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
+		{"row_type" : "bh", "index_0":"0", "source_col":"b030_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"},
 	]
 	, "file_def" : {
 		 "fh":{
