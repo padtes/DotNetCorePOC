@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonUtil;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -48,6 +49,9 @@ namespace DbOps.Structs
         }
         public string GetJsonTagForRecordType(string recType)
         {
+            if (recType == ConstantBag.FD_SINGLE_FORM_ROWTYPE)
+                return ConstantBag.FD_SINGLE_FORM_ROWTYPE_DB;
+
             if (MultiFileRecToJsonMap == null)
                 return recType;
             if (MultiFileRecToJsonMap.ContainsKey(recType))

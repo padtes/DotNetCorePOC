@@ -180,6 +180,7 @@ namespace CommonUtil
         public const string FD_IS_SINGLE_FORMAT = "is_single_format_file";
         public const string FD_REC_TO_JSON_PAIRS_CSV = "rec_to_json_map_pairs";
         public const string FD_SINGLE_FORM_ROWTYPE = "@@";  //this is placeholder for row-type such as FH / PD /BH etc that multi format files have
+        public const string FD_SINGLE_FORM_ROWTYPE_DB = "x9";  //this is what goes to db
         public const string FILLER = "@@";  //this is placeholder when some column/logic is not applicable But json def stays consistent
 
         // 3 flags - card print | letter | PTC entry

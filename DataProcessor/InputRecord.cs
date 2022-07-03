@@ -231,7 +231,9 @@ namespace DataProcessor
                 {
                     jStr.Append(',');
                 }
-                jStr.Append('"').Append(jsonRow.Key).Append("\":");
+                jStr.Append('"')
+                .Append(jsonRow.Key == ConstantBag.FD_SINGLE_FORM_ROWTYPE ? ConstantBag.FD_SINGLE_FORM_ROWTYPE_DB : jsonRow.Key)
+                .Append("\":");
                 jsonRow.Value.RenderJson(jStr);
                 first = false;
             }

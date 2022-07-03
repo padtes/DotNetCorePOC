@@ -695,7 +695,7 @@ namespace DbOps
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
                 $" and fileinfo.biztype in ( '{bzList}' )" +
-                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                $" and (fileinfo.fpath like '%\\\\{workdirYmd}\\\\%' or fileinfo.fpath like '%\\\\{workdirYmd}')" +
                 wherePart;
 
             if (string.IsNullOrEmpty(doneAction)==false)

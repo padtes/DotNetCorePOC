@@ -202,10 +202,11 @@ namespace NpsApy
             if (moduleName == "pan" && operation == "write" && string.IsNullOrEmpty(fileSubType))
                     throw new Exception("subFile value missing for PAN write");
 
-            if (string.IsNullOrEmpty(fileSubType))
+            if (string.IsNullOrEmpty(fileSubType) || fileSubType.ToLower() == ConstantBag.ALL)
                 fileSubType = ConstantBag.ALL;
-            else
+            if (fileSubType.ToLower() != ConstantBag.ALL)
                 fileSubType = fileSubType.ToUpper();
+
             //
             //having second thoughts for "runfor"...may be not needed
             //

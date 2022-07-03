@@ -457,11 +457,21 @@ namespace PanProcessor
             staticParamList = new List<string>() { ConstantBag.PARAM_PAN_OUTPUT_PARENT_DIR, ConstantBag.PARAM_PAN_OUTPUT_DIR
                 , ConstantBag.PARAM_IMAGE_LIMIT, ConstantBag.PARAM_PAN_FILE_GROUP };
 
+            string bizType = this.fileType;
+            if (operation == "write")
+            {
+                if (fileType == ConstantBag.PAN_OUT_CARD_INDV)
+                    bizType = ConstantBag.PAN_INDIV;
+                if (fileType == ConstantBag.PAN_OUT_CARD_CORP)
+                    bizType = ConstantBag.PAN_CORP;
+                if (fileType == ConstantBag.PAN_OUT_CARD_EKYC)
+                    bizType = ConstantBag.PAN_EKYC;
+            }
             //read details based on date from system param table
-            paramsDict = ProcessorUtil.LoadSystemParamByBiz(pgConnection, pgSchema, logProgName, GetModuleName(), this.fileType, jobId
+            paramsDict = ProcessorUtil.LoadSystemParamByBiz(pgConnection, pgSchema, logProgName, GetModuleName(), bizType, jobId
                 , out systemConfigDir, out inputRootDir, out workDir);
 
-            ProcessorUtil.ValidateStaticParam(GetModuleName(), fileType, logProgName, paramsDict, staticParamList);  //fileType is set to Pan_indiv / pan_corp or Pan_eKYC
+            ProcessorUtil.ValidateStaticParam(GetModuleName(), bizType, logProgName, paramsDict, staticParamList);  //fileType is set to Pan_indiv / pan_corp or Pan_eKYC
         }
 
         public override bool IsMultifileJson()
