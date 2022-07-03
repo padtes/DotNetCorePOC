@@ -132,6 +132,7 @@ namespace PanProcessor
         {
             string fileName = fTypeMaster.fnamePattern
                 .Replace("{{sys_param(printer_code)}}", paramsDict[ConstantBag.PARAM_PRINTER_CODE3])
+                .Replace("{{filetype}}", fileType)
                 .Replace(ConstantBag.FILE_NAME_TAG_YYMMDD, DateTime.Now.ToString("yyyyMMdd"))
                 .Replace(ConstantBag.FILE_NAME_TAG_COUR_CD, courierId); //TO DO : parse the file name pattern
 
@@ -145,7 +146,7 @@ namespace PanProcessor
             string[] args = { }; //DateTime.Now.ToString("dd-MMM-yyyy")  
 
             RootJsonParamCSV csvConfig = csvRep.GetCsvConfig();
-            string wherePart = $" and courier_id='{courierId}'";
+            string wherePart = $" courier_id='{courierId}'";
 
             DataSet ds = GetReportDS(pgConnection, pgSchema, moduleName, bizTypeToRead, bizTypeToWrite, JobId
             , csvConfig, args, workdirYmd, wherePart);

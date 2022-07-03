@@ -1,6 +1,8 @@
 ﻿
 using CommonUtil;
 using DataProcessor;
+using Logging;
+using System;
 
 namespace PanProcessor
 {
@@ -22,8 +24,8 @@ namespace PanProcessor
                 if (fileType == "" || fileType == "all")
                 {
                     runResult = PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType: ConstantBag.PAN_INDIV, fileSubType, deleteDir);
-                    runResult &= PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType:ConstantBag.PAN_CORP, fileSubType, deleteDir);
-                    runResult &= PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType:ConstantBag.PAN_EKYC, fileSubType, deleteDir);
+                    runResult &= PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType: ConstantBag.PAN_CORP, fileSubType, deleteDir);
+                    runResult &= PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType: ConstantBag.PAN_EKYC, fileSubType, deleteDir);
                 }
                 else
                     runResult = PanBizProcess(pgConnection, pgSchema, operation, runFor, courierCSV, fileType, fileSubType, deleteDir);
@@ -32,10 +34,17 @@ namespace PanProcessor
             else
             if (operation == "write")
             {
-                 
-                PanFileProcessor PanProcessor = new PanFileProcessor(pgConnection, pgSchema, operation, fileType, fileSubType);
-                ReportProcessor reportProcessor = PanProcessor.GetReportProcessor();
-                reportProcessor.ProcessOutput(runFor, courierCSV);
+                try
+                {
+                    PanFileProcessor PanProcessor = new PanFileProcessor(pgConnection, pgSchema, operation, fileType, fileSubType);
+                    ReportProcessor reportProcessor = PanProcessor.GetReportProcessor();
+                    reportProcessor.ProcessOutput(runFor, courierCSV);
+                    runResult = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteEx("Mediator", "write", 0, ex);
+                }
             }
             //TO DO handle unknown operation
 

@@ -147,8 +147,8 @@ values ('system', 'pan', '2011-06-01',
 , "printed_ok_code":"PTD"}'
 	   );
 
-insert into ventura.filetypemaster(isactive,biztype,module_name, file_def_json_fname)
-values ('1', 'pan_card_ind','pan', 'pan_pri_card.json')
+insert into ventura.filetypemaster(isactive,biztype,module_name, file_def_json_fname, fname_pattern)
+values ('1', 'pan_card_ind','pan', 'pan_pri_card.json', 'pan_{{filetype}}_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.csv')
 
 --- 3 files c:\users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\pan_indv_input.json
 

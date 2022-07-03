@@ -356,7 +356,7 @@ namespace DbOps
                 $" where fileinfo.isdeleted='0'" +
                 $" and fileinfo.module_name = '{moduleName}'" +
                 $" and fileinfo.biztype in ('{bzList}')" +
-                $" and fileinfo.fpath like '%\\\\{workdirYmd}\\\\%'" +
+                $" and (fileinfo.fpath like '%\\\\{workdirYmd}\\\\%' or fileinfo.fpath like '%\\\\{workdirYmd}')" +
                 $" and not exists" +
                 $" (select 1 from {pgSchema}.filedetail_actions fa where fa.filedet_id = filedetails.id and" +
                 $"   action_void = '0' and action_done='{waitingAction}')";
