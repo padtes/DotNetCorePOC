@@ -41,7 +41,7 @@
 	,"detail":[
  		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
 
-        ,{"col":"1", "print_yn":"y", "tag":"LINE_ID","src_type":"const","db_value":"new_derived_field", "alias":"line_id"}
+        ,{"col":"1", "print_yn":"y", "tag":"LINE_ID","src_type":"json","db_value":"'main'->'xx'->>'x_card_col1'", "alias":"line_id"}
 			
 		,{"col":"2", "print_yn":"n", "tag":"NAME_TO_PRINT","src_type":"json","db_value":"'main'->'bh'->0->>'b006_name_to_print'", "alias":"name_to_print"}
 		,{"col":"2", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED1","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:1:32:32)", "alias":"sub_name1"}

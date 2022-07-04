@@ -85,6 +85,7 @@
 		{"dest_col":"x_par_full_name", "script_file":"",
 		"script":"{{- model.root.main.bh[0].b011_fath_moth_first_name | string.append ' ' | string.append model.root.main.bh[0].b012_fath_moth_mid_name | string.append ' ' | string.append model.root.main.bh[0].b010_fath_moth_last_name -}}"}
 		,{"dest_col":"x_ind_fathermotherlegend", "script_file":"","script":"{{-if model.root.main.bh[0].b052_name_to_print_flag_char =='F'; 'Normal_Father_Legend.wmf'; else; 'Normal_Mother_Legend.wmf'; end; -}}" }
+		,{"dest_col":"x_card_col1", "script_file":"","script":"{{- model.root.main.fh.h003_file_type | string.append ' / ' | string.append model.root.main.fh.h009_date_file_send_ddmmyyyy | string.append '/ ' | string.append model.root.main.fh.h010_printer_id -}}" }
 	   ,{"dest_col":"x_pst_type", "script_file":""
 		 ,"script":"{{if model.bh[0].b030_courier_id == 'PST';'PSTS'; else; model.bh[0].b030_courier_id; end;"}
 	]
