@@ -26,6 +26,8 @@
 		{"col":"0","tag":"PACKAGE_ID","src_type":"const","db_value":"PACKAGE_ID", "print_yn":"y"},
 		{"col":"2","tag":"NAME_TO_BE_PRINTED1","src_type":"const","db_value":"NAME_TO_BE_PRINTED1", "print_yn":"y"},
 		{"col":"3","tag":"NAME_TO_BE_PRINTED2","src_type":"const","db_value":"NAME_TO_BE_PRINTED2", "print_yn":"y"},
+		{"col":"4","tag":"PARENT_NAME1","src_type":"const","db_value":"PARENT_NAME1", "print_yn":"y"},
+		{"col":"5","tag":"PARENT_NAME2","src_type":"const","db_value":"PARENT_NAME2", "print_yn":"y"},
 		{"col":"6","tag":"DATE_OF_BIRTH","src_type":"const","db_value":"DATE_OF_BIRTH", "print_yn":"y"},
 		{"col":"10","tag":"DOCUMENT_ID","src_type":"const","db_value":"DOCUMENT_ID", "print_yn":"y"},
 	]
@@ -34,9 +36,12 @@
 		,{"col":"1", "print_yn":"y", "tag":"PACKAGE_ID","src_type":"json","db_value":"'xx'->>'x_package_id'", "alias":"package_id"}
 			
 		,{"col":"2", "print_yn":"n", "tag":"NAME_TO_PRINT","src_type":"json","db_value":"'main'->'bh'->0->>'b006_name_to_print'", "alias":"name_to_print"}
-		,{"col":"2", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED1","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:1:32:32)", "alias":"package_id"}
-		,{"col":"3", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED2","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:2:32:32)", "alias":"package_id"}
+		,{"col":"2", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED1","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:1:32:32)", "alias":"sub_name1"}
+		,{"col":"3", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED2","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:2:32:32)", "alias":"sub_name2"}
 
+		,{"col":"4", "print_yn":"n", "tag":"PARENT_NAME","src_type":"json","db_value":"'main'->'xx'->>'x_par_full_name'", "alias":"par_name"}
+		,{"col":"4", "print_yn":"y", "tag":"PARENT_NAME1","src_type":"cfunction","db_value":"miscutil(dr[par_name],getsplitsection,2:1:32:32)", "alias":"par_name1"}
+		,{"col":"5", "print_yn":"y", "tag":"PARENT_NAME2","src_type":"cfunction","db_value":"miscutil(dr[par_name],getsplitsection,2:2:32:32)", "alias":"par_name2"}
 		
 		,{"col":"6", "print_yn":"y", "tag":"db date of birth","src_type":"json","db_value":"'main'->'bh'->0->>'b013_dob_ddmmyyyy_slash'", "alias":"db_date_of_birth"}
 

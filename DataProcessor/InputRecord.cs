@@ -155,7 +155,7 @@ namespace DataProcessor
 
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
-            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, isMultifileJson, out _);
             //done mapped columns
             jStr.Append('}');
 
@@ -203,7 +203,7 @@ namespace DataProcessor
 
             first = BuildJsonForInputRows(inputFile, inputHdr, first, jStr);
 
-            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, out _);
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, false, isMultifileJson, out _);
             //done mapped columns
             jStr.Append('}');
 
@@ -257,7 +257,7 @@ namespace DataProcessor
         }
 
         private void GenerateMappedColumnPart(string sysPath, JsonInputFileDef jDef, InputHeader inputHdr, bool hasNoOtherRows, StringBuilder jStr
-            , bool justPreScriban, out string almostWholeJson)
+            , bool justPreScriban, bool isMultifileJson, out string almostWholeJson)
         {
             if (hasNoOtherRows == false)
             {
@@ -284,7 +284,7 @@ namespace DataProcessor
             }
 
             almostWholeJson = jStr.ToString()
-                + "}}";
+                + "}}" + (isMultifileJson ? "}}" : "");
 
             if (justPreScriban == false)
             {
@@ -359,7 +359,7 @@ namespace DataProcessor
 
         internal void PrepareColumns(bool withLock, string pgConnection, string pgSchema, string logProgName, string moduleName, JsonInputFileDef jDef
             , int jobId, int startRowNo, string runFor
-            , string sysPath, string inputFile, InputHeader inputHdr)
+            , string sysPath, string inputFile, InputHeader inputHdr, FileProcessor fileProcessor)
         {
             string cardType = ConstantBag.CARD_NA;
 
@@ -383,17 +383,17 @@ namespace DataProcessor
 
             //pre eval phase
             Dictionary<string, string> evalCols = new Dictionary<string, string>();
-            EvalPreSeq(logProgName, jDef, sysPath, inputFile, inputHdr, evalCols);
+            EvalPreSeq(logProgName, jDef, sysPath, inputFile, inputHdr, fileProcessor, evalCols);
 
             GetSequenceValues(withLock, pgConnection, pgSchema, logProgName, moduleName, jobId, jDef, evalCols, runFor, cardType);
         }
 
-        private void EvalPreSeq(string logProgName, JsonInputFileDef jDef, string sysPath, string inputFile, InputHeader inputHdr, Dictionary<string, string> evalCols)
+        private void EvalPreSeq(string logProgName, JsonInputFileDef jDef, string sysPath, string inputFile, InputHeader inputHdr, FileProcessor fileProcessor, Dictionary<string, string> evalCols)
         {
             StringBuilder jStr = new StringBuilder();
             bool first = BuildJsonForInputRows(inputFile, inputHdr, true, jStr);
             string almostWholeJson;
-            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, out almostWholeJson);
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, fileProcessor.IsMultifileJson(), out almostWholeJson);
 
             //List<string> scribanToEval = new List<string>();
             //scribanToEval.Add("x_pst_type");

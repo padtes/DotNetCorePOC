@@ -244,7 +244,7 @@ namespace DataProcessor
             string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
 
             curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName
-                , sysPath, inputFile, inputHdr);
+                , sysPath, inputFile, inputHdr, fileProcessor);
 
             string courierSeq = "", courierSName = "";
             if (jDef.inpSysParam.CourierCol != ConstantBag.FILLER)
@@ -349,7 +349,7 @@ namespace DataProcessor
             string sysPath = paramsDict[ConstantBag.PARAM_SYS_DIR] + "\\";
 
             curRec.PrepareColumns(false, pgConnection, pgSchema, logProgName, fileProcessor.GetModuleName(), jDef, jobId, startRowNo, yMdDirName
-                , sysPath, inputFile, inputHdr);
+                , sysPath, inputFile, inputHdr, fileProcessor);
 
             string courierSeq = "", courierSName = "";
             GetCourierVal(pgConnection, pgSchema, curRec, inpSysParam, ref courierSeq, ref courierSName);
