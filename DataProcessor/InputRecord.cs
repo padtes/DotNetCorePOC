@@ -335,14 +335,19 @@ namespace DataProcessor
             foreach (ScriptCol scrptCol in jDef.scrpitedColDefnn.ScriptColList)
             {
                 string val = "";
-                try
+                if (allDerivedColVal.ContainsKey(scrptCol.DestCol))
+                    val = allDerivedColVal[scrptCol.DestCol];
+                else
                 {
-                    val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
-                }
-                catch (Exception ex)
-                {
-                    if (ScribanHandler.IsSameError(ex.Message) == false)
-                        Logger.WriteEx(logProgName, "AddToJsonFromScriban", 0, ex);
+                    try
+                    {
+                        val = ScribanHandler.Generate(sysPath, scrptCol, almostWholeJson, false, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ScribanHandler.IsSameError(ex.Message) == false)
+                            Logger.WriteEx(logProgName, "AddToJsonFromScriban", 0, ex);
+                    }
                 }
                 if (first == false)
                 {
@@ -393,7 +398,7 @@ namespace DataProcessor
             StringBuilder jStr = new StringBuilder();
             bool first = BuildJsonForInputRows(inputFile, inputHdr, true, jStr);
             string almostWholeJson;
-            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, fileProcessor.IsMultifileJson(), out almostWholeJson);
+            GenerateMappedColumnPart(sysPath, jDef, inputHdr, first, jStr, true, false, out almostWholeJson);
 
             //List<string> scribanToEval = new List<string>();
             //scribanToEval.Add("x_pst_type");
@@ -416,6 +421,8 @@ namespace DataProcessor
                             {
                                 evalCols.Add(aColName, val);
                             }
+                            if (allDerivedColVal.ContainsKey(aColName) == false)
+                                allDerivedColVal[aColName] = val;
                         }
                         catch (Exception ex)
                         {

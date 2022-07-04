@@ -31,11 +31,15 @@
 		{"col":"6","tag":"DATE_OF_BIRTH","src_type":"const","db_value":"DATE_OF_BIRTH", "print_yn":"y"},
 		{"col":"7","tag":"PAN","src_type":"const","db_value":"PAN", "print_yn":"y"},
 		{"col":"8","tag":"FILE_SEND_DATE","src_type":"const","db_value":"FILE_SEND_DATE", "print_yn":"y"},
-
-		{"col":"10","tag":"DOCUMENT_ID","src_type":"const","db_value":"DOCUMENT_ID", "print_yn":"y"},
+		{"col":"9","tag":"PHOTO_FILE","src_type":"const","db_value":"PHOTO_FILE", "print_yn":"y"},
+		{"col":"10","tag":"SIGNATURE_FILE","src_type":"const","db_value":"SIGNATURE_FILE", "print_yn":"y"},
+		{"col":"11","tag":"QRCODE_FILE","src_type":"const","db_value":"QRCODE_FILE", "print_yn":"y"},
+		{"col":"12","tag":"SYS_TEMPLATE","src_type":"const","db_value":"SYS_TEMPLATE", "print_yn":"y"},
+		{"col":"13","tag":"DOCUMENT_ID","src_type":"const","db_value":"DOCUMENT_ID", "print_yn":"y"},
+		{"col":"14","tag":"AWB_NO","src_type":"const","db_value":"AWB_NO", "print_yn":"y"}
 	]
 	,"detail":[
-		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
+ 		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
 
         ,{"col":"1", "print_yn":"y", "tag":"LINE_ID","src_type":"const","db_value":"new_derived_field", "alias":"line_id"}
 			
@@ -51,9 +55,13 @@
 		,{"col":"7", "print_yn":"y", "tag":"pan","src_type":"json","db_value":"'main'->'bh'->0->>'b005_pan'", "alias":"pan"}
 		,{"col":"8", "print_yn":"y", "tag":"file_send_dt","src_type":"json","db_value":"'main'->'fh'->>'h009_date_file_send_ddmmyyyy'", "alias":"file_send_dt"}
 
-		,{"col":"11", "print_yn":"y", "tag":"Subscirber Barcode", "src_type":"json" ,"db_value":"'main'->'bh'->0->>'b028_document_id'", "alias" :"sub_barcode"}
+		,{"col":"9", "print_yn":"y", "tag":"photo file", "src_type":"column" ,"db_value":"files_saved->0->>'actual_file_name'", "alias" :"photo_file"}
+		,{"col":"10", "print_yn":"y", "tag":"sign file", "src_type":"column" ,"db_value":"files_saved->1->>'actual_file_name'", "alias" :"sign_file"}
+		,{"col":"11", "print_yn":"y", "tag":"qr file", "src_type":"column" ,"db_value":"files_saved->2->>'actual_file_name'", "alias" :"qr_file"}
+		,{"col":"12", "print_yn":"y", "tag":"legend", "src_type":"json" ,"db_value":"'main'->'xx'->>'x_ind_fathermotherlegend'", "alias" :"fathermotherlegend"}
 
-		,{"col":"#12", "print_yn":"y", "tag":"AWB_NO", "src_type":"#json" ,"db_value":"'xx'->>'x_awb'", "alias" :"x_awb"}
+		,{"col":"13", "print_yn":"y", "tag":"Subscriber Barcode", "src_type":"json" ,"db_value":"'main'->'bh'->0->>'b028_document_id'", "alias" :"sub_barcode"}
+		,{"col":"14", "print_yn":"y", "tag":"AWB_NO", "src_type":"json" ,"db_value":"'main'->'xx'->>'x_awb'", "alias" :"x_awb"}
 
 	]
 }
