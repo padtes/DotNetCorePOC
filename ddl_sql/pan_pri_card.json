@@ -23,17 +23,21 @@
 		"biz_type_list":"PRI_MAIN,PCI_MAIN,PLI_MAIN,RRI_MAIN,RCI_MAIN,RLI_MAIN"
 	}
 	,"header":[
-		{"col":"0","tag":"PACKAGE_ID","src_type":"const","db_value":"PACKAGE_ID", "print_yn":"y"},
+		{"col":"1","tag":"ID","src_type":"const","db_value":"", "print_yn":"y"},
 		{"col":"2","tag":"NAME_TO_BE_PRINTED1","src_type":"const","db_value":"NAME_TO_BE_PRINTED1", "print_yn":"y"},
 		{"col":"3","tag":"NAME_TO_BE_PRINTED2","src_type":"const","db_value":"NAME_TO_BE_PRINTED2", "print_yn":"y"},
 		{"col":"4","tag":"PARENT_NAME1","src_type":"const","db_value":"PARENT_NAME1", "print_yn":"y"},
 		{"col":"5","tag":"PARENT_NAME2","src_type":"const","db_value":"PARENT_NAME2", "print_yn":"y"},
 		{"col":"6","tag":"DATE_OF_BIRTH","src_type":"const","db_value":"DATE_OF_BIRTH", "print_yn":"y"},
+		{"col":"7","tag":"PAN","src_type":"const","db_value":"PAN", "print_yn":"y"},
+		{"col":"8","tag":"FILE_SEND_DATE","src_type":"const","db_value":"FILE_SEND_DATE", "print_yn":"y"},
+
 		{"col":"10","tag":"DOCUMENT_ID","src_type":"const","db_value":"DOCUMENT_ID", "print_yn":"y"},
 	]
 	,"detail":[
 		{"col":"0", "print_yn":"n", "tag":"detail id","src_type":"column","db_value":"filedetails.id", "alias":"detail_id"}
-		,{"col":"1", "print_yn":"y", "tag":"PACKAGE_ID","src_type":"json","db_value":"'xx'->>'x_package_id'", "alias":"package_id"}
+
+        ,{"col":"1", "print_yn":"y", "tag":"LINE_ID","src_type":"const","db_value":"new_derived_field", "alias":"line_id"}
 			
 		,{"col":"2", "print_yn":"n", "tag":"NAME_TO_PRINT","src_type":"json","db_value":"'main'->'bh'->0->>'b006_name_to_print'", "alias":"name_to_print"}
 		,{"col":"2", "print_yn":"y", "tag":"NAME_TO_BE_PRINTED1","src_type":"cfunction","db_value":"miscutil(dr[name_to_print],getsplitsection,2:1:32:32)", "alias":"sub_name1"}
@@ -44,6 +48,8 @@
 		,{"col":"5", "print_yn":"y", "tag":"PARENT_NAME2","src_type":"cfunction","db_value":"miscutil(dr[par_name],getsplitsection,2:2:32:32)", "alias":"par_name2"}
 		
 		,{"col":"6", "print_yn":"y", "tag":"db date of birth","src_type":"json","db_value":"'main'->'bh'->0->>'b013_dob_ddmmyyyy_slash'", "alias":"db_date_of_birth"}
+		,{"col":"7", "print_yn":"y", "tag":"pan","src_type":"json","db_value":"'main'->'bh'->0->>'b005_pan'", "alias":"pan"}
+		,{"col":"8", "print_yn":"y", "tag":"file_send_dt","src_type":"json","db_value":"'main'->'fh'->>'h009_date_file_send_ddmmyyyy'", "alias":"file_send_dt"}
 
 		,{"col":"11", "print_yn":"y", "tag":"Subscirber Barcode", "src_type":"json" ,"db_value":"'main'->'bh'->0->>'b028_document_id'", "alias" :"sub_barcode"}
 
