@@ -69,7 +69,7 @@
 		  "row_type" : "qh",
 		  "columns": 
 		  [
-			{"col_name":"q006_qr", "dir":"QR","sub_dir":"qr_","file_name" : "{{x_daily_serno}}_{{tx_id}}_qr.jpg", "decode":"base64"}
+			{"col_name":"q006_qr", "dir":"QR","sub_dir":"qr_","file_name" : "{{x_daily_serno}}_{{tx_id}}_qr.gif", "decode":"base64"}
           ]
       }
 	]
