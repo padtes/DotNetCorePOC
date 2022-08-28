@@ -89,7 +89,7 @@ namespace DbOps
             return ExecuteNonSql(pgConnection, "UNLOCK", "child", 0, 0, sql);
         }
 
-        public static bool ExecuteScalar(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out int pkId, out bool recFound)
+        public static bool ExecuteScalarInt64(string pgConnection, string logProgramName, string moduleName, int jobId, int rowNum, string sql, out Int64 pkId, out bool recFound)
         {
             recFound = false;
             pkId = -1;
@@ -103,7 +103,7 @@ namespace DbOps
                         object res = cmd.ExecuteScalar();
                         if (res != DBNull.Value)
                         {
-                            pkId = Convert.ToInt32(res);
+                            pkId = Convert.ToInt64(res);
                             recFound = true;
                         }
                     }

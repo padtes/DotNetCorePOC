@@ -1,205 +1,205 @@
 {
-	"comments_on_usage": {
-		"0" : "this is to document the JSON",
-		"1" : "File Format From NSDL e-Gov To Printer (PAN card) Version 2.13",
-		"2" : "file_save_dirs_psv tells order of files to save in file_saved json column (as pipe separated). These are repeated in save_as_file as dir. KEEP THEM IN SYNC"
-	}
-	,"system":{
-		"file_type" : "PRI_MAIN",
-		"delimt":"^",
-		"index_of_row_type" : "1",
-		"file_header_row_type": "fh",
-		"data_row_type": "bh",
-		"data_table_name":"filedetails",
-		"data_table_json_col":"json_data",
-		"unique_column":"tx_id",
-		"courier_col":"x_daily_serno",
-		"single_spaced":"_name|address",
-		"file_save_dirs_psv":"photo|sign|qr",
-		"is_secondary_file":"false",
-		"is_single_format_file":"false",
-		"rec_to_json_map_pairs":"PRI_MAIN=main"
-	}
-	,"database":[
-		{
-			"row_type" : "fh",
-			"h010_file_seq_no": "batch_id"
-		}
-	   ,{
-		  "row_type" : "bh",
-		  "b030_courier_id":"courier_id",
-		  "b033_acknowledgement_number": "ack_number",
-		  "b005_pan" : "prod_id",
-		  "b028_document_id":"tx_id",
+  "comments_on_usage": {
+    "0" : "this is to document the JSON",
+    "1" : "File Format From NSDL e-Gov To Printer (PAN card) Version 2.13",
+    "2" : "file_save_dirs_psv tells order of files to save in file_saved json column (as pipe separated). These are repeated in save_as_file as dir. KEEP THEM IN SYNC"
+  }
+  ,"system":{
+    "file_type" : "PRI_MAIN",
+    "delimt":"^",
+    "index_of_row_type" : "1",
+    "file_header_row_type": "fh",
+    "data_row_type": "bh",
+    "data_table_name":"filedetails",
+    "data_table_json_col":"json_data",
+    "unique_column":"tx_id",
+    "courier_col":"x_daily_serno",
+    "single_spaced":"_name|address",
+    "file_save_dirs_psv":"photo|sign|qr",
+    "is_secondary_file":"false",
+    "is_single_format_file":"false",
+    "rec_to_json_map_pairs":"PRI_MAIN=main"
+  }
+  ,"database":[
+    {
+      "row_type" : "fh",
+      "h010_file_seq_no": "batch_id"
+    }
+     ,{
+      "row_type" : "bh",
+      "b030_courier_id":"courier_id",
+      "b033_acknowledgement_number": "ack_number",
+      "b005_pan" : "prod_id",
+      "b028_document_id":"tx_id",
 
-		  "zz_indv_ekyc_corp_flag":"apy_flag"
-	  }	
-	]
-	,"json_skip":[
-		{
-			"row_type" : "ph",
-			"cols":["p006_photograph"]
-		},
-		{
-			"row_type" : "sh",
-			"cols":["s006_signature"]
-		},
-		{
-			"row_type" : "qh",
-			"cols":["q006_qr"]
-		}
-	]
-	,"save_as_file":
-	[
-	  {
-		  "row_type" : "ph",
-		  "columns": 
-		  [
-			{"col_name":"p006_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{x_daily_serno}}_{{tx_id}}_photo.jpg"}
+      "zz_indv_ekyc_corp_flag":"apy_flag"
+    }	
+  ]
+  ,"json_skip":[
+    {
+      "row_type" : "ph",
+      "cols":["p006_photograph"]
+    },
+    {
+      "row_type" : "sh",
+      "cols":["s006_signature"]
+    },
+    {
+      "row_type" : "qh",
+      "cols":["q006_qr"]
+    }
+  ]
+  ,"save_as_file":
+  [
+    {
+      "row_type" : "ph",
+      "columns": 
+      [
+      {"col_name":"p006_photograph", "dir":"Photo","sub_dir":"Photo_","file_name" : "{{x_daily_serno}}_{{tx_id}}_photo.jpg"}
           ]
       }
-	  ,{
-		  "row_type" : "sh",
-		  "columns": 
-		  [
-			{"col_name":"s006_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{x_daily_serno}}_{{tx_id}}_sign.jpg"}
+    ,{
+      "row_type" : "sh",
+      "columns": 
+      [
+      {"col_name":"s006_signature", "dir":"Sign","sub_dir":"Sig_","file_name" : "{{x_daily_serno}}_{{tx_id}}_sign.jpg"}
           ]
       }
-	  ,{
-		  "row_type" : "qh",
-		  "columns": 
-		  [
-			{"col_name":"q006_qr", "dir":"QR","sub_dir":"qr_","file_name" : "{{x_daily_serno}}_{{tx_id}}_qr.gif", "decode":"base64"}
+    ,{
+      "row_type" : "qh",
+      "columns": 
+      [
+      {"col_name":"q006_qr", "dir":"QR","sub_dir":"qr_","file_name" : "{{x_daily_serno}}_{{tx_id}}_qr.gif", "decode":"base64"}
           ]
       }
-	]
-	,"mapped_columns":[
-	  {"row_type" : "bh", "index_0":"0", "source_col":"b020_addr_state_code", "dest_col":"x_b020_addr_state"
-	   , "map_table":"states","map_key_col":"int_code", "map_val_col":"name", "where" : "isactive='1' and code <> '99'"
-	  }
-	  ,{"row_type" : "bh", "index_0":"0", "source_col":"b020_addr_state_code", "dest_col":"x_b020_addr_state"
-	   , "map_table":"states","map_key_col":"int_code", "map_val_col":"hindi_name", "where" : "isactive='1' and code <> '99'"
-	  }	
-	]
-	,"script_columns":[
-		{"dest_col":"x_par_full_name", "script_file":"",
-		"script":"{{- model.root.main.bh[0].b011_fath_moth_first_name | string.append ' ' | string.append model.root.main.bh[0].b012_fath_moth_mid_name | string.append ' ' | string.append model.root.main.bh[0].b010_fath_moth_last_name -}}"}
-		,{"dest_col":"x_ind_fathermotherlegend", "script_file":"","script":"{{-if model.root.main.bh[0].b052_name_to_print_flag_char =='F'; 'Normal_Father_Legend.wmf'; else; 'Normal_Mother_Legend.wmf'; end; -}}" }
-		,{"dest_col":"x_card_col1", "script_file":"","script":"{{- model.root.main.fh.h003_file_type | string.append ' / ' | string.append model.root.main.fh.h009_date_file_send_ddmmyyyy | string.append '/ ' | string.append model.root.main.fh.h010_printer_id -}}" }
-	   ,{"dest_col":"x_pst_type", "script_file":""
-		 ,"script":"{{if model.bh[0].b030_courier_id == 'PST';'PSTS'; else; model.bh[0].b030_courier_id; end;"}
-	]
-	, "pre_eval_step":["x_pst_type"]
-	,"sequence_columns":[
-		{"row_type" : "bh", "index_0":"0", "source_col":"b030_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
-	   ,{"row_type" : "xx", "index_0":"0", "source_col":"x_pst_type", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
-	   ]
-	, "file_def" : {
-		 "fh":{
-			"10":"h001_line_number",
-			"20":"h002_file_section_type",
-			"30":"h003_file_type",
-			"40":"h004_reg_or_correction",
-			"50":"h005_tot_batches",
-			"60":"h006_tot_photos",
-			"70":"h007_tot_signs",
-			"80":"h008_tot_qr_codes",
-			"90":"h009_date_file_send_ddmmyyyy",
-			"100":"h010_printer_id",
-			"110":"h011_file_seq_no",
-			"990":"h099_hash"
-		}
-		, "bh":{
-			"10":"b001_line_number",
-			"20":"b002_file_section_type",
-			"30":"b003_bat_ser_no",
-			"40":"b004_printing_num",
-			"50":"b005_pan",
-			"60":"b006_name_to_print",
-			"70":"b007_last_name",
-			"80":"b008_first_name",
-			"90":"b009_mid_name",
-			"100":"b010_fath_moth_last_name",
-			"110":"b011_fath_moth_first_name",
-			"120":"b012_fath_moth_mid_name",
-			"130":"b013_dob_ddmmyyyy_slash",
-			"140":"b014_office_nm",
-			"150":"b015_addr_flat",
-			"160":"b016_addr_building",
-			"170":"b017_addr_street",
-			"180":"b018_addr_taluka",
-			"190":"b019_addr_district",
-			"200":"b020_addr_state_code",
-			"210":"b021_addr_pin",
-			"220":"b022_std_code",
-			"230":"b023_phone",
-			"240":"b024_area_code",
-			"250":"b025_range_code",
-			"260":"b026_photo_flag",
-			"270":"b027_signature_flag",
-			"280":"b028_document_id",
-			"290":"b029_printer_instruction",
-			"300":"b030_courier_id",
-			"310":"b031_delivery_mode",
-			"320":"b032_old_ack_num",
-			"330":"b033_acknowledgement_number",
-			"340":"b034_ward_circle_to_print",
-			"350":"b035_old_pan",
-			"360":"b036_other_office_nm",
-			"370":"b037_addr_flat_other1",
-			"380":"b038_addr_name_other1",
-			"390":"b039_addr_road_other1",
-			"400":"b040_addr_taluka_other1",
-			"410":"b041_addr_district_other1",
-			"420":"b042_addr_state_code_other1",
-			"430":"b043_addr_pin_other1",
-			"440":"b044_addr_flat_other2",
-			"450":"b045_addr_name_other2",
-			"460":"b046_addr_road_other2",
-			"470":"b047_addr_taluka_other2",
-			"480":"b048_addr_district_other2",
-			"490":"b049_addr_state_code_other2",
-			"500":"b050_addr_pin_other2",
-			"510":"b051_remarks_instruction",
-			"520":"b052_name_to_print_flag_char",
-			"530":"b053_addr_uid",
-			"540":"b054_addr_house_uid",
-			"550":"b055_addr_street_uid",
-			"560":"b056_addr_location_uid",
-			"570":"b057_addr_landmark_uid",
-			"580":"b058_city_uid",
-			"590":"b059_sub_district_uid",
-			"600":"b060_addr_district_uid",
-			"610":"b061_post_office_uid",
-			"990":"b099_hash"
-		}
-		, "ph": {
-			"10":"p001_line_number",
-			"20":"p002_file_section_type",
-			"30":"p003_bat_ser_no",
-			"40":"p004_printing_num",
-			"50":"p005_photo_size",
-			"60":"p006_photograph",
-			"990":"p099_hash"
-		}
-		, "sh": {
-			"10":"s001_line_number",
-			"20":"s002_file_section_type",
-			"30":"s003_bat_ser_no",
-			"40":"s004_printing_num",
-			"50":"s005_sign_size",
-			"60":"s006_signature",
-			"990":"s099_hash"
-		}
-		, "qh": {
-			"10":"q001_line_number",
-			"20":"q002_file_section_type",
-			"30":"q003_bat_ser_no",
-			"40":"q004_printing_num",
-			"50":"q005_qr_size",
-			"60":"q006_qr",
-			"990":"q099_hash"
-		}
-	}
-	
+  ]
+  ,"mapped_columns":[
+    {"row_type" : "bh", "index_0":"0", "source_col":"b020_addr_state_code", "dest_col":"x_b020_addr_state"
+     , "map_table":"states","map_key_col":"int_code", "map_val_col":"name", "where" : "isactive='1' and code <> '99'"
+    }
+    ,{"row_type" : "bh", "index_0":"0", "source_col":"b020_addr_state_code", "dest_col":"x_b020_addr_state"
+     , "map_table":"states","map_key_col":"int_code", "map_val_col":"hindi_name", "where" : "isactive='1' and code <> '99'"
+    }	
+  ]
+  ,"script_columns":[
+    {"dest_col":"x_par_full_name", "script_file":"",
+    "script":"{{- model.root.main.bh[0].b011_fath_moth_first_name | string.append ' ' | string.append model.root.main.bh[0].b012_fath_moth_mid_name | string.append ' ' | string.append model.root.main.bh[0].b010_fath_moth_last_name -}}"}
+    ,{"dest_col":"x_ind_fathermotherlegend", "script_file":"","script":"{{-if model.root.main.bh[0].b052_name_to_print_flag_char =='F'; 'Normal_Father_Legend.wmf'; else; 'Normal_Mother_Legend.wmf'; end; -}}" }
+    ,{"dest_col":"x_card_col1", "script_file":"","script":"{{- model.root.main.fh.h003_file_type | string.append ' / ' | string.append model.root.main.fh.h009_date_file_send_ddmmyyyy | string.append '/ ' | string.append model.root.main.fh.h010_printer_id -}}" }
+     ,{"dest_col":"x_pst_type", "script_file":""
+     ,"script":"{{if model.bh[0].b030_courier_id == 'PST';if model.bh[0].b031_delivery_mode=='S';'SPSD';else if model.bh[0].b031_delivery_mode=='F'; 'SPSF'; else; 'PST'; end; else; model.bh[0].b030_courier_id; end;"}
+  ]
+  , "pre_eval_step":["x_pst_type"]
+  ,"sequence_columns":[
+    {"row_type" : "bh", "index_0":"0", "source_col":"b030_courier_id", "dest_col":"x_daily_serno","sequence_master_type":"couriers", "seq_length":"6", "freq":"daily","by_card_type":"1"}
+     ,{"row_type" : "xx", "index_0":"0", "source_col":"x_pst_type", "dest_col":"x_awb","sequence_master_type":"couriers_global", "seq_length":"6", "freq":"global","by_card_type":"0"}
+     ]
+  , "file_def" : {
+     "fh":{
+      "10":"h001_line_number",
+      "20":"h002_file_section_type",
+      "30":"h003_file_type",
+      "40":"h004_reg_or_correction",
+      "50":"h005_tot_batches",
+      "60":"h006_tot_photos",
+      "70":"h007_tot_signs",
+      "80":"h008_tot_qr_codes",
+      "90":"h009_date_file_send_ddmmyyyy",
+      "100":"h010_printer_id",
+      "110":"h011_file_seq_no",
+      "990":"h099_hash"
+    }
+    , "bh":{
+      "10":"b001_line_number",
+      "20":"b002_file_section_type",
+      "30":"b003_bat_ser_no",
+      "40":"b004_printing_num",
+      "50":"b005_pan",
+      "60":"b006_name_to_print",
+      "70":"b007_last_name",
+      "80":"b008_first_name",
+      "90":"b009_mid_name",
+      "100":"b010_fath_moth_last_name",
+      "110":"b011_fath_moth_first_name",
+      "120":"b012_fath_moth_mid_name",
+      "130":"b013_dob_ddmmyyyy_slash",
+      "140":"b014_office_nm",
+      "150":"b015_addr_flat",
+      "160":"b016_addr_building",
+      "170":"b017_addr_street",
+      "180":"b018_addr_taluka",
+      "190":"b019_addr_district",
+      "200":"b020_addr_state_code",
+      "210":"b021_addr_pin",
+      "220":"b022_std_code",
+      "230":"b023_phone",
+      "240":"b024_area_code",
+      "250":"b025_range_code",
+      "260":"b026_photo_flag",
+      "270":"b027_signature_flag",
+      "280":"b028_document_id",
+      "290":"b029_printer_instruction",
+      "300":"b030_courier_id",
+      "310":"b031_delivery_mode",
+      "320":"b032_old_ack_num",
+      "330":"b033_acknowledgement_number",
+      "340":"b034_ward_circle_to_print",
+      "350":"b035_old_pan",
+      "360":"b036_other_office_nm",
+      "370":"b037_addr_flat_other1",
+      "380":"b038_addr_name_other1",
+      "390":"b039_addr_road_other1",
+      "400":"b040_addr_taluka_other1",
+      "410":"b041_addr_district_other1",
+      "420":"b042_addr_state_code_other1",
+      "430":"b043_addr_pin_other1",
+      "440":"b044_addr_flat_other2",
+      "450":"b045_addr_name_other2",
+      "460":"b046_addr_road_other2",
+      "470":"b047_addr_taluka_other2",
+      "480":"b048_addr_district_other2",
+      "490":"b049_addr_state_code_other2",
+      "500":"b050_addr_pin_other2",
+      "510":"b051_remarks_instruction",
+      "520":"b052_name_to_print_flag_char",
+      "530":"b053_addr_uid",
+      "540":"b054_addr_house_uid",
+      "550":"b055_addr_street_uid",
+      "560":"b056_addr_location_uid",
+      "570":"b057_addr_landmark_uid",
+      "580":"b058_city_uid",
+      "590":"b059_sub_district_uid",
+      "600":"b060_addr_district_uid",
+      "610":"b061_post_office_uid",
+      "990":"b099_hash"
+    }
+    , "ph": {
+      "10":"p001_line_number",
+      "20":"p002_file_section_type",
+      "30":"p003_bat_ser_no",
+      "40":"p004_printing_num",
+      "50":"p005_photo_size",
+      "60":"p006_photograph",
+      "990":"p099_hash"
+    }
+    , "sh": {
+      "10":"s001_line_number",
+      "20":"s002_file_section_type",
+      "30":"s003_bat_ser_no",
+      "40":"s004_printing_num",
+      "50":"s005_sign_size",
+      "60":"s006_signature",
+      "990":"s099_hash"
+    }
+    , "qh": {
+      "10":"q001_line_number",
+      "20":"q002_file_section_type",
+      "30":"q003_bat_ser_no",
+      "40":"q004_printing_num",
+      "50":"q005_qr_size",
+      "60":"q006_qr",
+      "990":"q099_hash"
+    }
+  }
+  
 }		

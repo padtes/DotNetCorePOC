@@ -3,17 +3,17 @@ https://stackoverflow.com/questions/30101603/merging-concatenating-jsonb-columns
 
 
 insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type) values 
-	('1','couriers','daily master of all couriers-PAN', 'daily', '0', 'pan');
+    ('1','couriers','daily master of all couriers-PAN', 'daily', '0', 'pan');
 
 **get id of above insert- use below
 
 insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type,start_num, end_num, next_num, step) values
-	('1','PST','daily master PST','daily', '**115','pan','1001','9999','1001','1')
+    ('1','PST','daily master PST','daily', '**115','pan','1001','9999','1001','1')
 
 **get id of above insert- use below
 
 insert into ventura.counters(isactive,counter_name, descript, freq_period, parent_id, card_type,start_num, end_num, next_num, step) values
-	('1','TRC','daily master TRC','daily', '**115','pan','13001','19999','13001','1')
+    ('1','TRC','daily master TRC','daily', '**115','pan','13001','19999','13001','1')
 
 
 
@@ -141,14 +141,171 @@ insert into ventura.filetypemaster(isactive, module_name, biztype, file_def_json
 insert into ventura.system_param(biztype, module_name, start_ts_utc, params_json)
 values ('system', 'pan', '2011-06-01',
   '{"inputdir":"c:\\zunk\\pan\\input", "output_par":"pan", "output_pan_corp":"corp", "output_pan_ekyc":"ekyc"
-	, "output_pan_ind":"indv", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
+    , "output_pan_ind":"indv", "photo_max_per_dir":"150", "expect_max_subdir":"9999"
 , "workdir":"c:\\zunk\\pan\\work", "systemdir":"c:\\users\\spadte\\source\\repos\\DotNetCorePOC\\ddl_sql"
 , "printer_code3":"PPP", "printer_code2":"44", "courier_awb_kvcsv":"PST=SPD"
 , "printed_ok_code":"PTD"}'
-	   );
+       );
 
 insert into ventura.filetypemaster(isactive,biztype,module_name, file_def_json_fname, fname_pattern)
 values ('1', 'pan_card_ind','pan', 'pan_pri_card.json', 'pan_{{filetype}}_{{yyyymmdd}}_{{courier_cd}}_{{serial_no}}.csv')
+
+
+-- Aug 28 2022 changes
+
+alter table ventura.counters alter column start_num type bigint;
+alter table ventura.counters alter column end_num type bigint;
+alter table ventura.counters alter column next_num type bigint;
+
+-------------------------------------------
+DROP FUNCTION ventura.get_serial_number(character varying, character varying, character varying, boolean, integer, character varying, character varying);
+-------------------------------------------
+
+CREATE OR REPLACE FUNCTION ventura.get_serial_number(
+    master_type character varying,
+    pdoc_val character varying,
+    card_type_param character varying,
+    init_if_need boolean,
+    lock_id integer,
+    freq_type character varying,
+    freq_val character varying)
+    RETURNS bigint
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    SET search_path="$user", public
+AS $BODY$
+declare 
+  lser_no bigint;
+  lmaster_id INTEGER;
+  child_id INTEGER;
+ 
+  master_start bigint;
+  master_end bigint;
+  master_step INTEGER;
+  nx bigint;
+begin
+  lser_no := -1;
+  lmaster_id := -1;
+  master_start := -1;
+  master_end := -1;
+  master_step := 1;
+  nx := 1;
+  
+  --find master record--
+  if freq_type = '' then
+    select id, coalesce(step, 1)
+    into lmaster_id, master_step
+    from ventura.counters
+    where isactive='1' and counter_name = master_type and parent_id = 0 and coalesce(freq_period, '') = '' and coalesce(card_type, '') =card_type_param;
+  else
+    select id
+    into lmaster_id
+    from ventura.counters
+    where isactive='1' and counter_name = master_type and parent_id = 0 and coalesce(freq_period,'') = freq_type and coalesce(card_type, '') =card_type_param;
+    if found then  -- also find 2nd level master based on freq (daily) + what variation such as courier (PST / PRF)
+      select id, start_num, end_num, coalesce(step, 1) 
+      into lmaster_id, master_start, master_end, master_step
+      from ventura.counters
+      where isactive='1' and counter_name = pdoc_val and parent_id = lmaster_id and coalesce(freq_period, '') = freq_type and coalesce(card_type, '') =card_type_param;
+    else
+      return '-11';  -- cannot add master or intermediate master rec
+    end if;
+  end if;
+  
+  if not found then  -- master rec not found
+    if init_if_need = '1' then
+      if freq_type = '' then
+        insert into ventura.counters (isactive, counter_name, descript, parent_id, step, card_type)
+        values ('1', master_type, 'auto create1', 0, 1, card_type_param) RETURNING id into lmaster_id;
+
+        insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key, card_type)
+        values ('1', pdoc_val, 'auto create2', lmaster_id, 1, 1, 99999, 2, lock_id, card_type_param);
+        
+        lser_no := 1;
+      else
+        return '-21';  -- daily or other periodical intermediate master missing
+      end if;
+    else
+        return '-31';  -- master rec not found, record was expected
+    end if;
+  else  --master rec found
+    if freq_type = '' then
+      select next_num, id 
+      into lser_no, child_id
+      from ventura.counters
+      where isactive='1' and counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+       and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
+       and coalesce(freq_period, '') = ''  -- if not frequency dependent - must be empty
+       and coalesce(card_type, '') =card_type_param
+      order by sort_order, start_num limit 1;
+    else
+      select next_num, id
+      into lser_no, child_id
+      from ventura.counters
+      where isactive='1' and counter_name = pdoc_val and parent_id = lmaster_id and next_num <= end_num 
+       and (lock_key = lock_id or lock_key <= 0 or lock_id <=0)
+       and freq_period = freq_val -- what period like exact date 20210801
+       and coalesce(card_type, '') =card_type_param
+      order by sort_order, start_num limit 1;
+    end if;
+
+    if found then -- child rec found
+      update ventura.counters 
+      set next_num = lser_no + master_step
+      where id =child_id;
+    else -- child rec not found
+      if init_if_need = '1' then
+        if freq_type = '' then
+          insert into ventura.counters (isactive, counter_name, descript, parent_id, start_num, step, end_num, next_num, lock_key, card_type)
+          values ('1', pdoc_val, 'auto create3', lmaster_id, 1, 1, 99999, 2, lock_id, card_type_param);
+        
+          lser_no := 1;
+        else
+            nx := master_start + master_step;
+            insert into ventura.counters (isactive, counter_name, descript, parent_id
+                , start_num, step, end_num, next_num, lock_key, freq_period, card_type)
+            values ('1', pdoc_val, 'auto create4', lmaster_id
+                , master_start, master_step, master_end, nx , lock_id, freq_val, card_type_param);
+
+            lser_no := master_start;
+        end if; --by freq_type		
+      else
+        return '-71'; -- child rec expected but not found
+      end if; -- can add 
+    end if; -- child rec
+    
+ end if; --master rec
+
+  return lser_no;
+ 
+end;
+$BODY$;
+
+ALTER FUNCTION ventura.get_serial_number(character varying, character varying, character varying, boolean, integer, character varying, character varying)
+    OWNER TO postgres;
+
+
+select * from ventura.counters where counter_name = 'couriers_global'
+select * from ventura.counters where parent_id = _id_from_above_
+
+insert into ventura.counters (counter_name, descript,pat,start_num,end_num,next_num, step,sort_order,isactive,parent_id) values
+('PRF', 'Professional Courier','VPL{sequence}{chk_val}','212101001','212301000','212101001','1','1','1','_id_from_above_'),
+('VLX', 'Velex Courier','{sequence}{chk_val}',  '53318025001','53318325000','53318025001','1','1','1','_id_from_above_'),
+('TRC', 'Trackon Courier','{sequence}{chk_val}','62026679101','62027679100','62026679101','1','1','1','_id_from_above_'),
+('SPSD', 'Domestic Speed Post','JN{sequence}{chk_val}IN','18300001','18600000','18300001','1','1','1','_id_from_above_'),
+('SPSF', 'Foreign Speed Post','EA{sequence}{chk_val}IN','01387001','01389000','01387001','1','1','1','_id_from_above_'),
+('PST', 'Normal Post','','1','99999999900','1','1','1','1','_id_from_above_'),
+('VEC', 'Ventura Card','','1','99999999900','1','1','1','1','_id_from_above_');
+
+insert into ventura.couriers (isactive,code,code3,name,awb_params,isvirtual,sort_order) 
+values ('1', 's1','SPSD','speed post Domestic','86423597:11','true','1')
+, ('1', 's2','SPSF','speed post Domestic','86423597:11','true','1')
+,('1', 's1','VEC','Ventura card',null,'false','1')
+, ('1', 'tr','TRC','Trackon Courier','86423597:11','false','1')
+, ('1', 'vl','VLX','Velex Courier','86423597:11','false','1')
+, ('1', 'vl','PRF','Professional Courier','86423597:11','false','1');
+
 
 --- 3 files c:\users\spadte\source\repos\padtes\DotNetCorePOC\ddl_sql\pan_indv_input.json
 

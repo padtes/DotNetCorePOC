@@ -23,7 +23,7 @@ namespace DbOps
             bool recFound = true;
             bool dbOk = true;
             int lockKey = 0;
-            int counterId = -1;
+            Int64 counterId = -1;
             string lockOn = seqSourceCode + "_" + freqValue;
             if (freqValue != "")
                 addIfNeeded = true;
@@ -39,7 +39,7 @@ namespace DbOps
                         lockKey = rand.Next(10, 5000);
                         //lock
                         sql1 = $"SELECT {pgSchema}.lock_counter('{seqName}','{seqSourceCode}','{cardType}','{lockKey}','{(addIfNeeded ? "1" : "0")}','{freqType}','{freqValue}')";
-                        dbOk = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql1, out counterId, out recFound);
+                        dbOk = DbUtil.ExecuteScalarInt64(pgConnection, logProName, "", 0, 0, sql1, out counterId, out recFound);
 
                         if (recFound && counterId > 0)
                         {
@@ -68,7 +68,7 @@ namespace DbOps
             string sql = $"SELECT {pgSchema}.get_serial_number('{seqName}','{seqSourceCode}', '{cardType}', '{(addIfNeeded ? "1" : "0")}', '{lockKey}', '{freqType}','{freqValue}')";
             lock (syncLock)
             {
-                dbOk = DbUtil.ExecuteScalar(pgConnection, logProName, "", 0, 0, sql, out counterId, out recFound);
+                dbOk = DbUtil.ExecuteScalarInt64(pgConnection, logProName, "", 0, 0, sql, out counterId, out recFound);
             }
             if (dbOk == false)
             {
@@ -88,7 +88,7 @@ namespace DbOps
                 retStr = retStr.PadLeft(fixedLen, '0');
             }
 
-            pattern = GetPattern(pgConnection, pgSchema, seqName, freqType);
+            pattern = GetPattern(pgConnection, pgSchema, seqName, freqType, seqSourceCode);
 
             if (unlock)
             {
@@ -97,20 +97,25 @@ namespace DbOps
             return retStr;
         }
 
-        private static string GetPattern(string pgConnection, string pgSchema, string seqName, string freqType)
+        private static string GetPattern(string pgConnection, string pgSchema, string seqName, string freqType, string seqSourceCode)
         {
-            string sql = $"select pat from {pgSchema}.counters where counter_name = '{seqName}' and parent_id = 0";
-            if (freqType != "")
-            {
-                sql += $" and freq_period = '{freqType}'";
-            }
-            else
-            {
-                sql += " and coalesce(freq_period, '') = ''";
-            }
+            string freqFilter = ((freqType != "") ? $" and freq_period = '{freqType}'" : " and coalesce(freq_period, '') = ''");
+            string defaultSql = $"select pat from {pgSchema}.counters where counter_name = '{seqName}' and parent_id = 0";
+            string parentIdSql = $"select id from {pgSchema}.counters where counter_name = '{seqName}' and parent_id = 0";
+
+            string sql = $"select pat from {pgSchema}.counters where counter_name = '{seqSourceCode}' and pat is not null" +
+                $" and isactive = '1' and next_num <= end_num and parent_id in ({parentIdSql})" +
+                 freqFilter + " order by sort_order, start_num limit 1";
+
             try
             {
                 DataTable dt = DbUtil.GetDataTab(pgConnection, logProName, "", 0, sql);
+                if (dt != null && dt.Rows.Count > 0)
+                    return Convert.ToString(dt.Rows[0][0]); //------------- Return applicable pattern
+
+                //---- If detail row pattern not found, go to parent for a common pattern
+
+                dt = DbUtil.GetDataTab(pgConnection, logProName, "", 0, defaultSql);
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     return Convert.ToString(dt.Rows[0][0]);

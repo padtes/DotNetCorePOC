@@ -2,3 +2,6 @@
 
 -moduleName=PAN -op=write -file=pan_card_ind -subfile=all -runfor=20211204
 
+-moduleName=PAN -op=read -file=all -runfor=20210824
+-moduleName=PAN -op=write -file=pan_card_ind -subfile=all -runfor=20210824
+
